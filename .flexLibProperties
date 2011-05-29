@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<flexLibProperties includeAllClasses="true" useMultiPlatformConfig="false" version="3">
+  <includeClasses>
+    <classEntry path="co.uk.baremedia.gnomo.core.MapControls"/>
+    <classEntry path="co.uk.baremedia.gnomo.core.MapServices"/>
+    <classEntry path="co.uk.baremedia.gnomo.core.MapBackgroundProcesses"/>
+    <classEntry path="co.uk.baremedia.gnomo.core.MapModels"/>
+    <classEntry path="co.uk.baremedia.gnomo.core.MapViews"/>
+    <classEntry path="co.uk.baremedia.gnomo.core.MapCommands"/>
+    <classEntry path="co.uk.baremedia.gnomo.core.CoreAppFrameWorkDescriptors"/>
+  </includeClasses>
+  <includeResources/>
+  <namespaceManifests/>
+</flexLibProperties>
