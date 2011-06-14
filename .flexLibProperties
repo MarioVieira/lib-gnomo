@@ -1,13 +1,44 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <flexLibProperties includeAllClasses="true" useMultiPlatformConfig="false" version="3">
   <includeClasses>
-    <classEntry path="co.uk.baremedia.gnomo.core.MapControls"/>
-    <classEntry path="co.uk.baremedia.gnomo.core.MapServices"/>
-    <classEntry path="co.uk.baremedia.gnomo.core.MapBackgroundProcesses"/>
-    <classEntry path="co.uk.baremedia.gnomo.core.MapModels"/>
-    <classEntry path="co.uk.baremedia.gnomo.core.MapViews"/>
-    <classEntry path="co.uk.baremedia.gnomo.core.MapCommands"/>
-    <classEntry path="co.uk.baremedia.gnomo.core.CoreAppFrameWorkDescriptors"/>
+    <classEntry path="uk.co.baremedia.gnomo.core.MapControls"/>
+    <classEntry path="uk.co.baremedia.gnomo.core.MapServices"/>
+    <classEntry path="uk.co.baremedia.gnomo.core.MapBackgroundProcesses"/>
+    <classEntry path="uk.co.baremedia.gnomo.core.MapModels"/>
+    <classEntry path="uk.co.baremedia.gnomo.core.MapCommands"/>
+    <classEntry path="uk.co.baremedia.gnomo.core.CoreAppFrameWorkDescriptors"/>
+    <classEntry path="co.uk.baremedia.gnomo.common.interfaces.IButton"/>
+    <classEntry path="uk.co.baremedia.gnomo.managers.ManagerAudio"/>
+    <classEntry path="uk.co.baremedia.gnomo.controls.ControlPhoneCall"/>
+    <classEntry path="uk.co.baremedia.gnomo.interfaces.IAudioBroadcaster"/>
+    <classEntry path="uk.co.baremedia.gnomo.controls.ControlPlayer"/>
+    <classEntry path="uk.co.baremedia.gnomo.interfaces.ISignalDebug"/>
+    <classEntry path="uk.co.baremedia.gnomo.signals.SignalCrossPlatformExchange"/>
+    <classEntry path="uk.co.baremedia.gnomo.enums.EnumsCrossPlatformExchange"/>
+    <classEntry path="uk.co.baremedia.gnomo.vo.VOCrossPlatformExchange"/>
+    <classEntry path="uk.co.baremedia.gnomo.utils.UtilsCrossPlatformExchange"/>
+    <classEntry path="uk.co.baremedia.gnomo.controls.ControlMessenger"/>
+    <classEntry path="uk.co.baremedia.gnomo.interfaces.IP2PMessenger"/>
+    <classEntry path="uk.co.baremedia.gnomo.signals.SignalChangeMode"/>
+    <classEntry path="uk.co.baremedia.gnomo.vo.VOModeChange"/>
+    <classEntry path="uk.co.baremedia.gnomo.interfaces.ICommand"/>
+    <classEntry path="uk.co.baremedia.gnomo.signals.SignalViewNavigation"/>
+    <classEntry path="uk.co.baremedia.gnomo.commands.CommandViewNavigation"/>
+    <classEntry path="uk.co.baremedia.gnomo.vo.VOViewNavigation"/>
+    <classEntry path="uk.co.baremedia.gnomo.controls.ControlViewNavigator"/>
+    <classEntry path="uk.co.baremedia.gnomo.models.ModelScreens"/>
+    <classEntry path="uk.co.baremedia.gnomo.enums.EnumsScreens"/>
+    <classEntry path="uk.co.baremedia.gnomo.enums.EnumsViewNavigation"/>
+    <classEntry path="uk.co.baremedia.gnomo.vo.VOLanguages"/>
+    <classEntry path="uk.co.baremedia.gnomo.descriptors.DescriptorLanguage"/>
+    <classEntry path="uk.co.baremedia.gnomo.utils.UtilsCreateLanguageFile"/>
+    <classEntry path="uk.co.baremedia.gnomo.backgroundProcess.BackgroundProcessSetupLocalNetwork"/>
+    <classEntry path="uk.co.baremedia.gnomo.backgroundProcess.BackgroundProcessUnitsControl"/>
+    <classEntry path="uk.co.baremedia.gnomo.models.ModelAppState"/>
+    <classEntry path="uk.co.baremedia.gnomo.enums.EnumsAppState"/>
+    <classEntry path="uk.co.baremedia.gnomo.backgroundProcess.BackgroundProcessAppState"/>
+    <classEntry path="uk.co.baremedia.gnomo.backgroundProcess.BackgroundProcessViewNavigator"/>
+    <classEntry path="uk.co.baremedia.gnomo.utils.UtilsNetwork.UtilsNetwork"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

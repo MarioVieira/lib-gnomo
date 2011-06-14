@@ -9,8 +9,13 @@
           <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/core.swc" useDefaultLinkType="false"/>
         </excludedEntries>
       </libraryPathEntry>
-      <libraryPathEntry kind="3" linkType="1" path="/as3-mvcs-injector-descriptor/bin/as3-mvcs-injector-descriptor.swc" useDefaultLinkType="false"/>
       <libraryPathEntry kind="3" linkType="1" path="/cocoon-p2p/bin/cocoon-p2p.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="1" linkType="1" path="libs"/>
+      <libraryPathEntry kind="3" linkType="1" path="/mvcs-injector/bin/mvcs-injector.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="1" linkType="1" path="/GitReps/mvcs-injector/libs"/>
+      <libraryPathEntry kind="3" linkType="1" path="/SwiftSuspenders/bin/SwiftSuspenders.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="/CommandSignal/bin/CommandSignal.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="/AS3Serializer/bin/AS3Serializer.swc" useDefaultLinkType="false"/>
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>

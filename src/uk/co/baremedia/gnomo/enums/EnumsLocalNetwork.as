@@ -1,0 +1,14 @@
+package uk.co.baremedia.gnomo.enums
+{
+	public class EnumsLocalNetwork
+	{
+		public static const GROUP_FEEDBACK_REQUEST:String = "groupFeedbackRequest";
+		public static const BROADCASTER_ROLE_CLAIMED:String = "broadcasterRoleClaimed";
+		public static const RECEIVER_CONNECTED		:String = "receiverConnected";
+		public static const TYPE_PC					:String = "typePc";
+		public static const TYPE_MOBILE				:String = "typeMobile";
+		public static const GROUP_FEEDBACK_RESPONSE :String = "groupFeedbackResponse";
+		public static const MONITOR_FIRST_CONNECTION_DELAY:Number 	= 1000; //1sec
+		public static const MONITOR_CONNECTION_DELAY:Number 		= 3000;
+	}
+}
