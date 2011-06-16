@@ -8,7 +8,7 @@ package uk.co.baremedia.gnomo.interfaces
 
 	public interface IAudioBroadcaster
 	{
-		function broadcastAudioToGroup(microphone:Microphone):void;
+		function broadcastAudioToGroup(microphone:Microphone, orderType:String):void;
 		function get groupNetConnection():NetConnection;
 		function stopBroadcasting():void
 	}

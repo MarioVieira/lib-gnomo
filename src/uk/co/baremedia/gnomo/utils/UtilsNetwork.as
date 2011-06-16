@@ -1,4 +1,4 @@
-package uk.co.baremedia.gnomo.utils.UtilsNetwork
+package uk.co.baremedia.gnomo.utils
 {
 	import flash.net.NetworkInfo;
 	

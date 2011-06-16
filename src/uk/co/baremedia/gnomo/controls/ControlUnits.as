@@ -5,7 +5,6 @@ package uk.co.baremedia.gnomo.controls
 	
 	import org.as3.mvcsInjector.interfaces.IDispose;
 	import org.as3.mvcsInjector.utils.Tracer;
-	import org.osflash.signals.Signal;
 	import org.robotlegs.core.IInitializer;
 	import org.robotlegs.core.IInjector;
 	
@@ -51,7 +50,7 @@ package uk.co.baremedia.gnomo.controls
 		private function setObservers():void
 		{
 			_networkManager.connectionStatus.add(onConnectionStatus);
-			_networkManager.mediaBroadcast.add(onMediaBroadcast);
+			_networkManager.mediaBroadcast.add(onBroadcasterMedia);
 			_networkManager.debug.add(onDebug);
 			_controlAudio.audioNotifier.add(onAudioNotifier);
 		}
@@ -66,28 +65,38 @@ package uk.co.baremedia.gnomo.controls
 		 */		
 		public function setConnectedMode(connected:Boolean):void
 		{
+			notifySystem("setConnectedMode - mode: "+connected);
+			if(connected) tryLocalNetworkConnection();
+			else 		  disconnect();
+			
 			//try connection
-			/*if(_model.localNetworkConnected != connected)
-			{*/
+			/*
+			if(_model.localNetworkConnected != connected)
+			{
 				notifySystem("setConnectedMode - mode: "+connected);
 				if(connected) tryLocalNetworkConnection();
 				else 		  disconnect();
-			//}
-			/*else
-			{*/
-				//notifySystem("setConnectedMode - SAME, NOT CHANGING IT - mode: "+connected);
-			//}
+			}
+			else
+			{
+				notifySystem("setConnectedMode - SAME, NOT CHANGING IT - mode: "+connected);
+			}
+			*/
 		}
-		
 		
 		public function disconnect():void
 		{
 			_networkManager.disconnect();	
 		}
 		
+		public function get hasBroadcasterInfo():Boolean
+		{
+			return (_controlAudio.broadcasterInfo != null);
+		}
+		
 		public function setUnitMode(babyUnitNoParentUnit:Boolean):void
 		{
-			defineUnitMode(babyUnitNoParentUnit);
+			defineUnitMode(babyUnitNoParentUnit, EnumsNotification.BABY_UNIT_TAKEN);
 			
 			/*if(!_model.localNetworkConnected)
 			{
@@ -100,11 +109,44 @@ package uk.co.baremedia.gnomo.controls
 			}*/	
 		}
 		
+		public function listenBroadcaster():void
+		{
+			_controlAudio.listenBroadcaster();
+		}
+		
+		
+		public function stopListening():void
+		{
+			_controlAudio.stopReceivingAudio();
+		}
+		
 		public function requestNoWirelessScreen():void
 		{
 			requestScreen(EnumsScreens.SCREEN_NO_WIRELESS);
 		}
 		
+		public function requestScreenUnits():void
+		{
+			requestScreen(EnumsScreens.SCREEN_UNITS);
+		}
+		
+		public function requestScreenConnect():void
+		{
+			requestScreen(EnumsScreens.SCREEN_CONNECT);
+		}
+		
+		public function requesScreenModes():void
+		{
+			requestScreen(EnumsScreens.SCREEN_MODES);
+		}
+		
+		public function requestLogsScreen():void
+		{
+			requestScreen(EnumsScreens.SCREEN_LOG);
+		}
+
+		/************************************************ PROTECTED *******************************************************/  
+	
 		protected function requestScreen(screenName:String):void
 		{
 			_viewNavigation.requestView(screenName);
@@ -112,18 +154,17 @@ package uk.co.baremedia.gnomo.controls
 		
 		//the mods changes before the audio is broadcasted, so stops audio to receive it, or to wait for it
 		//only called if connected to wireless
-		private function defineUnitMode(babyUnitNoParentUnit:Boolean):void
+		private function defineUnitMode(babyUnitNoParentUnit:Boolean, orderType:String):void
 		{
-			notifySystem("defineUnitMode - babyUnitNoParentUnit: "+babyUnitNoParentUnit);
-			
-			if(babyUnitNoParentUnit && !_controlAudio.broadcasting)
+			//notifySystem("defineUnitMode - babyUnitNoParentUnit: "+babyUnitNoParentUnit);
+			if(babyUnitNoParentUnit)
 			{
 				_controlAudio.stopReceivingAudio();
-				_controlAudio.broadcastAudio();
+				_controlAudio.broadcastAudio(orderType);
 			}
-			else if(!babyUnitNoParentUnit)
+			else
 			{
-				notifySystem("defineUnitMode - _controlAudio.stopBroadcast() ");
+				//notifySystem("defineUnitMode - _controlAudio.stopBroadcast() ");
 				_controlAudio.stopBroadcast();
 			}
 			
@@ -137,7 +178,7 @@ package uk.co.baremedia.gnomo.controls
 		
 		protected function tryLocalNetworkConnection():void
 		{
-			requestScreen(EnumsScreens.SCREEN_CONNECT);
+			requestScreen(EnumsScreens.SCREEN_UNITS);
 			_networkManager.connect();
 			notifySystem(EnumsNotification.CONNECTING);
 		}
@@ -193,9 +234,15 @@ package uk.co.baremedia.gnomo.controls
 			defineConnectedChangeAction(connected);
 		}
 		
-		private function onMediaBroadcast(e:MediaBroadcastEvent):void
+		private function onBroadcasterMedia(e:MediaBroadcastEvent):void
 		{
-			_controlAudio.handleMediaBroadcast(e);
+			Tracer.log(this, "onMediaBroadcast - e.mediaInfo.order: "+e.mediaInfo.order);
+			_controlAudio.broadcasterInfo = e;
+			
+			if(e.mediaInfo.order == EnumsNotification.AUDIO_ACTIVITY)
+			{
+				_controlAudio.handleMediaBroadcast(e);
+			}
 		}
 		
 		private function onDebug(info:VONotifierInfo):void
@@ -217,10 +264,9 @@ package uk.co.baremedia.gnomo.controls
 		{
 			 Tracer.log(this, "dispose");
 			_networkManager.connectionStatus.remove(onConnectionStatus);
-			_networkManager.mediaBroadcast.remove(onMediaBroadcast);
+			_networkManager.mediaBroadcast.remove(onBroadcasterMedia);
 			_networkManager.debug.remove(onDebug);
 			_controlAudio.audioNotifier.remove(onAudioNotifier);
 		}
-		
 	}
 }

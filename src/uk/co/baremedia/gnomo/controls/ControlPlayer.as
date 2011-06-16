@@ -44,8 +44,8 @@ package uk.co.baremedia.gnomo.controls
 		{
 			if(_receiveStream)
 			{
-				_receiveStream.close();
 				_receiveStream.removeEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
+				_receiveStream.close();
 			}
 		}	
 		

@@ -19,5 +19,7 @@ package uk.co.baremedia.gnomo.enums
 		public static const P2P_MESSAGE			 		:String	= "p2pMessage";
 		public static const NOT_ALLOWED_TO_RECEIVE_AUDIO:String = "notAllowedToReceiveAudio";
 		public static const SCREEN_CHANGE		 		:String = "screenChange";
+		public static const AUDIO_ACTIVITY				:String = "audioActivity";
+		public static const BABY_UNIT_TAKEN				:String = "babyUnitTaken";
 	}
 }

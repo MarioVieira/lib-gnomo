@@ -32,7 +32,7 @@ package uk.co.baremedia.gnomo.core
 		 */
 		public function mapRules(injector:IInjector) : void
 		{
-			Tracer.log(this, "mapRules");
+			//Tracer.log(this, "mapRules");
 			injector.mapSingleton(Locale);
 			injector.mapSingleton(ModelReceiver);
 			injector.mapSingleton(ModelDeviceInfo);

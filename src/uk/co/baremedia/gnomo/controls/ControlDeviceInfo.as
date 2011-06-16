@@ -37,7 +37,7 @@ package uk.co.baremedia.gnomo.controls
 			_model.deviceVersion = deviceInfo.deviceVersion;
 			_model.deviceType 	 = deviceInfo.deviceType;
 			
-			Tracer.log(this, "setDeviceInformation - deviceVersion: "+_model.deviceVersion+"  deviceType: "+_model.deviceType);
+			//Tracer.log(this, "setDeviceInformation - deviceVersion: "+_model.deviceVersion+"  deviceType: "+_model.deviceType);
 		}
 		
 		public function get dataChange():Signal

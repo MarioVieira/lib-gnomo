@@ -8,6 +8,12 @@ package uk.co.baremedia.gnomo.models
 	{
 		public var firstViewName	:String;
 		private var _screens		:Vector.<VOScreen>;
+		public var currentScreen	:VOScreen;
+		
+		public function ModelScreens() 
+		{
+				
+		}
 		
 		public function set screens(value:Vector.<VOScreen>):void
 		{

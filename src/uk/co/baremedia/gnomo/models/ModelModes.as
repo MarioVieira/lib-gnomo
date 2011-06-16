@@ -1,8 +1,11 @@
 package uk.co.baremedia.gnomo.models
 {
+	import com.projectcocoon.p2p.events.MediaBroadcastEvent;
+	
 	import org.as3.mvcsInjector.interfaces.IModelChange;
 	import org.osflash.signals.Signal;
 
+	[Bindable] 
 	public class ModelModes extends Signal implements IModelChange
 	{
 		private var _localNetworkConnected	:Boolean;

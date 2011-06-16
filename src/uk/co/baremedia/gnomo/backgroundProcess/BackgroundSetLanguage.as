@@ -31,7 +31,7 @@ package uk.co.baremedia.gnomo.backgroundProcess
 		protected function setLanguage():void
 		{
 			_languageModel.setLanguage(DescriptorLanguage(_locale.locale));
-			Tracer.log(this, "setLanguage() test: "+Locale.screenModesButtonWireless);
+			//Tracer.log(this, "setLanguage() test: "+Locale.screenModesButtonWireless);
 		}
 	}
 }

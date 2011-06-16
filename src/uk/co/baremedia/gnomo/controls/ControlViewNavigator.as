@@ -35,13 +35,17 @@ package uk.co.baremedia.gnomo.controls
 			_screenModel.firstViewName	= firstScreenName;
 			_screenModel.screens 		= screens;
 			_viewNavigator 				= new ViewNavigator(contextView, _screenModel.getScreenClassByName(firstScreenName), null, null, ViewTransition.NONE);
+			_screenModel.currentScreen	= _screenModel.getScreenInfoByName(firstScreenName);
 		}
 			
 		public function navigateToScreen(screenName:String):void
 		{
-			var screenVo:VOScreen = _screenModel.getScreenInfoByName(screenName);
-			defineScreen(screenVo);
-			defineViewChangeAction(screenVo);
+			if(_screenModel.currentScreen.name != screenName)
+			{
+				var screenVo:VOScreen = _screenModel.getScreenInfoByName(screenName);
+				defineScreen(screenVo);
+				defineViewChangeAction(screenVo);
+			}
 		}
 		
 		private function defineViewChangeAction(vo:VOScreen):void
@@ -56,7 +60,9 @@ package uk.co.baremedia.gnomo.controls
 		
 		protected function defineScreen(vo:VOScreen):void
 		{
-		 	Tracer.log(this, "navigateToScreen: "+vo.name);
+			_screenModel.currentScreen = vo;
+			
+			Tracer.log(this, "navigateToScreen: "+vo.name);
 			
 			var transition:String;
 			

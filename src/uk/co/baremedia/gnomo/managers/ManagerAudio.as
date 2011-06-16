@@ -34,6 +34,19 @@ package uk.co.baremedia.gnomo.managers
 			_audioNotifier 		   	= new Signal(VONotifierInfo);
 		}
 		
+		public function get broadcasterInfo():MediaBroadcastEvent
+		{
+			return _modelAudio.broadcasterInfo;
+		}
+		
+		public function set broadcasterInfo(event:MediaBroadcastEvent):void
+		{
+			stopBroadcast();
+			stopReceivingAudio();
+			_modelAudio.broadcasterInfo = event;
+			_modelAudio.broadcasting	= false;
+		}
+		
 		public function get broadcasting():Boolean
 		{
 			return _modelAudio.broadcasting;
@@ -49,7 +62,7 @@ package uk.co.baremedia.gnomo.managers
 			return _playerControl.debug;
 		}
 		
-		public function broadcastAudio():void
+		public function broadcastAudio(orderType:String):void
 		{
 			//requestMicrophone();
 			notifyAudioEvent("broadcastAudio()");
@@ -61,8 +74,9 @@ package uk.co.baremedia.gnomo.managers
 				notifyAudioEvent(EnumsNotification.BROADCATING);
 				notifyAudioEvent("broadcastAudio() - mic: "+mic);
 				_modelAudio.broadcasting = true;
-				_mediaMesseger.broadcastAudioToGroup(mic);
+				_mediaMesseger.broadcastAudioToGroup(mic, orderType);
 				_modelAudio.microphone   = mic;
+				_modelAudio.broadcasterInfo = null;
 			}
 			else
 			{
@@ -77,21 +91,24 @@ package uk.co.baremedia.gnomo.managers
 		
 		public function stopBroadcast():void
 		{
-			notifyAudioEvent("stopBroadacast() - _modelAudio.broadcasting: "+_modelAudio.broadcasting);
+			//notifyAudioEvent("stopBroadacast() - _modelAudio.broadcasting: "+_modelAudio.broadcasting);
 			if(_modelAudio.broadcasting)
 			{
-				notifyAudioEvent("stopBroadacast() - killMicrophone");
+				//notifyAudioEvent("stopBroadacast() - killMicrophone");
 				_mediaMesseger.stopBroadcasting();
 				_modelAudio.broadcasting 	= false;
 			}
 		}
 		
+		public function listenBroadcaster():void
+		{
+			handleMediaBroadcast(_modelAudio.broadcasterInfo);
+		}
 		
 		private function notifyAudioEvent(message:String):void
 		{
 			_audioNotifier.dispatch( new VONotifierInfo(EnumsNotification.AUDIO, message) );
 		}
-		
 		
 		public function handleMediaBroadcast(e:MediaBroadcastEvent):void
 		{

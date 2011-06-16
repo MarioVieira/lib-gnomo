@@ -1,15 +1,5 @@
 package uk.co.baremedia.gnomo.managers
 {
-	import uk.co.baremedia.gnomo.enums.EnumsNotification;
-	import uk.co.baremedia.gnomo.interfaces.IAudioBroadcaster;
-	import uk.co.baremedia.gnomo.interfaces.ILocalNetworkMessenger;
-	import uk.co.baremedia.gnomo.interfaces.INetworkManager;
-	import uk.co.baremedia.gnomo.interfaces.IP2PMessenger;
-	import uk.co.baremedia.gnomo.models.ModelDeviceInfo;
-	import uk.co.baremedia.gnomo.models.ModelNetworkManager;
-	import uk.co.baremedia.gnomo.vo.VOLocalNetworkMessage;
-	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
-	
 	import com.projectcocoon.p2p.LocalNetworkDiscovery;
 	import com.projectcocoon.p2p.events.GroupEvent;
 	import com.projectcocoon.p2p.events.MediaBroadcastEvent;
@@ -23,6 +13,16 @@ package uk.co.baremedia.gnomo.managers
 	import flash.net.NetConnection;
 	
 	import org.osflash.signals.Signal;
+	
+	import uk.co.baremedia.gnomo.enums.EnumsNotification;
+	import uk.co.baremedia.gnomo.interfaces.IAudioBroadcaster;
+	import uk.co.baremedia.gnomo.interfaces.ILocalNetworkMessenger;
+	import uk.co.baremedia.gnomo.interfaces.INetworkManager;
+	import uk.co.baremedia.gnomo.interfaces.IP2PMessenger;
+	import uk.co.baremedia.gnomo.models.ModelDeviceInfo;
+	import uk.co.baremedia.gnomo.models.ModelNetworkManager;
+	import uk.co.baremedia.gnomo.vo.VOLocalNetworkMessage;
+	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
 
 	public class ManagerNetwork implements ILocalNetworkMessenger, IAudioBroadcaster, INetworkManager
 	{
@@ -117,16 +117,17 @@ package uk.co.baremedia.gnomo.managers
 		public function connect():void
 		{
 			//Tracer.log(this, "connect");
-			
 			if(_groupConnected) keepAlive(true);
 			else 			   	_noConnection.dispatch();
 		}
 		
-		public function disconnect():void
+		public function disconnect(switchOff:Boolean = false):void
 		{
 			//Tracer.log(this, "disconnect");
 			keepAlive(false);
+			if(switchOff) _localNetwork.close();
 		}
+		
 		
 		public function get deviceType():String
 		{
@@ -144,10 +145,10 @@ package uk.co.baremedia.gnomo.managers
 			return _localNetwork.groupNetConnection();
 		}
 		
-		public function broadcastAudioToGroup(microphone:Microphone):void
+		public function broadcastAudioToGroup(microphone:Microphone, orderType:String):void
 		{
 			_localNetwork.microphone = microphone;
-			_localNetwork.startBrodcast();
+			_localNetwork.startBrodcast(orderType);
 		}
 		
 		public function stopBroadcasting():void
@@ -177,7 +178,7 @@ package uk.co.baremedia.gnomo.managers
 		
 		protected function onMedia(event:MediaBroadcastEvent):void
 		{
-			//Tracer.log(this, "onMedia - event.mediaInfo.mediaType: "+event.mediaInfo.mediaType);
+			Tracer.log(this, "onMedia - mediaInfo.order: "+event.mediaInfo.order);
 			keepAlive(true);
 			_mediaBroadcast.dispatch(event);
 		}

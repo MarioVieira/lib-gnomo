@@ -26,8 +26,10 @@ package uk.co.baremedia.gnomo.utils.transitions
 
 	public class ViewNavigator
 	{
-		private static const ADD_CHILD:String = "addChild";
-		private static const ADD_ELEMENT:String = "addElement";
+		private static const ADD_CHILD		:String = "addChild";
+		private static const ADD_ELEMENT	:String = "addElement";
+		private static const REMOVE_CHILD	:String = "removeChild";
+		private static const REMOVE_ELEMENT	:String = "removeElement";
 		protected var parent:Sprite;
 		
 		protected var views:Vector.<ViewReference> = new Vector.<ViewReference>;
@@ -40,6 +42,7 @@ package uk.co.baremedia.gnomo.utils.transitions
 		 * Views transition duration, default value is 0.5s.
 		 */
 		public var transitionTime:Number = 0.5;
+		
 		
 		/**
 		 * ViewNavigator constructor.
@@ -125,8 +128,7 @@ package uk.co.baremedia.gnomo.utils.transitions
 			
 			// Adding view to the parent
 			// ADDED BY MARIO VIEIRA
-			if(hasOwnProperty(ADD_CHILD)) parent.addChild(dispObj);
-			else 						  parent[ADD_ELEMENT].call(null, dispObj);
+			addChild(dispObj);
 
 			var currentView:ViewReference;
 			if (views.length > 0)
@@ -150,8 +152,7 @@ package uk.co.baremedia.gnomo.utils.transitions
 						{
 							if (currentView)
 							{
-								hasRemoveChild()
-								parent.removeChild(currentView.view);
+								removeChild(currentView.view);
 							}
 						}
 						});
@@ -159,7 +160,7 @@ package uk.co.baremedia.gnomo.utils.transitions
 			else
 			{
 				if (currentView)
-					parent.removeChild(currentView.view);
+					removeChild(currentView.view);
 				dispObj.x = 0;
 			}
 			
@@ -199,7 +200,7 @@ package uk.co.baremedia.gnomo.utils.transitions
 						// Removing top view from the stack
 						views.pop();
 						// Removing view from parent
-						parent.removeChild(currentView.view);
+						removeChild(currentView.view);
 						
 						// Setting context of popped view
 						_poppedViewContext = currentView.context;
@@ -220,7 +221,8 @@ package uk.co.baremedia.gnomo.utils.transitions
 				
 				if (belowView)
 				{
-					parent.addChild(belowView.view);
+					addChild(belowView.view);
+					
 					if (transition == ViewTransition.SLIDE)
 						// Tweening view from below
 						Tweener.addTween(belowView.view, {x : 0, time : transitionTime});
@@ -321,9 +323,16 @@ package uk.co.baremedia.gnomo.utils.transitions
 			return _poppedViewContext;
 		}
 		
-		private function hasRemoveChild(object:Object):void
+		protected function removeChild(object:DisplayObject):void
 		{
-			
+			if(parent.hasOwnProperty(REMOVE_ELEMENT)) parent[REMOVE_ELEMENT].call(null, object); 
+			else								 	  parent.addChild(object);
+		}
+
+		protected function addChild(object:DisplayObject):void
+		{
+			if(parent.hasOwnProperty(ADD_ELEMENT)) parent[ADD_ELEMENT].call(null, object);
+			else								   parent.addChild(object);								   	 
 		}
 
 	}

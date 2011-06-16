@@ -106,7 +106,7 @@ package uk.co.baremedia.gnomo.managers
 			if(!reset)_requestCount++
 			else _requestCount = 0;
 			
-			return (_requestCount > 1);
+			return (_requestCount > 2);
 		}
 		
 		private function broadcastToGroup(requestNotResponseFeeback:Boolean):void

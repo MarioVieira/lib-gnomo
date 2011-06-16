@@ -20,7 +20,7 @@ package uk.co.baremedia.gnomo.interfaces
 
 		function connect():void;
 
-		function disconnect():void;
+		function disconnect(switchOff:Boolean = false):void;
 
 		function get deviceType():String;
 

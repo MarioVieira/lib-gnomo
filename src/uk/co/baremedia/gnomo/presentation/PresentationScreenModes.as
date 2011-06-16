@@ -13,8 +13,8 @@ package uk.co.baremedia.gnomo.presentation
 	import uk.co.baremedia.gnomo.signals.SignalNotifier;
 	import uk.co.baremedia.gnomo.signals.SignalViewNavigation;
 	import uk.co.baremedia.gnomo.utils.UtilsDeviceInfo;
+	import uk.co.baremedia.gnomo.utils.UtilsNetwork;
 	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
-	import uk.co.baremedia.gnomo.utils.UtilsNetwork.UtilsNetwork;
 	
 	public class PresentationScreenModes
 	{
@@ -81,20 +81,21 @@ package uk.co.baremedia.gnomo.presentation
 			if(isMobileType)
 			{
 				Tracer.log( this, "connectPhoneMode()" );
-				setConnectedMode(false);
+				_controlUnits.setConnectedMode(false);
 			}
 		}
 		
 		private function setWirelessMode():void
 		{
 			
-			if(UtilsNetwork.hasWiFiConnection()) setConnectedMode(true);
+			if(UtilsNetwork.hasWiFiConnection()) requestScreenConnect();
 			else								 _controlUnits.requestNoWirelessScreen();
 		}	
 
-		private function setConnectedMode(wirelessNotPhone:Boolean):void
+		private function requestScreenConnect():void
 		{
-			_controlUnits.setConnectedMode(wirelessNotPhone);
+			if(UtilsNetwork.hasWiFiConnection()) _controlUnits.requestScreenConnect();
+			else								 _controlUnits.requestNoWirelessScreen();
 		}
 	}
 }

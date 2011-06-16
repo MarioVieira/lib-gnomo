@@ -22,16 +22,16 @@ package uk.co.baremedia.gnomo.descriptors
 		
 		//screen baby and parent unit
 		public var screenUnitsTextSetABabyUnit				:String;
-		public var screenUnitsTextConnecting					:String;
-		public var screnUnitsTextConnected					:String;
-		public var screnUnitsTextBabyUnit					:String;
-		public var screnUnitsTextParentUnit					:String;
-		public var screenUnitsTextSensibiity					:String;
+		public var screenUnitsTextConnecting				:String;
+		public var screenUnitsTextConnected					:String;
+		public var screenUnitsTextBabyUnit					:String;
+		public var screenUnitsTextParentUnit					:String;
+		public var screenUnitsTextSensibiity				:String;
 		
-		public var screnUnitsButtonSetAsBabyUnit			:String;
+		public var screenUnitsButtonSetAsBabyUnit			:String;
 		public var screenUnitsButtonListenNow				:String;
 		public var screenUnitsButtonSwapModes				:String;
-		public var screenUnitsButtonLogs						:String;
+		public var screenUnitsButtonLogs					:String;
 		public var screenUnitsButtonDisconnect				:String;
 		
 		//screen try to connect, it was not possible
@@ -44,5 +44,10 @@ package uk.co.baremedia.gnomo.descriptors
 		public var screenPhoneTextTimer 					:String;
 		public var screenPhoneButtonTest					:String;
 		public var screenPhoneButtonStart					:String;
+	
+		//common
+		public var buttonBack								:String;
+		public var buttonQuit								:String;
+		public var screenUnitsButtonStopListening			:String;
 	}
 }

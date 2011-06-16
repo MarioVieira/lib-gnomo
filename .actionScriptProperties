@@ -12,10 +12,11 @@
       <libraryPathEntry kind="3" linkType="1" path="/cocoon-p2p/bin/cocoon-p2p.swc" useDefaultLinkType="false"/>
       <libraryPathEntry kind="1" linkType="1" path="libs"/>
       <libraryPathEntry kind="3" linkType="1" path="/mvcs-injector/bin/mvcs-injector.swc" useDefaultLinkType="false"/>
-      <libraryPathEntry kind="1" linkType="1" path="/GitReps/mvcs-injector/libs"/>
       <libraryPathEntry kind="3" linkType="1" path="/SwiftSuspenders/bin/SwiftSuspenders.swc" useDefaultLinkType="false"/>
       <libraryPathEntry kind="3" linkType="1" path="/CommandSignal/bin/CommandSignal.swc" useDefaultLinkType="false"/>
       <libraryPathEntry kind="3" linkType="1" path="/AS3Serializer/bin/AS3Serializer.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="/RobotlegsInitializer/bin/RobotlegsInitializer.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="/Signals/bin/Signals.swc" useDefaultLinkType="false"/>
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>

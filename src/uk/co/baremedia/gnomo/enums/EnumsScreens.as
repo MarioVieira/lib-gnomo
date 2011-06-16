@@ -10,5 +10,6 @@ package uk.co.baremedia.gnomo.enums
 		public static var SCREEN_PHONE			:String = "screenPhone";
 		public static var SCREEN_DISCONNECTED	:String = "screenDisconnected";
 		public static var SCREEN_PHONE_MODE		:String = "screenPhoneMode";
+		public static var SCREEN_LOG			:String = "screenLog";
 	}
 }

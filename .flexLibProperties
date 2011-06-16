@@ -31,14 +31,14 @@
     <classEntry path="uk.co.baremedia.gnomo.enums.EnumsViewNavigation"/>
     <classEntry path="uk.co.baremedia.gnomo.vo.VOLanguages"/>
     <classEntry path="uk.co.baremedia.gnomo.descriptors.DescriptorLanguage"/>
-    <classEntry path="uk.co.baremedia.gnomo.utils.UtilsCreateLanguageFile"/>
+    <classEntry path="uk.co.baremedia.gnomo.utils.UtilsLocale"/>
     <classEntry path="uk.co.baremedia.gnomo.backgroundProcess.BackgroundProcessSetupLocalNetwork"/>
     <classEntry path="uk.co.baremedia.gnomo.backgroundProcess.BackgroundProcessUnitsControl"/>
     <classEntry path="uk.co.baremedia.gnomo.models.ModelAppState"/>
     <classEntry path="uk.co.baremedia.gnomo.enums.EnumsAppState"/>
     <classEntry path="uk.co.baremedia.gnomo.backgroundProcess.BackgroundProcessAppState"/>
     <classEntry path="uk.co.baremedia.gnomo.backgroundProcess.BackgroundProcessViewNavigator"/>
-    <classEntry path="uk.co.baremedia.gnomo.utils.UtilsNetwork.UtilsNetwork"/>
+    <classEntry path="uk.co.baremedia.gnomo.utils.UtilsNetwork"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>
