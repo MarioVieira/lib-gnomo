@@ -39,6 +39,7 @@
     <classEntry path="uk.co.baremedia.gnomo.backgroundProcess.BackgroundProcessAppState"/>
     <classEntry path="uk.co.baremedia.gnomo.backgroundProcess.BackgroundProcessViewNavigator"/>
     <classEntry path="uk.co.baremedia.gnomo.utils.UtilsNetwork"/>
+    <classEntry path="uk.co.baremedia.gnomo.controls.ControlLogs"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

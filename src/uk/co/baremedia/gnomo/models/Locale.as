@@ -62,5 +62,9 @@ package uk.co.baremedia.gnomo.models
 		public static function get screenTryConnetingAgainButtonSwapModes	():String { return  _descriptor.screenTryConnetingAgainButtonSwapModes };
 		public static function get buttonBack								():String { return  _descriptor.buttonBack };
 		public static function get buttonQuit								():String { return  _descriptor.buttonQuit };
+		
+		//screen try to connect, it was not possible
+		public static function get screenLogsTextActivity					():String { return  _descriptor.screenLogsTextActivity };
+		public static function get screenLogsPrevious						():String { return  _descriptor.screenLogsPrevious };
 	}
 }

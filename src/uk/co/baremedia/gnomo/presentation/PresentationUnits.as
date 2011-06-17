@@ -96,7 +96,7 @@ package uk.co.baremedia.gnomo.presentation
 		
 		public function showLogs():void
 		{
-			_controlUnits.requestLogsScreen();
+			_controlUnits.requestScreenLogsMain();
 		}
 		
 		public function swapModesOrQuit():void

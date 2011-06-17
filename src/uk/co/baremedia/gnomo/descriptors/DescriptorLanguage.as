@@ -49,5 +49,9 @@ package uk.co.baremedia.gnomo.descriptors
 		public var buttonBack								:String;
 		public var buttonQuit								:String;
 		public var screenUnitsButtonStopListening			:String;
+		
+		//logs
+		public var screenLogsTextActivity					:String = "activity log:";
+		public var screenLogsPrevious						:String = "previous:";
 	}
 }

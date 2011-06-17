@@ -140,9 +140,9 @@ package uk.co.baremedia.gnomo.controls
 			requestScreen(EnumsScreens.SCREEN_MODES);
 		}
 		
-		public function requestLogsScreen():void
+		public function requestScreenLogsMain():void
 		{
-			requestScreen(EnumsScreens.SCREEN_LOG);
+			requestScreen(EnumsScreens.SCREEN_LOG_MAIN);
 		}
 
 		/************************************************ PROTECTED *******************************************************/  

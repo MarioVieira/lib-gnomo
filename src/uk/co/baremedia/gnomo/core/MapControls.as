@@ -8,6 +8,7 @@ package uk.co.baremedia.gnomo.core
 	import uk.co.baremedia.gnomo.controls.ControlAudioMonitor;
 	import uk.co.baremedia.gnomo.controls.ControlBroadcaster;
 	import uk.co.baremedia.gnomo.controls.ControlDeviceInfo;
+	import uk.co.baremedia.gnomo.controls.ControlLogs;
 	import uk.co.baremedia.gnomo.controls.ControlMessenger;
 	import uk.co.baremedia.gnomo.controls.ControlPhoneCall;
 	import uk.co.baremedia.gnomo.controls.ControlSettings;
@@ -46,6 +47,7 @@ package uk.co.baremedia.gnomo.core
 			injector.mapSingleton(LocalNetworkDiscovery);
 			injector.mapSingletonOf(IP2PMessenger, ControlMessenger);
 			injector.mapSingleton(ControlViewNavigator);
+			injector.mapSingleton(ControlLogs);
 		}
 	}
 }
