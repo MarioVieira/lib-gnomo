@@ -34,15 +34,16 @@ package uk.co.baremedia.gnomo.core
 		{
 			//Tracer.log(this, "mapRules");
 			injector.mapSingleton(Locale);
-			injector.mapSingleton(ModelReceiver);
+			injector.mapSingleton(ModelAudio);
 			injector.mapSingleton(ModelDeviceInfo);
 			injector.mapSingleton(ModelSettings);
 			injector.mapSingleton(ModelModes);
 			injector.mapSingleton(ModelNetworkManager);
-			injector.mapSingleton(ModelAudio);
 			injector.mapSingleton(ModelBroadcaster);
 			injector.mapSingleton(ModelScreens);
 			injector.mapSingleton(ModelAppState);
+			
+			//injector.mapSingleton(ModelReceiver);
 		}
 	}
 }

@@ -1,5 +1,12 @@
 package uk.co.baremedia.gnomo.managers
 {
+	import com.projectcocoon.p2p.events.MediaBroadcastEvent;
+	
+	import flash.media.Microphone;
+	
+	import org.osflash.signals.Signal;
+	
+	import uk.co.baremedia.gnomo.controls.ControlAudioMonitor;
 	import uk.co.baremedia.gnomo.controls.ControlPlayer;
 	import uk.co.baremedia.gnomo.enums.EnumsNotification;
 	import uk.co.baremedia.gnomo.interfaces.IAudioBroadcaster;
@@ -8,25 +15,21 @@ package uk.co.baremedia.gnomo.managers
 	import uk.co.baremedia.gnomo.signals.SignalCrossPlatformExchange;
 	import uk.co.baremedia.gnomo.utils.UtilsMedia;
 	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
-	
-	import com.projectcocoon.p2p.events.MediaBroadcastEvent;
-	
-	import flash.media.Microphone;
-	
-	import org.osflash.signals.Signal;
 
 	public class ManagerAudio
 	{
-		protected var _mediaMesseger	:IAudioBroadcaster;
-		protected var _modelAudio		:ModelAudio;
-		protected var _audioNotifier	:Signal;
-		protected var _deviceType		:String;
-		protected var _playerControl	:ControlPlayer;
-		private var _crossPlatformExchange:SignalCrossPlatformExchange;
+		protected var _mediaMesseger		:IAudioBroadcaster;
+		protected var _modelAudio			:ModelAudio;
+		protected var _audioNotifier		:Signal;
+		protected var _deviceType			:String;
+		protected var _playerControl		:ControlPlayer;
+		private var _crossPlatformExchange	:SignalCrossPlatformExchange;
+		private var _audioMonitor			:ControlAudioMonitor;
 		
-		public function ManagerAudio(mediaMesseger:IAudioBroadcaster, model:ModelAudio, deviceType:String, crossPlatformExchage:SignalCrossPlatformExchange)
+		public function ManagerAudio(mediaMesseger:IAudioBroadcaster, controlAudioMonitor:ControlAudioMonitor, model:ModelAudio, deviceType:String, crossPlatformExchage:SignalCrossPlatformExchange)
 		{
 			_playerControl 			= new ControlPlayer(mediaMesseger);
+			_audioMonitor			= controlAudioMonitor;
 			_mediaMesseger 			= mediaMesseger;
 			_modelAudio	   			= model;
 			_deviceType    			= deviceType;
@@ -42,9 +45,10 @@ package uk.co.baremedia.gnomo.managers
 		public function set broadcasterInfo(event:MediaBroadcastEvent):void
 		{
 			stopBroadcast();
-			stopReceivingAudio();
+			stopPlayingAudio();
 			_modelAudio.broadcasterInfo = event;
 			_modelAudio.broadcasting	= false;
+			_audioMonitor.stopAcitivityMonitor();
 		}
 		
 		public function get broadcasting():Boolean
@@ -77,6 +81,8 @@ package uk.co.baremedia.gnomo.managers
 				_mediaMesseger.broadcastAudioToGroup(mic, orderType);
 				_modelAudio.microphone   = mic;
 				_modelAudio.broadcasterInfo = null;
+				
+				_audioMonitor.startActivityMonitor();
 			}
 			else
 			{
@@ -84,9 +90,9 @@ package uk.co.baremedia.gnomo.managers
 			}
 		}
 		
-		public function stopReceivingAudio():void
+		public function stopPlayingAudio():void
 		{
-			_playerControl.stopAudio();	
+			_playerControl.stopAudio();
 		}
 		
 		public function stopBroadcast():void
@@ -97,6 +103,7 @@ package uk.co.baremedia.gnomo.managers
 				//notifyAudioEvent("stopBroadacast() - killMicrophone");
 				_mediaMesseger.stopBroadcasting();
 				_modelAudio.broadcasting 	= false;
+				_audioMonitor.stopAcitivityMonitor();
 			}
 		}
 		
@@ -119,6 +126,11 @@ package uk.co.baremedia.gnomo.managers
 			{
 				_playerControl.playStream(e.mediaInfo);
 			}
+		}
+		
+		public function setSensibility(slideValue:Number):void
+		{
+			_audioMonitor.setSensibility(slideValue);
 		}
 	}
 }

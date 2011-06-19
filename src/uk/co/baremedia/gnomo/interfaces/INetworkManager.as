@@ -14,6 +14,8 @@ package uk.co.baremedia.gnomo.interfaces
 		
 		function get mediaBroadcast():Signal;
 		
+		function get audioActivityMessage():Signal;
+		
 		function get debug():Signal;
 
 		function keepAlive(startNotStopMonitor:Boolean):void;

@@ -31,12 +31,13 @@ package uk.co.baremedia.gnomo.utils
 		}
 		*/
 
-		public static function getMessage(messageType:String, deviceType:String):VOLocalNetworkMessage
+		public static function getMessage(messageType:String, deviceType:String, startNotStopAudio:Boolean = false):VOLocalNetworkMessage
 		{
 			var vo:VOLocalNetworkMessage = new VOLocalNetworkMessage();
 			
-			vo.deviceType 	= deviceType;
-			vo.messageType 	= messageType;
+			vo.deviceType 		 = deviceType;
+			vo.messageType 		 = messageType;
+			vo.startNotStopAudio = startNotStopAudio;
 			
 			return vo;
 		}

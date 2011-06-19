@@ -26,8 +26,9 @@ package uk.co.baremedia.gnomo.controls
 	
 	public class ControlUnits implements IInitializer, IDispose
 	{
-		protected var _controlAudio			:ManagerAudio;
+		
 		protected var _networkManager	    :INetworkManager;
+		protected var _controlAudio			:ManagerAudio;
 		protected var _model				:ModelModes;
 		protected var _modelDeviceInfo		:ModelDeviceInfo;
 		protected var _appNotifier			:SignalNotifier;
@@ -42,7 +43,7 @@ package uk.co.baremedia.gnomo.controls
 			_viewNavigation		= injector.getInstance(SignalViewNavigation);
 			
 			_networkManager 	= new ManagerNetwork( injector.getInstance(LocalNetworkDiscovery), injector.getInstance(IP2PMessenger), injector.getInstance(ModelNetworkManager) );
-			_controlAudio		= new ManagerAudio(_networkManager, injector.getInstance(ModelAudio), _modelDeviceInfo.deviceType, injector.getInstance(SignalCrossPlatformExchange) );
+			_controlAudio		= new ManagerAudio(_networkManager, injector.getInstance(ControlAudioMonitor), injector.getInstance(ModelAudio), _modelDeviceInfo.deviceType, injector.getInstance(SignalCrossPlatformExchange) );
 			
 			setObservers();
 		}
@@ -51,10 +52,25 @@ package uk.co.baremedia.gnomo.controls
 		{
 			_networkManager.connectionStatus.add(onConnectionStatus);
 			_networkManager.mediaBroadcast.add(onBroadcasterMedia);
+			_networkManager.audioActivityMessage.add(onAudioActivityMessage);
 			_networkManager.debug.add(onDebug);
 			_controlAudio.audioNotifier.add(onAudioNotifier);
+			
 		}
-
+		
+		private function onAudioActivityMessage(startNotStopAudio:Boolean):void
+		{
+			Tracer.log(this, "onAudioActivityMessage - startNotStopAudio: "+startNotStopAudio+" hasBroadcasterInfo: "+hasBroadcasterInfo);
+			
+			if(hasBroadcasterInfo && startNotStopAudio)
+			{
+				listenBroadcaster();
+			}
+			else if(hasBroadcasterInfo)
+			{
+				stopListening();
+			}
+		}
 	
 		/**
 		 * 
@@ -117,7 +133,7 @@ package uk.co.baremedia.gnomo.controls
 		
 		public function stopListening():void
 		{
-			_controlAudio.stopReceivingAudio();
+			_controlAudio.stopPlayingAudio();
 		}
 		
 		public function requestNoWirelessScreen():void
@@ -159,7 +175,7 @@ package uk.co.baremedia.gnomo.controls
 			//notifySystem("defineUnitMode - babyUnitNoParentUnit: "+babyUnitNoParentUnit);
 			if(babyUnitNoParentUnit)
 			{
-				_controlAudio.stopReceivingAudio();
+				_controlAudio.stopPlayingAudio();
 				_controlAudio.broadcastAudio(orderType);
 			}
 			else
@@ -193,7 +209,7 @@ package uk.co.baremedia.gnomo.controls
 		
 		private function stopAudio():void
 		{
-			_controlAudio.stopReceivingAudio();
+			_controlAudio.stopPlayingAudio();
 			_controlAudio.stopBroadcast();
 		}
 		
@@ -267,6 +283,11 @@ package uk.co.baremedia.gnomo.controls
 			_networkManager.mediaBroadcast.remove(onBroadcasterMedia);
 			_networkManager.debug.remove(onDebug);
 			_controlAudio.audioNotifier.remove(onAudioNotifier);
+		}
+		
+		public function setSensibility(slideValue:Number):void
+		{
+			_controlAudio.setSensibility(slideValue);
 		}
 	}
 }

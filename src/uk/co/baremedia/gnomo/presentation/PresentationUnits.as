@@ -112,7 +112,8 @@ package uk.co.baremedia.gnomo.presentation
 		
 		public function setSensibility(sliderValue:Number):void
 		{
-			Tracer.log(this, "setSensibility"); 	
+			//Tracer.log(this, "setSensibility");
+			_controlUnits.setSensibility(sliderValue * 10);
 		}
 		
 		private function onModelAudio(change:String):void

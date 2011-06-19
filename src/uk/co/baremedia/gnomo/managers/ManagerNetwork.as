@@ -37,6 +37,7 @@ package uk.co.baremedia.gnomo.managers
 		
 		private var _groupConnected			:Boolean;
 		private var _keepAlive 				:Boolean = true;
+		private var _audioActivity			:Signal;
 		
 		public function ManagerNetwork(localNetwork:LocalNetworkDiscovery, messenger:IP2PMessenger, model:ModelNetworkManager)
 		{
@@ -47,6 +48,7 @@ package uk.co.baremedia.gnomo.managers
 			_mediaBroadcast 	= new Signal(MediaBroadcastEvent);
 			_noConnection		= new Signal();
 			_debug				= new Signal();
+			_audioActivity		= new Signal();
 			
 			registerClassesForSerialization();
 			setupLocalNetwork(deviceType);
@@ -61,6 +63,11 @@ package uk.co.baremedia.gnomo.managers
 		public function get mediaBroadcast():Signal
 		{
 			return _mediaBroadcast;
+		}
+		
+		public function get audioActivityMessage():Signal
+		{
+			return _audioActivity;
 		}
 
 		public function get noConnection():Signal
@@ -158,7 +165,14 @@ package uk.co.baremedia.gnomo.managers
 		
 		protected function defineMessageOperation(message:VOLocalNetworkMessage):void
 		{
-			_controlNetworkMonitor.defineMessageOperation(message);
+			if(message.messageType == EnumsNotification.AUDIO_ACTIVITY)
+			{
+				_audioActivity.dispatch(message.startNotStopAudio);
+			}
+			else
+			{
+				_controlNetworkMonitor.defineMessageOperation(message);
+			}
 		}
 		
 		/************************************************************************

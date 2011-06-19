@@ -13,14 +13,42 @@ package uk.co.baremedia.gnomo.models
 	{
 		public static const BROADCASTER_MEDIA_AVAILABLE :String = "broadcasterMediaAvailable";
 		public static const BROADCAST_CHANGE 			:String = "broadcast";
-		public static const ACTIVITY_CHANGE  			:String = "audio";
+		public static const ACTIVITY_CHANGE  			:String = "activityChange";
 		public static const RECEIVING 		 			:String = "receiving";
+		public static const SENSIBILITY_CHANGE			:String = "sensibilityChange";
+		public static const DEFAULT_SENSISBILIY			:Number = 50;
 		
-		public var microphone		:Microphone;
+		public var microphone			:Microphone;
 		
-		private var _receiving		:Boolean;
-		private var _broadcasting	:Boolean;
-		private var _broadcasterInfo:MediaBroadcastEvent;
+		private var _receiving			:Boolean;
+		private var _broadcasting		:Boolean;
+		private var _sensibilityLevel	:Number	= DEFAULT_SENSISBILIY;
+		private var _broadcasterInfo	:MediaBroadcastEvent;
+		private var _audioActvity		:Boolean;
+		
+		
+		public function set audioActvity(value:Boolean):void
+		{
+			_audioActvity = value;
+			broadcastModelChange(ACTIVITY_CHANGE);
+		}
+		
+		public function get audioActvity():Boolean
+		{
+			return _audioActvity;
+		}
+		
+		public function set sensibilityLevel(value:Number):void
+		{
+			Tracer.log(this, "sensibilityLevel - value: "+value);
+			_sensibilityLevel = value;
+			broadcastModelChange(SENSIBILITY_CHANGE);
+		}
+		
+		public function get sensibilityLevel():Number
+		{
+			return _sensibilityLevel;
+		}
 		
 		public function set receiving(value:Boolean):void
 		{
