@@ -40,6 +40,9 @@
     <classEntry path="uk.co.baremedia.gnomo.backgroundProcess.BackgroundProcessViewNavigator"/>
     <classEntry path="uk.co.baremedia.gnomo.utils.UtilsNetwork"/>
     <classEntry path="uk.co.baremedia.gnomo.controls.ControlLogs"/>
+    <classEntry path="uk.co.baremedia.gnomo.utils.UtilsResources"/>
+    <classEntry path="uk.co.baremedia.gnomo.enums.EnumsLanguage"/>
+    <classEntry path="assets.Images"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>
