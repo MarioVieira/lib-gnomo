@@ -16,8 +16,11 @@ package uk.co.baremedia.gnomo.managers
 		private var _feedbackRequestTimer		: Timer;
 		private var _connectionIdentifier		: Signal;
 		private var _requestCount				: int;
+		private var _connected					: Boolean;
 		
 		public var monitorDebug					: Signal;
+		
+		
 		
 		public function ManagerNetworkMonitor(localNetworkMessenger:IP2PMessenger)
 		{
@@ -39,7 +42,7 @@ package uk.co.baremedia.gnomo.managers
 			{
 				debug("1st CONNECTION TIME: "+delay);
 				_feedbackRequestTimer = new Timer(delay);
-				_feedbackRequestTimer.addEventListener(TimerEvent.TIMER, onGroupFeedbackTimerRequest);
+				_feedbackRequestTimer.addEventListener(TimerEvent.TIMER, onGroupFeedbackTimeoutRequest);
 			}
 			else if(_feedbackRequestTimer.delay != delay)
 			{
@@ -81,18 +84,22 @@ package uk.co.baremedia.gnomo.managers
 		
 		/**
 		 *
-		 * This is the handler og the group feedback request timer. When called it means no group feedback has been provided, therefore no connection.
+		 * This is the handler for the group feedback request timer. When called it means no group feedback has been provided, therefore no connection.
 		 *  
 		 * @param event
 		 * 
 		 */		
 		
-		private function onGroupFeedbackTimerRequest(event:TimerEvent):void
+		private function onGroupFeedbackTimeoutRequest(event:TimerEvent):void
 		{
 			broadcastToGroup(true);
+			
+			//var canBroadcastConnectionStatus:Boolean = (_connected) ? hasExceededWaiting() : true;
 			if( hasExceededWaiting() )
 			{
 				debug("NO GROUP FEEDBACK");
+				_connected = false;
+				hasExceededWaiting(true);
 				handleConnectionStatus(false);
 			}
 			else
@@ -103,7 +110,7 @@ package uk.co.baremedia.gnomo.managers
 		
 		private function hasExceededWaiting(reset:Boolean = false):Boolean
 		{
-			if(!reset)_requestCount++
+			if(!reset) _requestCount++
 			else _requestCount = 0;
 			
 			return (_requestCount > 2);
@@ -142,6 +149,7 @@ package uk.co.baremedia.gnomo.managers
 		
 		private function groupFeebackReceived():void
 		{
+			_connected = true;
 			broadcastConnectionStatus(true);
 			handleConnectionStatus(true);
 			debug("GROUP FEEDBACK RECEIVED");

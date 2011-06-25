@@ -43,6 +43,11 @@
     <classEntry path="uk.co.baremedia.gnomo.utils.UtilsResources"/>
     <classEntry path="uk.co.baremedia.gnomo.enums.EnumsLanguage"/>
     <classEntry path="assets.Images"/>
+    <classEntry path="uk.co.baremedia.gnomo.models.ModelSharedObject"/>
+    <classEntry path="uk.co.baremedia.gnomo.controls.ControlPersistedData"/>
+    <classEntry path="uk.co.baremedia.gnomo.vo.VOLogs"/>
+    <classEntry path="uk.co.baremedia.gnomo.vo.VOLog"/>
+    <classEntry path="uk.co.baremedia.gnomo.presentation.PresentationShell"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

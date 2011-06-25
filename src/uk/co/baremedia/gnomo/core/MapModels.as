@@ -15,6 +15,7 @@ package uk.co.baremedia.gnomo.core
 	import uk.co.baremedia.gnomo.models.ModelReceiver;
 	import uk.co.baremedia.gnomo.models.ModelScreens;
 	import uk.co.baremedia.gnomo.models.ModelSettings;
+	import uk.co.baremedia.gnomo.models.ModelSharedObject;
 
 	/**  
 	 * 
@@ -42,8 +43,7 @@ package uk.co.baremedia.gnomo.core
 			injector.mapSingleton(ModelBroadcaster);
 			injector.mapSingleton(ModelScreens);
 			injector.mapSingleton(ModelAppState);
-			
-			//injector.mapSingleton(ModelReceiver);
+			injector.mapSingleton(ModelSharedObject);
 		}
 	}
 }

@@ -6,10 +6,15 @@ package uk.co.baremedia.gnomo.models
 	public class ModelNetworkManager extends Signal implements IModelChange
 	{
 		public static const CONNECTION_STATUS	:String = "connectionStatus";
-
+		public static const CONNECTION_ALERT	:String = "connectionAlert";
+		
 		public var broadcaster					:Boolean;
 		
 		private var _connected					:Boolean;
+		
+		//starts as true so there will be a change if not connected
+		private var _connectionAlert			:Boolean;
+		
 		
 		public function get connected():Boolean
 		{
@@ -19,7 +24,19 @@ package uk.co.baremedia.gnomo.models
 		public function set connected(value:Boolean):void
 		{
 			_connected = value;
+			connectionAlert = !value;
 			broadcastModelChange(CONNECTION_STATUS);
+		}
+		
+		public function set connectionAlert(value:Boolean):void
+		{
+			_connectionAlert = value;
+			broadcastModelChange(CONNECTION_ALERT);
+		}
+		
+		public function get connectionAlert():Boolean
+		{
+			return _connectionAlert;
 		}
 
 		public function get dataChange():Signal

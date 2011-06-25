@@ -3,6 +3,7 @@ package uk.co.baremedia.gnomo.models
 	import com.projectcocoon.p2p.events.MediaBroadcastEvent;
 	
 	import flash.media.Microphone;
+	import flash.utils.Timer;
 	
 	import org.as3.mvcsInjector.interfaces.IModelChange;
 	import org.as3.mvcsInjector.utils.Tracer;
@@ -18,15 +19,27 @@ package uk.co.baremedia.gnomo.models
 		public static const SENSIBILITY_CHANGE			:String = "sensibilityChange";
 		public static const DEFAULT_SENSISBILIY			:Number = 50;
 		
-		public var microphone			:Microphone;
+		public var microphone					:Microphone;
 		
-		private var _receiving			:Boolean;
-		private var _broadcasting		:Boolean;
-		private var _sensibilityLevel	:Number	= DEFAULT_SENSISBILIY;
-		private var _broadcasterInfo	:MediaBroadcastEvent;
-		private var _audioActvity		:Boolean;
+		private var _receiving					:Boolean;
+		private var _broadcasting				:Boolean;
+		private var _sensibilityLevel			:Number	= DEFAULT_SENSISBILIY;
+		private var _broadcasterInfo			:MediaBroadcastEvent;
+		private var _audioActvity				:Boolean;
+		private var _lastTransmissionLength		:Number;
+		private var _lastTranmissionLenghtTimer	:Timer;
 		
 		
+		public function get lastTransmissionLength():Number
+		{
+			return _lastTransmissionLength;
+		}
+
+		public function set lastTransmissionLength(value:Number):void
+		{
+			_lastTransmissionLength = value;
+		}
+
 		public function set audioActvity(value:Boolean):void
 		{
 			_audioActvity = value;

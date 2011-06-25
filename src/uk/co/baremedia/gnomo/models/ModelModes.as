@@ -32,7 +32,7 @@ package uk.co.baremedia.gnomo.models
 		
 		public function set localNetworkConnected(value:Boolean):void
 		{
-			_localNetworkConnected = value;	
+			_localNetworkConnected = value;
 			broadcastModelChange(MODE_CHANGE);
 		}
 		

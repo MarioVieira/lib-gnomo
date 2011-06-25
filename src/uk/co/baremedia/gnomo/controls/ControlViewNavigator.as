@@ -15,7 +15,6 @@ package uk.co.baremedia.gnomo.controls
 	import uk.co.baremedia.gnomo.utils.transitions.ViewNavigator;
 	import uk.co.baremedia.gnomo.utils.transitions.ViewTransition;
 	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
-	import uk.co.baremedia.gnomo.vo.VOViewNavigation;
 	
 	public class ControlViewNavigator implements IInitializer, IDispose
 	{
@@ -34,17 +33,28 @@ package uk.co.baremedia.gnomo.controls
 			//Tracer.log(this, "setupViewNavigator - contextView: "+contextView+" firstScreenName: "+firstScreenName+" screens: "+screens);
 			_screenModel.firstViewName	= firstScreenName;
 			_screenModel.screens 		= screens;
-			_viewNavigator 				= new ViewNavigator(contextView, _screenModel.getScreenClassByName(firstScreenName), null, null, ViewTransition.NONE);
-			_screenModel.currentScreen	= _screenModel.getScreenInfoByName(firstScreenName);
-		}
 			
+			CONFIG::DESKTOP
+			{
+				_viewNavigator 				= new ViewNavigator(contextView, _screenModel.getScreenClassByName(firstScreenName), null, null, ViewTransition.NONE);
+				_screenModel.currentScreen	= _screenModel.getScreenInfoByName(firstScreenName);
+			}
+		}
+		
 		public function navigateToScreen(screenName:String):void
 		{
-			if(_screenModel.currentScreen.name != screenName)
+			if(_screenModel.currentScreen && _screenModel.currentScreen.name != screenName)
 			{
 				var screenVo:VOScreen = _screenModel.getScreenInfoByName(screenName);
-				defineScreen(screenVo);
-				defineViewChangeAction(screenVo);
+				if(screenVo)
+				{
+					defineScreen(screenVo);
+					defineViewChangeAction(screenVo);
+				}
+				else
+				{
+					_screenModel.currentScreen = new VOScreen(null, null, screenName, -1);	
+				}
 			}
 		}
 		
@@ -60,23 +70,25 @@ package uk.co.baremedia.gnomo.controls
 		
 		protected function defineScreen(vo:VOScreen):void
 		{
+			//Tracer.log(this, "navigateToScreen: "+vo.name);
 			_screenModel.currentScreen = vo;
 			
-			Tracer.log(this, "navigateToScreen: "+vo.name);
-			
-			var transition:String;
-			
-			if(vo.type != EnumsViewNavigation.TYPE_POPUP) transition = ViewTransition.SLIDE;
-			else 												   transition = ViewTransition.NONE;
-			
-			if(vo.name == _screenModel.firstViewName)
+			CONFIG::DESKTOP
 			{
-				_viewNavigator.popToFirstView();
-			}
-			else
-			{
-				_viewNavigator.pushView(vo.clazz, null, null, transition);
-			}
+				var transition:String;
+				
+				if(vo.type != EnumsViewNavigation.TYPE_POPUP) transition = ViewTransition.SLIDE;
+				else 										  transition = ViewTransition.NONE;
+				
+				if(vo.name == _screenModel.firstViewName)
+				{
+					_viewNavigator.popToFirstView();
+				}
+				else
+				{
+					_viewNavigator.pushView(vo.clazz, null, null, transition);
+				}
+			}			
 		}
 		
 		public function dispose(recursive:Boolean=true):void

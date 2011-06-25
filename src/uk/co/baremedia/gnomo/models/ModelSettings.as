@@ -7,6 +7,7 @@ package uk.co.baremedia.gnomo.models
 	{
 		public const SETTINGS_CHANGE:String = "settingsChange";
 		public const MODE_CHANGE	:String = "modeChange";
+		public const APP_UID		:String = "org.as3.gnomo.BabyCall";
 		
 		public function get dataChange():Signal
 		{

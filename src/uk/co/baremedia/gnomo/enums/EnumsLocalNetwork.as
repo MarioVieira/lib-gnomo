@@ -9,6 +9,7 @@ package uk.co.baremedia.gnomo.enums
 		public static const TYPE_MOBILE				:String = "typeMobile";
 		public static const GROUP_FEEDBACK_RESPONSE :String = "groupFeedbackResponse";
 		public static const MONITOR_FIRST_CONNECTION_DELAY:Number 	= 1000; //1sec
+		public static const MONITOR_DISCONNECTED_DELAY:Number 		= 3000;
 		public static const MONITOR_CONNECTION_DELAY:Number 		= 3000;
 	}
 }

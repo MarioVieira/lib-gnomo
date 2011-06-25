@@ -26,6 +26,8 @@ package uk.co.baremedia.gnomo.managers
 
 	public class ManagerNetwork implements ILocalNetworkMessenger, IAudioBroadcaster, INetworkManager
 	{
+		[Bindable] public var autoConnect	:Boolean = true;
+		
 		private var _mediaBroadcast			:Signal;
 		private var _noConnection			:Signal;
 		private var _debug					:Signal;
@@ -123,7 +125,7 @@ package uk.co.baremedia.gnomo.managers
 		
 		public function connect():void
 		{
-			//Tracer.log(this, "connect");
+			Tracer.log(this, "connect - _groupConnected: "+_groupConnected);
 			if(_groupConnected) keepAlive(true);
 			else 			   	_noConnection.dispatch();
 		}
@@ -182,6 +184,7 @@ package uk.co.baremedia.gnomo.managers
 		{
 			//Tracer.log(this, "onGroupConnection");
 			_groupConnected = true;
+			if(autoConnect) connect();
 		}
 		
 		private function onConnectionChange(connected:Boolean):void
@@ -192,7 +195,7 @@ package uk.co.baremedia.gnomo.managers
 		
 		protected function onMedia(event:MediaBroadcastEvent):void
 		{
-			Tracer.log(this, "onMedia - mediaInfo.order: "+event.mediaInfo.order);
+			//Tracer.log(this, "onMedia - mediaInfo.order: "+event.mediaInfo.order);
 			keepAlive(true);
 			_mediaBroadcast.dispatch(event);
 		}

@@ -220,7 +220,6 @@ package uk.co.baremedia.gnomo.controls
 				if(!connected) stopAudio();
 				_model.localNetworkConnected = connected;
 				notifyModeChange(connected);
-				
 				requestScreen( (connected) ? EnumsScreens.SCREEN_UNITS : EnumsScreens.SCREEN_DISCONNECTED );
 			}
 		}
