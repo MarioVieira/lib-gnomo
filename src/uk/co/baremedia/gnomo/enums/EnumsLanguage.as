@@ -18,7 +18,7 @@ package uk.co.baremedia.gnomo.enums
 		public static const LISTEN_NOW:String				= "LISTEN_NOW";
 		public static const SET_A_BABY_UNIT:String			= "SET_A_BABY_UNIT";
 		public static const SET_AS_BABY_UNIT:String			= "SET_AS_BABY_UNIT";
-		public static const PAREN_UNIT:String				= "PAREN_UNIT";
+		public static const PARENT_UNIT:String				= "PARENT_UNIT";
 		public static const BABY_UNIT:String				= "BABY_UNIT";
 		public static const SWAP_MODES:String				= "SWAP_MODES";
 		public static const CONNECTED:String				= "CONNECTED";
@@ -26,5 +26,10 @@ package uk.co.baremedia.gnomo.enums
 		public static const CONNECTING:String				= "CONNECTING";
 		public static const SENSIBILITY:String				= "SENSIBILITY"; 
 		public static const DISCONNECTED_MESSAGE:String		= "DISCONNECTED_MESSAGE";
+		public static const DISCONNECT:String				= "DISCONNECT";
+		public static const AUDIO_ACTIVITY:String			= "AUDIO_ACTIVITY";
+		public static const ELAPSED_TIME:String				= "ELAPSED_TIME";
+		public static const DATE:String						= "DATE";
+		public static const INSTRUCTIONS_LOG				= "INSTRUCTIONS_LOG";
 	}
 }

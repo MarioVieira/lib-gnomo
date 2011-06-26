@@ -6,23 +6,29 @@ package uk.co.baremedia.gnomo.controls
 	import uk.co.baremedia.gnomo.enums.EnumsScreens;
 	import uk.co.baremedia.gnomo.models.ModelAudio;
 	import uk.co.baremedia.gnomo.signals.SignalViewNavigation;
+	import uk.co.baremedia.gnomo.vo.VOLogs;
 	
 	
 	public class ControlLogs implements IInitializer
 	{
 		protected var _viewNavigation		:SignalViewNavigation;
 		protected var _controlPersistedData	:ControlPersistedData;
-		
+	
 		public function ControlLogs(controlPersistedData:ControlPersistedData)
 		{
 			_controlPersistedData = controlPersistedData;
 		}
 		
-		public function addLog(action:String, elapsedAudioTransmission:Number):void
+		public function addLog(action:String, elapsedAudioTransmission:Number, dateAndTime:Number):void
 		{
-			_controlPersistedData.addLog(action, elapsedAudioTransmission);
+			_controlPersistedData.addLog(action, elapsedAudioTransmission, dateAndTime);
 		}
 		
+		public function get logs():VOLogs
+		{
+			return _controlPersistedData.logs;
+		}
+	
 		public function init(injector:IInjector):void
 		{
 			_viewNavigation = injector.getInstance(SignalViewNavigation);

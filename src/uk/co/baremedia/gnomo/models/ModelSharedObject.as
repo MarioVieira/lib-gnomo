@@ -26,21 +26,25 @@ package uk.co.baremedia.gnomo.models
 			_sharedObject = SharedObject.getLocal(appUID);
 		}
 		
-		public function set logs(logs:VOLogs):void
+		public function set logs(newLogs:VOLogs):void
 		{
-			Tracer.log(this, "logs: "+logs);
-			_sharedObject.data[logs] = Serializer.serialize( removeLogsOlderThanSevenDays(logs) ).toXMLString();
+			Tracer.log(this, "SAVE logs: "+newLogs);
+			_sharedObject.data[LOGS] = Serializer.serialize( removeLogsOlderThanSevenDays(newLogs) ).toXMLString();
+			flush();
 			broadcastModelChange(LOGS);
 		}
 		
 		public function get logs():VOLogs
 		{
-			return Serializer.deserialize( XML(_sharedObject.data[logs]) );
+			var tmpObject:Object = _sharedObject.data[LOGS];
+			Tracer.log(this, "GET logs: "+tmpObject);
+			return (tmpObject) ? Serializer.deserialize( XML(_sharedObject.data[LOGS]) ) as VOLogs : null;
 		}
 		
 		public function set agreementAccepted(value:Boolean):void
 		{
 			_sharedObject.data[AGREED] = int(value);
+			flush();
 			broadcastModelChange(AGREED);
 		}
 		
@@ -56,7 +60,7 @@ package uk.co.baremedia.gnomo.models
 			
 			for(var i:int; i < vector.length; i++)
 			{
-				if(vector[i].time >= sevenDayAgoTime) logs.logs.splice(i, 1);
+				if(vector[i].time >= sevenDayAgoTime) logs.logs.removeItemAt(i);
 			}
 			
 			return logs;
@@ -70,6 +74,11 @@ package uk.co.baremedia.gnomo.models
 		public function broadcastModelChange(changeType:String):void
 		{
 			dispatch(changeType);
+		}
+		
+		protected function flush():void
+		{
+			_sharedObject.flush();
 		}
 	}
 }

@@ -10,25 +10,32 @@ package uk.co.baremedia.gnomo.controls
 	import org.robotlegs.core.IInitializer;
 	import org.robotlegs.core.IInjector;
 	
+	import uk.co.baremedia.gnomo.enums.EnumsLanguage;
 	import uk.co.baremedia.gnomo.enums.EnumsNotification;
 	import uk.co.baremedia.gnomo.interfaces.IP2PMessenger;
 	import uk.co.baremedia.gnomo.models.ModelAudio;
+	import uk.co.baremedia.gnomo.models.ModelSharedObject;
 	import uk.co.baremedia.gnomo.utils.UtilsMessenger;
+	import uk.co.baremedia.gnomo.utils.UtilsResources;
 	
 	public class ControlAudioMonitor implements IInitializer, IDispose
 	{
-		public static const ACTIVITY_MONITOR_TIMER	:Number = 250;
+		public static const ACTIVITY_MONITOR_TIMER	:Number = 100;
 		public static const STOP_PLAY_TIMER			:Number = 4000;
 		
 		protected var _stopPlayTimer				:Timer;
 		protected var _activityMonitorTimer			:Timer;
 		protected var _model						:ModelAudio;
 		protected var _messenger					:IP2PMessenger;
+		protected var _logElaspsedTimer				:Timer;
+		protected var _currentLogDate				:Date;
+		protected var _logsControl					:ControlLogs;
 		
-		public function ControlAudioMonitor(audioModel:ModelAudio, messenger:IP2PMessenger) 
+		public function ControlAudioMonitor(audioModel:ModelAudio, messenger:IP2PMessenger, logsControl:ControlLogs) 
 		{
-			_model 		= audioModel;
-			_messenger 	= messenger;
+			_model 				= audioModel;
+			_messenger 			= messenger;
+			_logsControl 		= logsControl;
 			
 			_stopPlayTimer = new Timer(STOP_PLAY_TIMER);
 			_stopPlayTimer.addEventListener(TimerEvent.TIMER, onStopPlayTimer);
@@ -109,5 +116,23 @@ package uk.co.baremedia.gnomo.controls
 			_stopPlayTimer.removeEventListener(TimerEvent.TIMER, onStopPlayTimer);
 		}
 		
+		public function startLog(startNotStopAudio:Boolean):void
+		{
+			Tracer.log(this, "startLog");
+			if(startNotStopAudio)
+			{
+				_currentLogDate = new Date();
+			}
+			else
+			{
+				var time:Number = new Date().getTime()
+				_logsControl.addLog(UtilsResources.getKey(EnumsLanguage.AUDIO_ACTIVITY), time - _currentLogDate.getTime(), time);
+			}
+		}
+		
+		private function startLogTimer():void
+		{
+			_currentLogDate = new Date();
+		}
 	}
 }

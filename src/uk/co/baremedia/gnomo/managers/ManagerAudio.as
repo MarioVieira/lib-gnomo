@@ -4,6 +4,9 @@ package uk.co.baremedia.gnomo.managers
 	
 	import flash.media.Microphone;
 	
+	import mx.utils.OnDemandEventDispatcher;
+	
+	import org.as3.mvcsInjector.utils.Tracer;
 	import org.osflash.signals.Signal;
 	
 	import uk.co.baremedia.gnomo.controls.ControlAudioMonitor;
@@ -15,7 +18,7 @@ package uk.co.baremedia.gnomo.managers
 	import uk.co.baremedia.gnomo.signals.SignalCrossPlatformExchange;
 	import uk.co.baremedia.gnomo.utils.UtilsMedia;
 	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
-
+	
 	public class ManagerAudio
 	{
 		protected var _mediaMesseger		:IAudioBroadcaster;
@@ -35,6 +38,29 @@ package uk.co.baremedia.gnomo.managers
 			_deviceType    			= deviceType;
 			_crossPlatformExchange 	= crossPlatformExchage;
 			_audioNotifier 		   	= new Signal(VONotifierInfo);
+			
+			setObservers();
+		}
+		
+		private function setObservers():void
+		{
+			_mediaMesseger.audioActivityMessage.add(onAudioActivityMessage);
+		}
+		
+		private function onAudioActivityMessage(startNotStopAudio:Boolean):void
+		{
+			//Tracer.log(this, "onAudioActivityMessage - startNotStopAudio: "+startNotStopAudio);
+			startLog(startNotStopAudio);
+		}
+		
+		private function startLog(startNotStopAudio:Boolean):void
+		{
+			_audioMonitor.startLog(startNotStopAudio);	
+		}
+		
+		public function get netStreamSignal():Signal
+		{
+			return _playerControl.netStreamSignal;
 		}
 		
 		public function get broadcasterInfo():MediaBroadcastEvent
@@ -45,7 +71,7 @@ package uk.co.baremedia.gnomo.managers
 		public function set broadcasterInfo(event:MediaBroadcastEvent):void
 		{
 			stopBroadcast();
-			stopPlayingAudio();
+			stopPlayingAudio(true);
 			_modelAudio.broadcasterInfo = event;
 			_modelAudio.broadcasting	= false;
 			_audioMonitor.stopAcitivityMonitor();
@@ -55,7 +81,7 @@ package uk.co.baremedia.gnomo.managers
 		{
 			return _modelAudio.broadcasting;
 		}
-
+		
 		public function get audioNotifier():Signal
 		{
 			return _audioNotifier;
@@ -72,9 +98,10 @@ package uk.co.baremedia.gnomo.managers
 			notifyAudioEvent("broadcastAudio()");
 			
 			var mic:Microphone = UtilsMedia.getMicrophone();
-				
+			
 			if(mic) 
 			{
+				_playerControl.stopAudio(true);
 				notifyAudioEvent(EnumsNotification.BROADCATING);
 				notifyAudioEvent("broadcastAudio() - mic: "+mic);
 				_modelAudio.broadcasting = true;
@@ -90,9 +117,9 @@ package uk.co.baremedia.gnomo.managers
 			}
 		}
 		
-		public function stopPlayingAudio():void
+		public function stopPlayingAudio(unmountStream:Boolean = false):void
 		{
-			_playerControl.stopAudio();
+			_playerControl.stopAudio(unmountStream);
 		}
 		
 		public function stopBroadcast():void
@@ -107,30 +134,44 @@ package uk.co.baremedia.gnomo.managers
 			}
 		}
 		
-		public function listenBroadcaster():void
-		{
-			handleMediaBroadcast(_modelAudio.broadcasterInfo);
-		}
-		
 		private function notifyAudioEvent(message:String):void
 		{
 			_audioNotifier.dispatch( new VONotifierInfo(EnumsNotification.AUDIO, message) );
 		}
 		
-		public function handleMediaBroadcast(e:MediaBroadcastEvent):void
+		public function playBroadcasterStream(e:MediaBroadcastEvent, forcePlay:Boolean = false):void
 		{
-			var canReceive:Boolean = RolesReceiver.canClaimReceiverRole(_deviceType, e.client.clientName);
-			notifyAudioEvent( (canReceive) ? EnumsNotification.RECEIVING : EnumsNotification.NOT_ALLOWED_TO_RECEIVE_AUDIO );
+			var tmpBroadcasterInfo:MediaBroadcastEvent = (e) ? e : _modelAudio.broadcasterInfo;
 			
-			if(canReceive)
+			if(tmpBroadcasterInfo)
 			{
-				_playerControl.playStream(e.mediaInfo);
+				broadcasterInfo = tmpBroadcasterInfo;
+				
+				//var setupNewStream:Boolean = (!_modelAudio.broadcasterInfo || _modelAudio.broadcasterInfo && _modelAudio.broadcasterInfo.client.peerID != broadcasterInfo.client.peerID)
+				//if(setupNewStream)
+				
+				var canReceive:Boolean = RolesReceiver.canClaimReceiverRole(_deviceType, tmpBroadcasterInfo.client.clientName);
+				notifyAudioEvent( (canReceive) ? EnumsNotification.RECEIVING : EnumsNotification.NOT_ALLOWED_TO_RECEIVE_AUDIO );
+				
+				if(forcePlay || canReceive && broadcasterInfo.mediaInfo.order == EnumsNotification.AUDIO_ACTIVITY)
+				{
+					_playerControl.setupStream(broadcasterInfo.mediaInfo);
+				}
+			}
+			else
+			{
+				Tracer.log(this, "playBroadcasterStream(e:MediaBroadcastEvent) (NULL parameter!)");
 			}
 		}
 		
 		public function setSensibility(slideValue:Number):void
 		{
 			_audioMonitor.setSensibility(slideValue);
+		}
+		
+		public function set volume(value:Number):void
+		{
+			_playerControl.volume = value;
 		}
 	}
 }

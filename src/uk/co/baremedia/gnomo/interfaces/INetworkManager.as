@@ -8,17 +8,19 @@ package uk.co.baremedia.gnomo.interfaces
 
 	public interface INetworkManager extends IAudioBroadcaster
 	{
+		function get netStreamSignal():Signal;
+		
+		function get groupConnectedSignal():Signal;
+		
 		function set microphone(value:Microphone):void;
 		
 		function get connectionStatus():Signal;
 		
 		function get mediaBroadcast():Signal;
 		
-		function get audioActivityMessage():Signal;
-		
 		function get debug():Signal;
 
-		function keepAlive(startNotStopMonitor:Boolean):void;
+		function askFeedback(startNotStopMonitor:Boolean):void;
 
 		function connect():void;
 

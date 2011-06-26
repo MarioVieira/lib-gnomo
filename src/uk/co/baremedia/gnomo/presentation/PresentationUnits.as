@@ -1,6 +1,7 @@
 package uk.co.baremedia.gnomo.presentation
 {
 	import com.projectcocoon.p2p.util.Tracer;
+	import com.projectcocoon.p2p.vo.AccelerationVO;
 	
 	import org.as3.mvcsInjector.interfaces.IDispose;
 	import org.osflash.signals.Signal;
@@ -8,10 +9,13 @@ package uk.co.baremedia.gnomo.presentation
 	import uk.co.baremedia.gnomo.controls.ControlPersistedData;
 	import uk.co.baremedia.gnomo.controls.ControlUnits;
 	import uk.co.baremedia.gnomo.enums.EnumsLanguage;
+	import uk.co.baremedia.gnomo.enums.EnumsNotification;
 	import uk.co.baremedia.gnomo.models.ModelAudio;
 	import uk.co.baremedia.gnomo.models.ModelModes;
 	import uk.co.baremedia.gnomo.models.ModelNetworkManager;
+	import uk.co.baremedia.gnomo.signals.SignalNotifier;
 	import uk.co.baremedia.gnomo.utils.UtilsResources;
+	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
 	
 	public class PresentationUnits implements IDispose
 	{
@@ -19,7 +23,7 @@ package uk.co.baremedia.gnomo.presentation
 		public static const ALERT_IMPORTANT				:String  = "important";
 		public static const ALERT_DISCONNECTED			:String  = "disconnected";
 		
-		[Bindable] public var textSwapOrQuitButton		:String;
+		[Bindable] public var textQuitButton			:String;
 		[Bindable] public var textConnectionStatus		:String;
 		[Bindable] public var textTopNote				:String;
 		[Bindable] public var textListenNow				:String;
@@ -28,6 +32,10 @@ package uk.co.baremedia.gnomo.presentation
 		[Bindable] public var receiving					:Boolean;
 		[Bindable] public var broadcasting				:Boolean;
 		[Bindable] public var listening					:Boolean;
+		[Bindable] public var debugText					:String = "no info";
+		[Bindable] public var canListen					:Boolean;
+		[Bindable] public var canStopListening			:Boolean
+		
 		
 		public var uiChange								:Signal;
 		public var openAlert							:Signal;
@@ -38,9 +46,10 @@ package uk.co.baremedia.gnomo.presentation
 		private var _modelNetwork						:ModelNetworkManager
 		private var _modelAudio							:ModelAudio;
 		private var _controlPersistentData				:ControlPersistedData;
+		private var _signalNotifier						:SignalNotifier;
 		private var _alertOpen							:Boolean;
 		
-		public function PresentationUnits(control:ControlUnits, controlPersistentData:ControlPersistedData, modelNetwork:ModelNetworkManager, modelModes:ModelModes, modelAudio:ModelAudio) 
+		public function PresentationUnits(control:ControlUnits, controlPersistentData:ControlPersistedData, modelNetwork:ModelNetworkManager, modelModes:ModelModes, modelAudio:ModelAudio, signalNotifier:SignalNotifier = null) 
 		{
 			uiChange 				= new Signal();
 			openAlert				= new Signal(String);
@@ -50,6 +59,7 @@ package uk.co.baremedia.gnomo.presentation
 			_modelModes     		= modelModes;
 			_modelAudio 			= modelAudio;
 			_modelNetwork			= modelNetwork;
+			_signalNotifier			= signalNotifier;
 			
 			setObservers();
 			setText();
@@ -103,6 +113,11 @@ package uk.co.baremedia.gnomo.presentation
 			_controlPersistentData.agreementAccepted = value;	
 		}
 		
+		public function fakeAudioActivity(playNotStop:Boolean):void
+		{
+			_controlUnits.sendDirectMessage(EnumsNotification.AUDIO_ACTIVITY, (playNotStop) ? 1 : 0);
+		}
+		
 		public function dispose(recursive:Boolean=true):void
 		{
 			_modelModes.remove(onModeChange);
@@ -124,19 +139,12 @@ package uk.co.baremedia.gnomo.presentation
 			notifyUiDataChange();
 		}
 		
-		public function listenOrStopListening():void
+		public function listenOrStopListening(listen:Boolean):void
 		{
-			if(!listening)
-			{
-				listenBroadcaster(true);
-			}
-			else
-			{
-				listenBroadcaster(false);
-			}
+			listenBroadcaster(listen);
 		}
-
-		private function listenBroadcaster(listenNotStop:Boolean):void
+		
+				private function listenBroadcaster(listenNotStop:Boolean):void
 		{
 			if(listenNotStop && _controlUnits.hasBroadcasterInfo)
 			{
@@ -163,10 +171,10 @@ package uk.co.baremedia.gnomo.presentation
 			_controlUnits.requestScreenLogsMain();
 		}
 		
-		public function swapModesOrQuit():void
+		public function disconnectOrConnect():void
 		{
-			if(connected) _controlUnits.disconnect();
-			else		  _controlUnits.requesScreenModes();
+			if(receiving && _modelNetwork.connected) _controlUnits.setConnectedMode(true);
+			else if(!receiving && !_modelNetwork.connected) _controlUnits.setConnectedMode(false); 
 		}
 		
 		public function setAsBabyUnit():void
@@ -178,6 +186,11 @@ package uk.co.baremedia.gnomo.presentation
 		{
 			//Tracer.log(this, "setSensibility");
 			_controlUnits.setSensibility(sliderValue * 10);
+		}
+		
+		public function set volume(value:Number):void
+		{
+			_controlUnits.volume = value;
 		}
 		
 		private function onModelAudio(change:String):void
@@ -198,13 +211,15 @@ package uk.co.baremedia.gnomo.presentation
 		private function setReceiving():void
 		{
 			receiving = _modelAudio.broadcasterInfo != null;
+			canListen 		 = receiving && !listening;
+			canStopListening = receiving && listening;
 		}
 		
 		private function defineNoteText():void
 		{
 			if(!_modelAudio.broadcasting && !receiving) textTopNote = UtilsResources.getKey(EnumsLanguage.SET_A_BABY_UNIT);
 			else if(_modelAudio.broadcasting) 		    textTopNote = UtilsResources.getKey(EnumsLanguage.BABY_UNIT); 
-			else if(receiving)						    textTopNote = UtilsResources.getKey(EnumsLanguage.PAREN_UNIT);
+			else if(receiving)						    textTopNote = UtilsResources.getKey(EnumsLanguage.PARENT_UNIT);
 		}
 		
 		//no binding in Flash
@@ -217,12 +232,12 @@ package uk.co.baremedia.gnomo.presentation
 		{
 			if(localNetworkConnected) 
 			{
-				textSwapOrQuitButton = UtilsResources.getKey(EnumsLanguage.SWAP_MODES);
+				textQuitButton = UtilsResources.getKey(EnumsLanguage.DISCONNECT);
 				textConnectionStatus = UtilsResources.getKey(EnumsLanguage.CONNECTED);
 			}
 			else
 			{
-				textSwapOrQuitButton = UtilsResources.getKey(EnumsLanguage.QUIT);
+				textQuitButton = UtilsResources.getKey(EnumsLanguage.CONNECT);
 				textConnectionStatus = UtilsResources.getKey(EnumsLanguage.CONNECTING);
 			}
 		}
@@ -247,7 +262,7 @@ package uk.co.baremedia.gnomo.presentation
 			}
 			else if(changeType == ModelNetworkManager.CONNECTION_ALERT && !_modelNetwork.connectionAlert && _alertOpen)
 			{
-				Tracer.log(this, "REMOVE");
+				//Tracer.log(this, "REMOVE");
 				requestAlert(null);
 			}
 		}

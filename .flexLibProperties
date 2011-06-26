@@ -48,6 +48,7 @@
     <classEntry path="uk.co.baremedia.gnomo.vo.VOLogs"/>
     <classEntry path="uk.co.baremedia.gnomo.vo.VOLog"/>
     <classEntry path="uk.co.baremedia.gnomo.presentation.PresentationShell"/>
+    <classEntry path="uk.co.baremedia.gnomo.controls.ControlDirectConnection"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

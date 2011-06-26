@@ -1,6 +1,7 @@
 package uk.co.baremedia.gnomo.managers
 {
 	import com.projectcocoon.p2p.LocalNetworkDiscovery;
+	import com.projectcocoon.p2p.events.AccelerationEvent;
 	import com.projectcocoon.p2p.events.GroupEvent;
 	import com.projectcocoon.p2p.events.MediaBroadcastEvent;
 	import com.projectcocoon.p2p.events.MessageEvent;
@@ -21,12 +22,15 @@ package uk.co.baremedia.gnomo.managers
 	import uk.co.baremedia.gnomo.interfaces.IP2PMessenger;
 	import uk.co.baremedia.gnomo.models.ModelDeviceInfo;
 	import uk.co.baremedia.gnomo.models.ModelNetworkManager;
+	import uk.co.baremedia.gnomo.signals.SignalNotifier;
+	import uk.co.baremedia.gnomo.utils.UtilsAppNotifier;
 	import uk.co.baremedia.gnomo.vo.VOLocalNetworkMessage;
 	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
 
 	public class ManagerNetwork implements ILocalNetworkMessenger, IAudioBroadcaster, INetworkManager
 	{
 		[Bindable] public var autoConnect	:Boolean = true;
+		public var _groupConnectionSignal		:Signal;
 		
 		private var _mediaBroadcast			:Signal;
 		private var _noConnection			:Signal;
@@ -38,23 +42,39 @@ package uk.co.baremedia.gnomo.managers
 		protected var _messenger			:IP2PMessenger;
 		
 		private var _groupConnected			:Boolean;
-		private var _keepAlive 				:Boolean = true;
+		private var _askFeedback 				:Boolean = true;
 		private var _audioActivity			:Signal;
+		private var _signalNotifier			:SignalNotifier;
 		
-		public function ManagerNetwork(localNetwork:LocalNetworkDiscovery, messenger:IP2PMessenger, model:ModelNetworkManager)
+		
+		public function ManagerNetwork(localNetwork:LocalNetworkDiscovery, messenger:IP2PMessenger, model:ModelNetworkManager, signalNotifier:SignalNotifier)
 		{
 			_messenger			= messenger;
 			_localNetwork		= localNetwork;
 			_modelLocalNetwork 	= model;
 			
+			_groupConnectionSignal= new Signal();
+			
 			_mediaBroadcast 	= new Signal(MediaBroadcastEvent);
 			_noConnection		= new Signal();
 			_debug				= new Signal();
 			_audioActivity		= new Signal();
+			_signalNotifier		= signalNotifier;		
 			
 			registerClassesForSerialization();
 			setupLocalNetwork(deviceType);
 			setupNetworkMonitor(messenger);
+		}
+		
+		
+		public function get netStreamSignal():Signal
+		{
+			return _localNetwork.netStreamSignal;
+		}
+		
+		public function get groupConnectedSignal():Signal
+		{
+			return _groupConnectionSignal
 		}
 		
 		public function set microphone(value:Microphone):void
@@ -95,7 +115,17 @@ package uk.co.baremedia.gnomo.managers
 			_localNetwork.addEventListener(GroupEvent.GROUP_CONNECTED, onGroupConnection);
 			_localNetwork.addEventListener(MessageEvent.DATA_RECEIVED, onMessage);
 			_localNetwork.addEventListener(MediaBroadcastEvent.MEDIA_BROADCAST, onMedia);
+			_localNetwork.addEventListener(AccelerationEvent.ACCELEROMETER, onAccelerometer);
 			_localNetwork.connect();
+			//_localNetwork.accelerometerInterval = 50;
+		}
+		
+		protected function onAccelerometer(event:AccelerationEvent):void
+		{
+			//ONLY TESTING
+			UtilsAppNotifier.notifyApp(_signalNotifier, EnumsNotification.ACCELEROMETER, event.acceleration);
+				
+			//Tracer.log(this, "onAccelerometer  - x: "+event.acceleration.accelerationX+" y: "+event.acceleration.accelerationY+" z: "+event.acceleration.accelerationZ);
 		}
 		
 		public function get connectionStatus():Signal
@@ -117,23 +147,23 @@ package uk.co.baremedia.gnomo.managers
 		 *							COMMON CONTROLS
 		 ***********************************************************************/
 		
-		public function keepAlive(startNotStopMonitor:Boolean):void
+		public function askFeedback(startNotStopMonitor:Boolean):void
 		{
-			_keepAlive  = startNotStopMonitor;
-			_controlNetworkMonitor.keepAlive(startNotStopMonitor);
+			_askFeedback  = startNotStopMonitor;
+			_controlNetworkMonitor.askFeedback(startNotStopMonitor);
 		}
 		
 		public function connect():void
 		{
 			Tracer.log(this, "connect - _groupConnected: "+_groupConnected);
-			if(_groupConnected) keepAlive(true);
+			if(_groupConnected) askFeedback(true);
 			else 			   	_noConnection.dispatch();
 		}
 		
 		public function disconnect(switchOff:Boolean = false):void
 		{
 			//Tracer.log(this, "disconnect");
-			keepAlive(false);
+			askFeedback(false);
 			if(switchOff) _localNetwork.close();
 		}
 		
@@ -183,6 +213,7 @@ package uk.co.baremedia.gnomo.managers
 		private function onGroupConnection(event:Event):void
 		{
 			//Tracer.log(this, "onGroupConnection");
+			_groupConnectionSignal.dispatch();
 			_groupConnected = true;
 			if(autoConnect) connect();
 		}
@@ -196,7 +227,7 @@ package uk.co.baremedia.gnomo.managers
 		protected function onMedia(event:MediaBroadcastEvent):void
 		{
 			//Tracer.log(this, "onMedia - mediaInfo.order: "+event.mediaInfo.order);
-			keepAlive(true);
+			askFeedback(true);
 			_mediaBroadcast.dispatch(event);
 		}
 		
@@ -205,7 +236,7 @@ package uk.co.baremedia.gnomo.managers
 			var messageData:VOLocalNetworkMessage = e.message.data as VOLocalNetworkMessage;
 			
 			//Tracer.log(this, "onMessage - messageData: "+messageData);
-			if(messageData && _keepAlive)
+			if(messageData)
 			{
 				defineMessageOperation(messageData);
 			}

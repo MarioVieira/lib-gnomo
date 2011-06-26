@@ -1,37 +1,56 @@
 package uk.co.baremedia.gnomo.controls
 {
+	import com.projectcocoon.p2p.util.Tracer;
 	import com.projectcocoon.p2p.vo.MediaVO;
 	
 	import flash.events.NetStatusEvent;
+	import flash.media.SoundTransform;
 	import flash.media.Video;
 	import flash.net.NetStream;
 	
-	import org.as3.mvcsInjector.utils.Tracer;
 	import org.osflash.signals.Signal;
 	
+	import uk.co.baremedia.gnomo.enums.EnumsModes;
+	import uk.co.baremedia.gnomo.enums.EnumsSettings;
 	import uk.co.baremedia.gnomo.interfaces.IAudioBroadcaster;
 	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
 	
 	public class ControlPlayer
 	{
+		protected var _netStreamSignal	:Signal;
 		protected var _receiveStream	:NetStream;
 		protected var _player			:Video;
 		protected var _mediaProvider	:IAudioBroadcaster;
 		
 		public var debug:Signal;
+		private var _playing			:Boolean;
+		private var _volume				:Number = EnumsSettings.DEFAULT_VOLUME;
 		
 		public function ControlPlayer(mediaProvider:IAudioBroadcaster)
 		{
+			_netStreamSignal = new Signal(NetStream);
 			debug 			= new Signal(VONotifierInfo);
 			_player 		= new Video();
 			_mediaProvider 	= mediaProvider;
 		}
 		
-		
-		public function stopAudio():void
+		public function get netStreamSignal():Signal
 		{
-			clearNetStream();
-			clearPlayer();
+			return _netStreamSignal;
+		}
+		
+		public function stopAudio(unmountStream:Boolean = false):void
+		{
+			if(!unmountStream)
+			{
+				pauseStream();
+			}
+			else
+			{
+				clearNetStream();
+				clearPlayer();
+				_playing = false;
+			}
 		}
 		
 		private function clearPlayer():void
@@ -49,16 +68,49 @@ package uk.co.baremedia.gnomo.controls
 			}
 		}	
 		
-		public function playStream(mediaInfo:MediaVO):void
+		public function setupStream(mediaInfo:MediaVO):void
 		{
-			stopAudio();
-			
+			Tracer.log(this, "setupStream");
+			stopAudio(true);
+			mountStream(mediaInfo);
+		}
+		
+		public function playStream():void
+		{
+			Tracer.log(this, "playStream");
+			_receiveStream.soundTransform = getVolume(10);
+		}
+		
+		public function pauseStream():void
+		{
+			Tracer.log(this, "pauseStream");
+			_receiveStream.soundTransform = getVolume(0);
+		}
+		
+		public function set volume(value:Number):void
+		{
+			Tracer.log(this, "volume: "+value);
+			_volume = value;
+			if(_receiveStream) _receiveStream.soundTransform = getVolume(_volume);
+		}
+		
+		protected function mountStream(mediaInfo:MediaVO):void
+		{
 			_receiveStream = new NetStream(_mediaProvider.groupNetConnection, mediaInfo.publisherGroupspecWithAuthorization);// mediaInfo.publisherGroupspecWithAuthorization);
 			_receiveStream.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
 			
 			_receiveStream.play(mediaInfo.publisherStream);
 			
+			_playing = true;
 			_player.attachNetStream(_receiveStream);
+			_netStreamSignal.dispatch(_receiveStream);
+			//always no volume when it first mount the stream
+			_receiveStream.soundTransform = getVolume(_volume);
+		}
+		
+		protected function getVolume(vol:Number):SoundTransform
+		{
+			return new SoundTransform(vol);
 		}
 		
 		protected function onNetStatus(event:NetStatusEvent):void

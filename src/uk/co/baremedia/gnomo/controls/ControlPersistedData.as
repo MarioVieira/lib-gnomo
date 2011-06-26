@@ -1,5 +1,7 @@
 package uk.co.baremedia.gnomo.controls
 {
+	import mx.logging.Log;
+	
 	import org.as3.mvcsInjector.utils.Tracer;
 	import org.robotlegs.core.IInitializer;
 	import org.robotlegs.core.IInjector;
@@ -57,21 +59,28 @@ package uk.co.baremedia.gnomo.controls
 		 * @param elapsedAudioTransmission
 		 * 
 		 */
-		public function addLog(action:String, elapsedAudioTransmission:Number):void
+		public function addLog(action:String, elapsedTransmissionMilisec:Number, dateAndTime:Number):void
 		{
 			Tracer.log(this, "addLogs");
 			
 			var now:Date 				 = new Date();
 			var log:VOLog 				 = new VOLog();
 			log.action 					 = action;
-			log.dateAndTime 			 = now.toString();
-			log.time 					 = now.getTime();
-			log.elapsedAudioTransmission = elapsedAudioTransmission;
+			log.dateAndTime 			 = dateAndTime;
+			log.elapsedTransmissionSec   = elapsedTransmissionMilisec * 1000;
 			
 			var logsReference:VOLogs = _model.logs;
-			logsReference.logs.push(log);
+			
+			logsReference = (!logsReference) ? new VOLogs() : logsReference;
+			Tracer.log(this, "addLogs - logsReference: "+logsReference);
+			logsReference.logs.addItem(log);
 			
 			_model.logs = logsReference;
+		}
+		
+		public function get logs():VOLogs
+		{
+			return _model.logs;
 		}
 	}
 }

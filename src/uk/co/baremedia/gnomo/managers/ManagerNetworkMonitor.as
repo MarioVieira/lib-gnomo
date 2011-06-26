@@ -3,6 +3,7 @@ package uk.co.baremedia.gnomo.managers
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
+	import org.as3.mvcsInjector.utils.Tracer;
 	import org.osflash.signals.Signal;
 	
 	import uk.co.baremedia.gnomo.enums.EnumsLocalNetwork;
@@ -12,13 +13,16 @@ package uk.co.baremedia.gnomo.managers
 	
 	public class ManagerNetworkMonitor
 	{
-		private var _localNetworkMessenger		: IP2PMessenger;
-		private var _feedbackRequestTimer		: Timer;
-		private var _connectionIdentifier		: Signal;
-		private var _requestCount				: int;
-		private var _connected					: Boolean;
+		[Bindable] public var stopAskingFeedbackOnFirstResponse	: Boolean;
 		
-		public var monitorDebug					: Signal;
+		private var _localNetworkMessenger						: IP2PMessenger;
+		private var _feedbackRequestTimer						: Timer;
+		private var _connectionIdentifier						: Signal;
+		private var _requestCount								: int;
+		private var _connected									: Boolean;
+		
+		public var monitorDebug									: Signal;
+		
 		
 		
 		
@@ -40,20 +44,20 @@ package uk.co.baremedia.gnomo.managers
 		{
 			if(!_feedbackRequestTimer)
 			{
-				debug("1st CONNECTION TIME: "+delay);
+				//debug("1st CONNECTION TIME: "+delay);
 				_feedbackRequestTimer = new Timer(delay);
 				_feedbackRequestTimer.addEventListener(TimerEvent.TIMER, onGroupFeedbackTimeoutRequest);
 			}
 			else if(_feedbackRequestTimer.delay != delay)
 			{
-				debug("CONNECTED; CHANGE TIME TO KEEP ALIVE: "+delay);
+				//debug("CONNECTED; CHANGE TIME TO KEEP ALIVE: "+delay);
 				_feedbackRequestTimer.reset();
 				_feedbackRequestTimer.delay = delay;
 				_feedbackRequestTimer.start();
 			}
 		}
 		
-		public function keepAlive(monitorActive:Boolean):void
+		public function askFeedback(monitorActive:Boolean):void
 		{
 			if(monitorActive)
 			{
@@ -62,14 +66,13 @@ package uk.co.baremedia.gnomo.managers
 			}
 			else
 			{
-				broadcastConnectionStatus(monitorActive);
+				broadcastToGroup(false);
 				startFeedbackTimer(false);
 			}
 		}
 		
 		protected function handleConnectionStatus(connected:Boolean):void
 		{
-			broadcastConnectionStatus(connected);
 			if(connected) hasExceededWaiting(true);
 			
 			if(connected)
@@ -92,19 +95,22 @@ package uk.co.baremedia.gnomo.managers
 		
 		private function onGroupFeedbackTimeoutRequest(event:TimerEvent):void
 		{
+			//Tracer.log(this, "onGroupFeedbackTimeoutRequest");
 			broadcastToGroup(true);
 			
 			//var canBroadcastConnectionStatus:Boolean = (_connected) ? hasExceededWaiting() : true;
 			if( hasExceededWaiting() )
 			{
-				debug("NO GROUP FEEDBACK");
+				//Tracer.log(this, "onGroupFeedbackTimeoutRequest - hasExceededWaiting");
+				//debug("NO GROUP FEEDBACK");
 				_connected = false;
 				hasExceededWaiting(true);
 				handleConnectionStatus(false);
+				broadcastConnectionStatus(false);
 			}
 			else
 			{
-				debug("WAITING GROUP FEEDBACK");
+				//debug("WAITING GROUP FEEDBACK");
 			}
 		}
 		
@@ -124,14 +130,16 @@ package uk.co.baremedia.gnomo.managers
 		
 		private function startFeedbackTimer(startNotStop:Boolean):void
 		{
-			if(startNotStop && !_feedbackRequestTimer.running)
+			Tracer.log(this, "startFeedbackTimer - startNotStop: "+startNotStop);
+			
+			if(!startNotStop)
+			{
+				_feedbackRequestTimer.stop();
+			}
+			else if(startNotStop && !_feedbackRequestTimer.running)
 			{
 				_feedbackRequestTimer.reset();
 				_feedbackRequestTimer.start();
-			}
-			else if(!startNotStop)
-			{
-				_feedbackRequestTimer.stop();
 			}
 		}
 		
@@ -149,10 +157,13 @@ package uk.co.baremedia.gnomo.managers
 		
 		private function groupFeebackReceived():void
 		{
+			//Tracer.log(this, "groupFeebackReceived");
 			_connected = true;
 			broadcastConnectionStatus(true);
 			handleConnectionStatus(true);
-			debug("GROUP FEEDBACK RECEIVED");
+			if(stopAskingFeedbackOnFirstResponse) 
+				askFeedback(false);			
+			//debug("GROUP FEEDBACK RECEIVED");
 		}
 		
 		private function broadcastConnectionStatus(connected:Boolean):void
