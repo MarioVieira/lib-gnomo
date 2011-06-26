@@ -67,7 +67,7 @@ package uk.co.baremedia.gnomo.controls
 			var log:VOLog 				 = new VOLog();
 			log.action 					 = action;
 			log.dateAndTime 			 = dateAndTime;
-			log.elapsedTransmissionSec   = elapsedTransmissionMilisec * 1000;
+			log.elapsedTransmissionSec   = elapsedTransmissionMilisec / 1000;
 			
 			var logsReference:VOLogs = _model.logs;
 			
