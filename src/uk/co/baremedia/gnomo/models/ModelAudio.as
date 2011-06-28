@@ -17,7 +17,7 @@ package uk.co.baremedia.gnomo.models
 		public static const ACTIVITY_CHANGE  			:String = "activityChange";
 		public static const RECEIVING 		 			:String = "receiving";
 		public static const SENSIBILITY_CHANGE			:String = "sensibilityChange";
-		public static const DEFAULT_SENSISBILIY			:Number = 50;
+		public static const DEFAULT_SENSISBILIY			:Number = 5;
 		
 		public var microphone					:Microphone;
 		
@@ -76,7 +76,7 @@ package uk.co.baremedia.gnomo.models
 		
 		public function set broadcasterInfo(value:MediaBroadcastEvent):void
 		{
-			Tracer.log(this, "set broadcasterInfo");
+			//Tracer.log(this, "set broadcasterInfo");
 			_broadcasterInfo = value;
 			broadcastModelChange(BROADCASTER_MEDIA_AVAILABLE);
 		}

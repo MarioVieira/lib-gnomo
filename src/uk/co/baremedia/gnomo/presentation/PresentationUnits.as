@@ -1,7 +1,6 @@
 package uk.co.baremedia.gnomo.presentation
 {
 	import com.projectcocoon.p2p.util.Tracer;
-	import com.projectcocoon.p2p.vo.AccelerationVO;
 	
 	import org.as3.mvcsInjector.interfaces.IDispose;
 	import org.osflash.signals.Signal;
@@ -34,7 +33,7 @@ package uk.co.baremedia.gnomo.presentation
 		[Bindable] public var listening					:Boolean;
 		[Bindable] public var debugText					:String = "no info";
 		[Bindable] public var canListen					:Boolean;
-		[Bindable] public var canStopListening			:Boolean
+		[Bindable] public var canStopListening			:Boolean;
 		
 		
 		public var uiChange								:Signal;
@@ -69,7 +68,7 @@ package uk.co.baremedia.gnomo.presentation
 		{
 			if(!connected)
 			{
-				Tracer.log(this, "CONNECT");
+				//Tracer.log(this, "CONNECT");
 				_controlUnits.setConnectedMode(true);
 			}
 		}
@@ -122,6 +121,7 @@ package uk.co.baremedia.gnomo.presentation
 		{
 			_modelModes.remove(onModeChange);
 			_modelAudio.remove(onModelAudio);
+			_modelNetwork.remove(onConnectionAlert);
 		}
 		
 		private function setObservers():void
@@ -129,6 +129,29 @@ package uk.co.baremedia.gnomo.presentation
 			_modelModes.add(onModeChange);
 			_modelAudio.add(onModelAudio);
 			_modelNetwork.add(onConnectionAlert);
+			_signalNotifier.add(onSignalNotifier);
+			_controlUnits.listenSignal.add(onListening);
+		}
+		
+		private function onListening(listening:Boolean):void
+		{
+			this.listening = listening;
+			defineListenText();
+			notifyUiDataChange();
+			setReceiving();
+			Tracer.log(this, "onListening - listening: "+listening);
+		}
+		
+		private function onSignalNotifier(vo:VONotifierInfo):void
+		{
+			if(vo.notificationType == EnumsNotification.KEEP_ALIVE)
+			{
+				textTopNote = "KEEP IOS ALIVE and STOP NETWORK MONITOR!";
+			}
+			else if(vo.notificationType == "mic")
+			{
+				textConnectionStatus = vo.notificationValue.toString();		
+			}
 		}
 		
 		private function setText():void
@@ -144,21 +167,20 @@ package uk.co.baremedia.gnomo.presentation
 			listenBroadcaster(listen);
 		}
 		
-				private function listenBroadcaster(listenNotStop:Boolean):void
+		private function listenBroadcaster(listenNotStop:Boolean):void
 		{
 			if(listenNotStop && _controlUnits.hasBroadcasterInfo)
 			{
-				listening = true;
 				_controlUnits.listenBroadcaster();
 			}
 			else if(!listenNotStop)
 			{
 				_controlUnits.stopListening();
-				listening = false;
 			}
 			
 			defineListenText();
 			notifyUiDataChange();
+			setReceiving();
 		}
 		
 		public function defineListenText():void
@@ -173,8 +195,8 @@ package uk.co.baremedia.gnomo.presentation
 		
 		public function disconnectOrConnect():void
 		{
-			if(receiving && _modelNetwork.connected) _controlUnits.setConnectedMode(true);
-			else if(!receiving && !_modelNetwork.connected) _controlUnits.setConnectedMode(false); 
+			if(_modelNetwork.connected) _controlUnits.setConnectedMode(false);
+			else					  	_controlUnits.setConnectedMode(true); 
 		}
 		
 		public function setAsBabyUnit():void
@@ -250,8 +272,6 @@ package uk.co.baremedia.gnomo.presentation
 			setReceiving();
 			setBroadcasting();
 			notifyUiDataChange();
-			//if(!_modelModes.localNetworkConnected) requestAlert(ALERT_DISCONNECTED);
-			//requestAlert(null);
 		}	
 		
 		private function onConnectionAlert(changeType:String):void
@@ -262,7 +282,6 @@ package uk.co.baremedia.gnomo.presentation
 			}
 			else if(changeType == ModelNetworkManager.CONNECTION_ALERT && !_modelNetwork.connectionAlert && _alertOpen)
 			{
-				//Tracer.log(this, "REMOVE");
 				requestAlert(null);
 			}
 		}

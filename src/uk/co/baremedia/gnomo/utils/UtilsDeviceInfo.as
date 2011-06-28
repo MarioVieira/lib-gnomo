@@ -13,8 +13,9 @@ package uk.co.baremedia.gnomo.utils
 		public static const OS		:String  = "os";
 		
 		public static const ANDROID	:String  = "and";
-		public static const IPHONE	:String  = "iphone";
-		public static const IPAD:String 	 = "ipad";
+		public static const IPHONE	:String  = "ios";
+		public static const IPAD	:String  = "ios";
+		public static const IOS		:String  = "ios";
 		
 		public static function getDeviceType():VODeviceInfo
 		{

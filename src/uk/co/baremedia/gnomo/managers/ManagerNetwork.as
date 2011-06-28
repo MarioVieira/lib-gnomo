@@ -42,30 +42,32 @@ package uk.co.baremedia.gnomo.managers
 		protected var _messenger			:IP2PMessenger;
 		
 		private var _groupConnected			:Boolean;
-		private var _askFeedback 				:Boolean = true;
 		private var _audioActivity			:Signal;
 		private var _signalNotifier			:SignalNotifier;
 		
-		
 		public function ManagerNetwork(localNetwork:LocalNetworkDiscovery, messenger:IP2PMessenger, model:ModelNetworkManager, signalNotifier:SignalNotifier)
 		{
-			_messenger			= messenger;
-			_localNetwork		= localNetwork;
-			_modelLocalNetwork 	= model;
+			_messenger				= messenger;
+			_localNetwork			= localNetwork;
+			_modelLocalNetwork 		= model;
 			
-			_groupConnectionSignal= new Signal();
+			_groupConnectionSignal  = new Signal();
 			
-			_mediaBroadcast 	= new Signal(MediaBroadcastEvent);
-			_noConnection		= new Signal();
-			_debug				= new Signal();
-			_audioActivity		= new Signal();
-			_signalNotifier		= signalNotifier;		
+			_mediaBroadcast 		= new Signal(MediaBroadcastEvent);
+			_noConnection			= new Signal();
+			_debug					= new Signal();
+			_audioActivity			= new Signal();
+			_signalNotifier			= signalNotifier;		
 			
 			registerClassesForSerialization();
 			setupLocalNetwork(deviceType);
 			setupNetworkMonitor(messenger);
 		}
 		
+		public function set broadcastMonitorState(value:Boolean):void
+		{
+			_controlNetworkMonitor.broadcastMonitorState;
+		}
 		
 		public function get netStreamSignal():Signal
 		{
@@ -105,7 +107,6 @@ package uk.co.baremedia.gnomo.managers
 		private function setupNetworkMonitor(messenger:IP2PMessenger):void
 		{
 			_controlNetworkMonitor = new ManagerNetworkMonitor(messenger);
-			_controlNetworkMonitor.monitorDebug.add(onMonitorDebug);
 			_controlNetworkMonitor.connectionStatus.add(onConnectionChange);
 		}
 
@@ -147,24 +148,24 @@ package uk.co.baremedia.gnomo.managers
 		 *							COMMON CONTROLS
 		 ***********************************************************************/
 		
-		public function askFeedback(startNotStopMonitor:Boolean):void
+		public function startNetworkMonitor(startNotStopMonitor:Boolean):void
 		{
-			_askFeedback  = startNotStopMonitor;
-			_controlNetworkMonitor.askFeedback(startNotStopMonitor);
+			_controlNetworkMonitor.startNetworkMonitor(startNotStopMonitor);
 		}
 		
 		public function connect():void
 		{
 			Tracer.log(this, "connect - _groupConnected: "+_groupConnected);
-			if(_groupConnected) askFeedback(true);
+			if(_groupConnected) startNetworkMonitor(true);
 			else 			   	_noConnection.dispatch();
 		}
 		
 		public function disconnect(switchOff:Boolean = false):void
 		{
 			//Tracer.log(this, "disconnect");
-			askFeedback(false);
+			startNetworkMonitor(false);
 			if(switchOff) _localNetwork.close();
+			_groupConnected = false;
 		}
 		
 		
@@ -212,10 +213,13 @@ package uk.co.baremedia.gnomo.managers
 		 ***********************************************************************/
 		private function onGroupConnection(event:Event):void
 		{
-			//Tracer.log(this, "onGroupConnection");
+			Tracer.log(this, "onGroupConnection");
 			_groupConnectionSignal.dispatch();
-			_groupConnected = true;
-			if(autoConnect) connect();
+			if(!_groupConnected)
+			{
+				_groupConnected = true;
+				if(autoConnect) connect();
+			}
 		}
 		
 		private function onConnectionChange(connected:Boolean):void
@@ -227,7 +231,6 @@ package uk.co.baremedia.gnomo.managers
 		protected function onMedia(event:MediaBroadcastEvent):void
 		{
 			//Tracer.log(this, "onMedia - mediaInfo.order: "+event.mediaInfo.order);
-			askFeedback(true);
 			_mediaBroadcast.dispatch(event);
 		}
 		

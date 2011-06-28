@@ -16,6 +16,7 @@ package uk.co.baremedia.gnomo.managers
 	import uk.co.baremedia.gnomo.models.ModelAudio;
 	import uk.co.baremedia.gnomo.roles.RolesReceiver;
 	import uk.co.baremedia.gnomo.signals.SignalCrossPlatformExchange;
+	import uk.co.baremedia.gnomo.signals.SignalNotifier;
 	import uk.co.baremedia.gnomo.utils.UtilsMedia;
 	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
 	
@@ -29,9 +30,9 @@ package uk.co.baremedia.gnomo.managers
 		private var _crossPlatformExchange	:SignalCrossPlatformExchange;
 		private var _audioMonitor			:ControlAudioMonitor;
 		
-		public function ManagerAudio(mediaMesseger:IAudioBroadcaster, controlAudioMonitor:ControlAudioMonitor, model:ModelAudio, deviceType:String, crossPlatformExchage:SignalCrossPlatformExchange)
+		public function ManagerAudio(mediaMesseger:IAudioBroadcaster, controlAudioMonitor:ControlAudioMonitor, model:ModelAudio, deviceType:String, crossPlatformExchage:SignalCrossPlatformExchange, notifier:SignalNotifier)
 		{
-			_playerControl 			= new ControlPlayer(mediaMesseger);
+			_playerControl 			= new ControlPlayer(mediaMesseger, model, notifier);
 			_audioMonitor			= controlAudioMonitor;
 			_mediaMesseger 			= mediaMesseger;
 			_modelAudio	   			= model;
@@ -45,6 +46,11 @@ package uk.co.baremedia.gnomo.managers
 		private function setObservers():void
 		{
 			_mediaMesseger.audioActivityMessage.add(onAudioActivityMessage);
+		}
+		
+		public function get audioActivityMessage():Signal
+		{
+			return _mediaMesseger.audioActivityMessage;
 		}
 		
 		private function onAudioActivityMessage(startNotStopAudio:Boolean):void
@@ -109,7 +115,7 @@ package uk.co.baremedia.gnomo.managers
 				_modelAudio.microphone   = mic;
 				_modelAudio.broadcasterInfo = null;
 				
-				_audioMonitor.startActivityMonitor();
+				//_audioMonitor.startActivityMonitor();
 			}
 			else
 			{
@@ -172,6 +178,19 @@ package uk.co.baremedia.gnomo.managers
 		public function set volume(value:Number):void
 		{
 			_playerControl.volume = value;
+		}
+		
+		public function grabMicrophone():void
+		{
+			if(!_modelAudio.microphone) 
+			{
+				_modelAudio.microphone = UtilsMedia.getMicrophone();
+				Tracer.log(this, "grabbed mic: "+_modelAudio.microphone);
+			}
+			else
+			{
+				_modelAudio.microphone = null;
+			}
 		}
 	}
 }

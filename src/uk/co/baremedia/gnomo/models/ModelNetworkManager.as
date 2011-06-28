@@ -13,7 +13,7 @@ package uk.co.baremedia.gnomo.models
 		private var _connected					:Boolean;
 		
 		//starts as true so there will be a change if not connected
-		private var _connectionAlert			:Boolean;
+		private var _connectionAlert			:Boolean = true;
 		
 		
 		public function get connected():Boolean

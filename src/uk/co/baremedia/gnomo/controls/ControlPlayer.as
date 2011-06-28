@@ -11,8 +11,14 @@ package uk.co.baremedia.gnomo.controls
 	import org.osflash.signals.Signal;
 	
 	import uk.co.baremedia.gnomo.enums.EnumsModes;
+	import uk.co.baremedia.gnomo.enums.EnumsNotification;
 	import uk.co.baremedia.gnomo.enums.EnumsSettings;
 	import uk.co.baremedia.gnomo.interfaces.IAudioBroadcaster;
+	import uk.co.baremedia.gnomo.models.ModelAudio;
+	import uk.co.baremedia.gnomo.models.ModelDeviceInfo;
+	import uk.co.baremedia.gnomo.models.ModelModes;
+	import uk.co.baremedia.gnomo.signals.SignalNotifier;
+	import uk.co.baremedia.gnomo.utils.UtilsAppNotifier;
 	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
 	
 	public class ControlPlayer
@@ -25,9 +31,13 @@ package uk.co.baremedia.gnomo.controls
 		public var debug:Signal;
 		private var _playing			:Boolean;
 		private var _volume				:Number = EnumsSettings.DEFAULT_VOLUME;
+		private var _modelAudio			:ModelAudio;
+		private var _notifier			:SignalNotifier;
 		
-		public function ControlPlayer(mediaProvider:IAudioBroadcaster)
+		public function ControlPlayer(mediaProvider:IAudioBroadcaster, modelAudio:ModelAudio, notifer:SignalNotifier)
 		{
+			_notifier		= notifer;
+			_modelAudio		= modelAudio;
 			_netStreamSignal = new Signal(NetStream);
 			debug 			= new Signal(VONotifierInfo);
 			_player 		= new Video();
@@ -106,6 +116,8 @@ package uk.co.baremedia.gnomo.controls
 			_netStreamSignal.dispatch(_receiveStream);
 			//always no volume when it first mount the stream
 			_receiveStream.soundTransform = getVolume(_volume);
+			Tracer.log(this, "mountStream - _modelAudio: "+_modelAudio+"  _notifier: "+_notifier);
+			UtilsAppNotifier.notifyApp(_notifier, "mic", "IOS KEEP ALIVE - MIC: "+ String(_modelAudio.microphone) );
 		}
 		
 		protected function getVolume(vol:Number):SoundTransform

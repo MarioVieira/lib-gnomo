@@ -22,5 +22,6 @@ package uk.co.baremedia.gnomo.enums
 		public static const AUDIO_ACTIVITY				:String = "audioActivity";
 		public static const BABY_UNIT_TAKEN				:String = "babyUnitTaken";
 		public static const ACCELEROMETER				:String = "accelerometer";
+		public static const KEEP_ALIVE					:String = "keppAlive";
 	}
 }

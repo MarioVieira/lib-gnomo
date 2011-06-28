@@ -94,8 +94,8 @@ package uk.co.baremedia.gnomo.presentation
 
 		private function requestScreenConnect():void
 		{
-			if(UtilsNetwork.hasWiFiConnection()) _controlUnits.requestScreenConnect();
-			else								 _controlUnits.requestNoWirelessScreen();
+			/*if(UtilsNetwork.hasWiFiConnection()) _controlUnits.requestScreenConnect();
+			else								 _controlUnits.requestNoWirelessScreen();*/
 		}
 	}
 }

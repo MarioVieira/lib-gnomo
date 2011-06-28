@@ -1,13 +1,16 @@
 package uk.co.baremedia.gnomo.interfaces
 {
-	import uk.co.baremedia.gnomo.vo.VOLocalNetworkMessage;
-	
 	import flash.media.Microphone;
 	
 	import org.osflash.signals.Signal;
+	
+	import uk.co.baremedia.gnomo.vo.VOLocalNetworkMessage;
 
 	public interface INetworkManager extends IAudioBroadcaster
 	{
+			
+		function set broadcastMonitorState(value:Boolean):void
+		
 		function get netStreamSignal():Signal;
 		
 		function get groupConnectedSignal():Signal;
@@ -20,8 +23,8 @@ package uk.co.baremedia.gnomo.interfaces
 		
 		function get debug():Signal;
 
-		function askFeedback(startNotStopMonitor:Boolean):void;
-
+		function startNetworkMonitor(startNotStopMonitor:Boolean):void;
+		
 		function connect():void;
 
 		function disconnect(switchOff:Boolean = false):void;

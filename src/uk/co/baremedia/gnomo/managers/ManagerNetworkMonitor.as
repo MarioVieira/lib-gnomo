@@ -13,26 +13,23 @@ package uk.co.baremedia.gnomo.managers
 	
 	public class ManagerNetworkMonitor
 	{
-		[Bindable] public var stopAskingFeedbackOnFirstResponse	: Boolean;
+		[Bindable] public var broadcastMonitorState				: Boolean = true;
 		
 		private var _localNetworkMessenger						: IP2PMessenger;
-		private var _feedbackRequestTimer						: Timer;
+		private var _feedbackRequestTimeout						: Timer;
+		private var _askFeedbackTimer							: Timer;
+		
 		private var _connectionIdentifier						: Signal;
 		private var _requestCount								: int;
-		private var _connected									: Boolean;
-		
-		public var monitorDebug									: Signal;
-		
-		
-		
+		private var _reponseProvided									: Boolean;
+		private var _keepAlive:Boolean;
 		
 		public function ManagerNetworkMonitor(localNetworkMessenger:IP2PMessenger)
 		{
-			monitorDebug			= new Signal();
 			_connectionIdentifier 	= new Signal(Boolean);
 			_localNetworkMessenger 	= localNetworkMessenger;
 			
-			setupGroupFeebackTimer( EnumsLocalNetwork.MONITOR_FIRST_CONNECTION_DELAY );
+			setupTimers();
 		}
 		
 		public function get connectionStatus():Signal
@@ -40,140 +37,72 @@ package uk.co.baremedia.gnomo.managers
 			return _connectionIdentifier;
 		}
 		
-		private function setupGroupFeebackTimer(delay:Number):void
+		private function setupTimers():void
 		{
-			if(!_feedbackRequestTimer)
-			{
-				//debug("1st CONNECTION TIME: "+delay);
-				_feedbackRequestTimer = new Timer(delay);
-				_feedbackRequestTimer.addEventListener(TimerEvent.TIMER, onGroupFeedbackTimeoutRequest);
-			}
-			else if(_feedbackRequestTimer.delay != delay)
-			{
-				//debug("CONNECTED; CHANGE TIME TO KEEP ALIVE: "+delay);
-				_feedbackRequestTimer.reset();
-				_feedbackRequestTimer.delay = delay;
-				_feedbackRequestTimer.start();
-			}
-		}
-		
-		public function askFeedback(monitorActive:Boolean):void
-		{
-			if(monitorActive)
-			{
-				broadcastToGroup(true);
-				startFeedbackTimer(true);
-			}
-			else
-			{
-				broadcastToGroup(false);
-				startFeedbackTimer(false);
-			}
-		}
-		
-		protected function handleConnectionStatus(connected:Boolean):void
-		{
-			if(connected) hasExceededWaiting(true);
+			_feedbackRequestTimeout = new Timer(EnumsLocalNetwork.MONITOR_REQUEST_TIMEOUT);
+			_feedbackRequestTimeout.addEventListener(TimerEvent.TIMER, onGroupFeedbackTimeout);
 			
-			if(connected)
-			{
-				setupGroupFeebackTimer( EnumsLocalNetwork.MONITOR_CONNECTION_DELAY );
-			}
-			else
-			{
-				setupGroupFeebackTimer( EnumsLocalNetwork.MONITOR_FIRST_CONNECTION_DELAY );
-			}
+			_askFeedbackTimer = new Timer(EnumsLocalNetwork.MONITOR_REQUEST_RESPONSE);
+			_askFeedbackTimer.addEventListener(TimerEvent.TIMER, onAskFeedbackTimer);
 		}
 		
-		/**
-		 *
-		 * This is the handler for the group feedback request timer. When called it means no group feedback has been provided, therefore no connection.
-		 *  
-		 * @param event
-		 * 
-		 */		
-		
-		private function onGroupFeedbackTimeoutRequest(event:TimerEvent):void
+		private function onGroupFeedbackTimeout(event:TimerEvent):void
 		{
-			//Tracer.log(this, "onGroupFeedbackTimeoutRequest");
-			broadcastToGroup(true);
+			if(!_reponseProvided) broadcastConnectionStatus(false);
+			else				  _reponseProvided = false;
+		}
 			
-			//var canBroadcastConnectionStatus:Boolean = (_connected) ? hasExceededWaiting() : true;
-			if( hasExceededWaiting() )
-			{
-				//Tracer.log(this, "onGroupFeedbackTimeoutRequest - hasExceededWaiting");
-				//debug("NO GROUP FEEDBACK");
-				_connected = false;
-				hasExceededWaiting(true);
-				handleConnectionStatus(false);
-				broadcastConnectionStatus(false);
-			}
-			else
-			{
-				//debug("WAITING GROUP FEEDBACK");
-			}
+		protected function onAskFeedbackTimer(event:TimerEvent):void
+		{
+			broadcastToGroup(true);	
 		}
 		
-		private function hasExceededWaiting(reset:Boolean = false):Boolean
+		public function startNetworkMonitor(startNotStop:Boolean):void
 		{
-			if(!reset) _requestCount++
-			else _requestCount = 0;
-			
-			return (_requestCount > 2);
+			Tracer.log(this, "startNetworkMonitor - startNotStop: "+startNotStop);
+			_keepAlive = startNotStop;
+			startFeedbackTimeout(startNotStop);
+			startAskFeedbackTimer(startNotStop);
 		}
 		
-		private function broadcastToGroup(requestNotResponseFeeback:Boolean):void
+		private function startAskFeedbackTimer(startNotStop:Boolean):void
 		{
-			var message:String = (requestNotResponseFeeback) ? EnumsLocalNetwork.GROUP_FEEDBACK_RESPONSE : EnumsLocalNetwork.GROUP_FEEDBACK_REQUEST;
-			_localNetworkMessenger.sendMessageToLocalNetwork( UtilsMessenger.getMessage(message, _localNetworkMessenger.deviceType) );
+			_askFeedbackTimer.reset();
+			if(startNotStop)	_askFeedbackTimer.start();
+			else				_askFeedbackTimer.stop();
+		}
+	
+		private function startFeedbackTimeout(startNotStop:Boolean):void
+		{
+			_feedbackRequestTimeout.reset();
+			if(!startNotStop) 	_feedbackRequestTimeout.stop();
+			else 				_feedbackRequestTimeout.start();
 		}
 		
-		private function startFeedbackTimer(startNotStop:Boolean):void
+		protected function feedbackReceived():void
 		{
-			Tracer.log(this, "startFeedbackTimer - startNotStop: "+startNotStop);
-			
-			if(!startNotStop)
-			{
-				_feedbackRequestTimer.stop();
-			}
-			else if(startNotStop && !_feedbackRequestTimer.running)
-			{
-				_feedbackRequestTimer.reset();
-				_feedbackRequestTimer.start();
-			}
+			_reponseProvided = true;
+			broadcastConnectionStatus(true);
+			if(!_keepAlive) startNetworkMonitor(false);
 		}
 		
 		public function defineMessageOperation(message:VOLocalNetworkMessage):void
 		{
-			if(message.messageType == EnumsLocalNetwork.GROUP_FEEDBACK_RESPONSE)
-			{
-				groupFeebackReceived();
-			}
-			else if(message.messageType == EnumsLocalNetwork.GROUP_FEEDBACK_REQUEST)
-			{
-				broadcastToGroup(false);
-			}
+			//Tracer.log(this, "defineMessageOperation: "+message.messageType);
+			if(message.messageType == EnumsLocalNetwork.GROUP_FEEDBACK_RESPONSE) 	 feedbackReceived();
+			else if(message.messageType == EnumsLocalNetwork.GROUP_FEEDBACK_REQUEST) broadcastToGroup(false);
+			
 		}
 		
-		private function groupFeebackReceived():void
+		private function broadcastToGroup(requestNotRespond:Boolean):void
 		{
-			//Tracer.log(this, "groupFeebackReceived");
-			_connected = true;
-			broadcastConnectionStatus(true);
-			handleConnectionStatus(true);
-			if(stopAskingFeedbackOnFirstResponse) 
-				askFeedback(false);			
-			//debug("GROUP FEEDBACK RECEIVED");
+			var message:String = (requestNotRespond) ? EnumsLocalNetwork.GROUP_FEEDBACK_REQUEST : EnumsLocalNetwork.GROUP_FEEDBACK_RESPONSE;
+			_localNetworkMessenger.sendMessageToLocalNetwork( UtilsMessenger.getMessage(message, _localNetworkMessenger.deviceType) );
 		}
 		
 		private function broadcastConnectionStatus(connected:Boolean):void
 		{
 			_connectionIdentifier.dispatch(connected);
-		}
-		
-		protected function debug(message:String):void
-		{
-			monitorDebug.dispatch(message);
 		}
 	}
 }

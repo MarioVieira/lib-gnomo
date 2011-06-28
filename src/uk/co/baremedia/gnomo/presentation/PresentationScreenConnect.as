@@ -21,7 +21,7 @@ package uk.co.baremedia.gnomo.presentation
 		
 		public function requestScreenModes():void
 		{
-			_controlUnits.requesScreenModes();
+			//_controlUnits.requesScreenModes();
 		}
 		
 		public function dispose(recursive:Boolean=true):void
