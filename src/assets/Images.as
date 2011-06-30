@@ -21,5 +21,7 @@ package assets
 		[Embed(source="./images/devices_240dpi.png")] public static var devices_240dpi:Class;
 		[Embed(source="./images/devices_320dpi.png")] public static var devices_320dpi:Class;
 		
+		[Embed(source="./icons/remove_lowRes.png")] public static var removeListIcon:Class;
+		
 	}
 }

@@ -7,7 +7,6 @@ package uk.co.baremedia.gnomo.managers
 	import com.projectcocoon.p2p.events.MessageEvent;
 	import com.projectcocoon.p2p.util.ClassRegistry;
 	import com.projectcocoon.p2p.util.Tracer;
-	import com.projectcocoon.p2p.vo.MediaVO;
 	
 	import flash.events.Event;
 	import flash.media.Microphone;
@@ -20,7 +19,6 @@ package uk.co.baremedia.gnomo.managers
 	import uk.co.baremedia.gnomo.interfaces.ILocalNetworkMessenger;
 	import uk.co.baremedia.gnomo.interfaces.INetworkManager;
 	import uk.co.baremedia.gnomo.interfaces.IP2PMessenger;
-	import uk.co.baremedia.gnomo.models.ModelDeviceInfo;
 	import uk.co.baremedia.gnomo.models.ModelNetworkManager;
 	import uk.co.baremedia.gnomo.signals.SignalNotifier;
 	import uk.co.baremedia.gnomo.utils.UtilsAppNotifier;
@@ -30,7 +28,7 @@ package uk.co.baremedia.gnomo.managers
 	public class ManagerNetwork implements ILocalNetworkMessenger, IAudioBroadcaster, INetworkManager
 	{
 		[Bindable] public var autoConnect	:Boolean = true;
-		public var _groupConnectionSignal		:Signal;
+		public var _groupConnectionSignal	:Signal;
 		
 		private var _mediaBroadcast			:Signal;
 		private var _noConnection			:Signal;
@@ -116,7 +114,6 @@ package uk.co.baremedia.gnomo.managers
 			_localNetwork.addEventListener(GroupEvent.GROUP_CONNECTED, onGroupConnection);
 			_localNetwork.addEventListener(MessageEvent.DATA_RECEIVED, onMessage);
 			_localNetwork.addEventListener(MediaBroadcastEvent.MEDIA_BROADCAST, onMedia);
-			_localNetwork.addEventListener(AccelerationEvent.ACCELEROMETER, onAccelerometer);
 			_localNetwork.connect();
 			//_localNetwork.accelerometerInterval = 50;
 		}

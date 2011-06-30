@@ -5,6 +5,13 @@ package uk.co.baremedia.gnomo.utils
 	 */
 	public class UtilsDate
 	{
+		public static function getReabeableDateFromStringDate(stringDate:Number):String
+		{
+			var date:Date = new Date(stringDate);
+			var month:String = (String(date.month).length == 1) ? "0"+String(date.month) : String(date.month);
+			return date.date+"/"+month+"/"+String(date.fullYear).substr(2);
+		}
+		
 		public static function getSevenDaysAgoDate() : Date
 		{
 			var now:Date = new Date();

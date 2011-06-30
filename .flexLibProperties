@@ -51,6 +51,7 @@
     <classEntry path="uk.co.baremedia.gnomo.controls.ControlDirectConnection"/>
     <classEntry path="uk.co.baremedia.gnomo.controls.ControlSpecificVersion"/>
     <classEntry path="uk.co.baremedia.gnomo.signals.SignalListen"/>
+    <classEntry path="uk.co.baremedia.gnomo.utils.UtilsStaticUIInfo"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

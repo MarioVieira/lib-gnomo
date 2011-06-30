@@ -4,6 +4,10 @@ package uk.co.baremedia.gnomo.models
 	
 	import flash.net.SharedObject;
 	
+	import mx.collections.ArrayCollection;
+	import mx.collections.IViewCursor;
+	import mx.managers.ICursorManager;
+	
 	import org.as3.mvcsInjector.interfaces.IModelChange;
 	import org.as3.serializer.Serializer;
 	import org.osflash.signals.Signal;
@@ -55,16 +59,41 @@ package uk.co.baremedia.gnomo.models
 		
 		protected function removeLogsOlderThanSevenDays(logs:VOLogs):VOLogs
 		{
-			var sevenDayAgoTime:Number 	= UtilsDate.getSevenDaysAgoDate().getTime();
-			var vector:Vector.<VOLog> 	= new Vector.<VOLog>(logs);
+			/*var nowTime			:Number				= new Date().getTime();
+			var sevenDayAgoTime	:Number 			= UtilsDate.getSevenDaysAgoDate().getTime();
 			
-			for(var i:int; i < vector.length; i++)
+			var tmpLogs			:ArrayCollection 	= new ArrayCollection(logs.logs.source);
+			var foundLogsIndexes:Array 				= [];
+			
+			for(var i:int; i < tmpLogs.length; i++)
 			{
-				if(vector[i].time >= sevenDayAgoTime) logs.logs.removeItemAt(i);
+				if(sevenDayAgoTime - tmpLogs[i].dateAndTime < nowTime) 
+					foundLogsIndexes.push(i);
 			}
+			
+			for each(var index:int in foundLogsIndexes)
+			{
+				if(tmpLogs.length >= index) tmpLogs.removeItemAt(index);	
+			}
+			
+			var newLogs:VOLogs = new VOLogs();
+			newLogs.logs = tmpLogs;*/
 			
 			return logs;
 		}
+		
+		public function getLogIndex(logsDateAndTime:Number):int
+		{
+			var tmpLogs	:ArrayCollection 	= new ArrayCollection(logs.logs.source);
+			
+			for(var i:int; i < tmpLogs.length; i++)
+			{
+				if( tmpLogs[i].dateAndTime == logsDateAndTime ) return i;
+			}
+			
+			return -1;
+		}
+
 
 		public function get dataChange():Signal
 		{

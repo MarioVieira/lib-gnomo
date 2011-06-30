@@ -4,8 +4,6 @@ package uk.co.baremedia.gnomo.managers
 	
 	import flash.media.Microphone;
 	
-	import mx.utils.OnDemandEventDispatcher;
-	
 	import org.as3.mvcsInjector.utils.Tracer;
 	import org.osflash.signals.Signal;
 	
@@ -114,8 +112,7 @@ package uk.co.baremedia.gnomo.managers
 				_mediaMesseger.broadcastAudioToGroup(mic, orderType);
 				_modelAudio.microphone   = mic;
 				_modelAudio.broadcasterInfo = null;
-				
-				//_audioMonitor.startActivityMonitor();
+				_audioMonitor.startActivityMonitor();
 			}
 			else
 			{

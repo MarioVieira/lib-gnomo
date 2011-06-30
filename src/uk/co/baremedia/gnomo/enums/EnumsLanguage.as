@@ -31,5 +31,9 @@ package uk.co.baremedia.gnomo.enums
 		public static const ELAPSED_TIME:String				= "ELAPSED_TIME";
 		public static const DATE:String						= "DATE";
 		public static const INSTRUCTIONS_LOG				= "INSTRUCTIONS_LOG";
+		public static const EDIT:String						= "EDIT";
+		public static const SEC:String						= "SEC";
+		public static const DONE:String						= "DONE"
+		public static const OPTIONS:String					= "OPTIONS";
 	}
 }

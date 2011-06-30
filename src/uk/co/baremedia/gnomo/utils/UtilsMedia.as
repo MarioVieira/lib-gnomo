@@ -12,7 +12,7 @@ package uk.co.baremedia.gnomo.utils
 			mic.setLoopBack(true);
 			
 			mic.gain = 50;
-			mic.rate = 8;
+			mic.rate = 16;
 			
 			var sound:SoundTransform = new SoundTransform(0);
 			mic.soundTransform = sound;

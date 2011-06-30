@@ -1,11 +1,13 @@
 package uk.co.baremedia.gnomo.controls
 {
+	import uk.co.baremedia.gnomo.vo.VOLog;
 	import org.robotlegs.core.IInitializer;
 	import org.robotlegs.core.IInjector;
 	
 	import uk.co.baremedia.gnomo.enums.EnumsScreens;
 	import uk.co.baremedia.gnomo.models.ModelAudio;
 	import uk.co.baremedia.gnomo.signals.SignalViewNavigation;
+	import uk.co.baremedia.gnomo.vo.VOLog;
 	import uk.co.baremedia.gnomo.vo.VOLogs;
 	
 	

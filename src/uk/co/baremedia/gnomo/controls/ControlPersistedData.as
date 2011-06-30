@@ -72,10 +72,22 @@ package uk.co.baremedia.gnomo.controls
 			var logsReference:VOLogs = _model.logs;
 			
 			logsReference = (!logsReference) ? new VOLogs() : logsReference;
-			Tracer.log(this, "addLogs - logsReference: "+logsReference);
+			//Tracer.log(this, "addLogs - logsReference: "+logsReference);
 			logsReference.logs.addItem(log);
 			
 			_model.logs = logsReference;
+		}
+		
+		public function removeLog(log:VOLog):void
+		{
+			Tracer.log(this, "removeLog - log: "+log.dateAndTime);
+			
+			var tmpLogs			:VOLogs = _model.logs;
+			var foundItemIndex	:int = _model.getLogIndex(log.dateAndTime);    
+			
+			if(foundItemIndex != -1) tmpLogs.logs.removeItemAt(foundItemIndex);
+			
+			_model.logs = tmpLogs;
 		}
 		
 		public function get logs():VOLogs

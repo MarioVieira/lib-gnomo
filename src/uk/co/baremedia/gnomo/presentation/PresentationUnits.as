@@ -112,10 +112,10 @@ package uk.co.baremedia.gnomo.presentation
 			_controlPersistentData.agreementAccepted = value;	
 		}
 		
-		public function fakeAudioActivity(playNotStop:Boolean):void
+		/*public function fakeAudioActivity(playNotStop:Boolean):void
 		{
 			_controlUnits.sendDirectMessage(EnumsNotification.AUDIO_ACTIVITY, (playNotStop) ? 1 : 0);
-		}
+		}*/
 		
 		public function dispose(recursive:Boolean=true):void
 		{
