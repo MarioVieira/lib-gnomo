@@ -5,6 +5,7 @@ package uk.co.baremedia.gnomo.vo
 	{
 		public var deviceType			: String;
 		public var messageType			: String;
-		public var startNotStopAudio	: Boolean;
+		public var elapsedTimeInSec		: Number;
+		public var startNotStop			: Boolean;
 	}
 }

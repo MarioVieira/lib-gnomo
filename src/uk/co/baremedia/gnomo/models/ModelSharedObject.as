@@ -32,7 +32,7 @@ package uk.co.baremedia.gnomo.models
 		
 		public function set logs(newLogs:VOLogs):void
 		{
-			Tracer.log(this, "SAVE logs: "+newLogs);
+			//Tracer.log(this, "SAVE logs: "+newLogs);
 			_sharedObject.data[LOGS] = Serializer.serialize( removeLogsOlderThanSevenDays(newLogs) ).toXMLString();
 			flush();
 			broadcastModelChange(LOGS);
@@ -41,7 +41,7 @@ package uk.co.baremedia.gnomo.models
 		public function get logs():VOLogs
 		{
 			var tmpObject:Object = _sharedObject.data[LOGS];
-			Tracer.log(this, "GET logs: "+tmpObject);
+			//Tracer.log(this, "GET logs: "+tmpObject);
 			return (tmpObject) ? Serializer.deserialize( XML(_sharedObject.data[LOGS]) ) as VOLogs : null;
 		}
 		

@@ -21,9 +21,9 @@ package uk.co.baremedia.gnomo.controls
 			_controlPersistedData = controlPersistedData;
 		}
 		
-		public function addLog(action:String, elapsedAudioTransmission:Number, dateAndTime:Number):void
+		public function addLog(elapsedAudioTransmission:Number):void
 		{
-			_controlPersistedData.addLog(action, elapsedAudioTransmission, dateAndTime);
+			_controlPersistedData.addLog(elapsedAudioTransmission);
 		}
 		
 		public function get logs():VOLogs

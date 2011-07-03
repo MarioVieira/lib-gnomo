@@ -44,7 +44,7 @@ package uk.co.baremedia.gnomo.presentation
 		{
 			if(change == ModelSharedObject.LOGS)
 			{
-				Tracer.log(this, "onModelChange");
+				//Tracer.log(this, "onModelChange");
 				logs = _model.logs.logs;
 			}
 		}
@@ -71,6 +71,11 @@ package uk.co.baremedia.gnomo.presentation
 		public function removeLog(log:VOLog):void
 		{
 			_controlPersistedData.removeLog(log);
+		}
+		
+		public function removeAllLogs():void
+		{
+			_controlPersistedData.removeAllLogs();
 		}
 		
 		public function requestScreenUnits():void

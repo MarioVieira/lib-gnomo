@@ -40,13 +40,13 @@ package uk.co.baremedia.gnomo.models
 			_lastTransmissionLength = value;
 		}
 
-		public function set audioActvity(value:Boolean):void
+		public function set audioActivityOn(value:Boolean):void
 		{
 			_audioActvity = value;
 			broadcastModelChange(ACTIVITY_CHANGE);
 		}
 		
-		public function get audioActvity():Boolean
+		public function get audioActivityOn():Boolean
 		{
 			return _audioActvity;
 		}

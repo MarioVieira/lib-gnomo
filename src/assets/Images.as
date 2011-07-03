@@ -23,5 +23,8 @@ package assets
 		
 		[Embed(source="./icons/remove_lowRes.png")] public static var removeListIcon:Class;
 		
+		/*[Embed(source="./icons/noBabyUnit.png")] 	public static var NO_BABY_INIT	:Class; 
+		[Embed(source="./icons/babySleeping.png")] 	public static var BABY_SLEEPING	:Class; 
+		[Embed(source="./icons/babyActivity.png")] 	public static var BABY_ACTIVITY	:Class;		*/
 	}
 }

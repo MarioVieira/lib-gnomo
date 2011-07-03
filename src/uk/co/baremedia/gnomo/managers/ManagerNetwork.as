@@ -41,7 +41,9 @@ package uk.co.baremedia.gnomo.managers
 		
 		private var _groupConnected			:Boolean;
 		private var _audioActivity			:Signal;
+		private var _monitorActivity		:Signal;
 		private var _signalNotifier			:SignalNotifier;
+		
 		
 		public function ManagerNetwork(localNetwork:LocalNetworkDiscovery, messenger:IP2PMessenger, model:ModelNetworkManager, signalNotifier:SignalNotifier)
 		{
@@ -55,11 +57,17 @@ package uk.co.baremedia.gnomo.managers
 			_noConnection			= new Signal();
 			_debug					= new Signal();
 			_audioActivity			= new Signal();
+			_monitorActivity		= new Signal();
 			_signalNotifier			= signalNotifier;		
 			
 			registerClassesForSerialization();
 			setupLocalNetwork(deviceType);
 			setupNetworkMonitor(messenger);
+		}
+		
+		public function get monitorActivity():Signal
+		{
+			return _monitorActivity;
 		}
 		
 		public function set broadcastMonitorState(value:Boolean):void
@@ -152,7 +160,7 @@ package uk.co.baremedia.gnomo.managers
 		
 		public function connect():void
 		{
-			Tracer.log(this, "connect - _groupConnected: "+_groupConnected);
+			//Tracer.log(this, "connect - _groupConnected: "+_groupConnected);
 			if(_groupConnected) startNetworkMonitor(true);
 			else 			   	_noConnection.dispatch();
 		}
@@ -197,8 +205,12 @@ package uk.co.baremedia.gnomo.managers
 		{
 			if(message.messageType == EnumsNotification.AUDIO_ACTIVITY)
 			{
-				_audioActivity.dispatch(message.startNotStopAudio);
+				_audioActivity.dispatch(message.elapsedTimeInSec);
 			}
+			else if(message.messageType == EnumsNotification.MONITOR_ACTIVITY)
+			{
+				_monitorActivity.dispatch(message.startNotStop);
+			}	
 			else
 			{
 				_controlNetworkMonitor.defineMessageOperation(message);
@@ -210,7 +222,7 @@ package uk.co.baremedia.gnomo.managers
 		 ***********************************************************************/
 		private function onGroupConnection(event:Event):void
 		{
-			Tracer.log(this, "onGroupConnection");
+			//Tracer.log(this, "onGroupConnection");
 			_groupConnectionSignal.dispatch();
 			if(!_groupConnected)
 			{

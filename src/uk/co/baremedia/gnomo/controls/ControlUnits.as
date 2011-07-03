@@ -4,9 +4,12 @@ package uk.co.baremedia.gnomo.controls
 	import com.projectcocoon.p2p.events.MediaBroadcastEvent;
 	
 	import org.as3.mvcsInjector.interfaces.IDispose;
+	import org.as3.mvcsInjector.utils.Tracer;
+	import org.osflash.signals.Signal;
 	import org.robotlegs.core.IInitializer;
 	import org.robotlegs.core.IInjector;
 	
+	import uk.co.baremedia.gnomo.enums.EnumsBabyMonitor;
 	import uk.co.baremedia.gnomo.enums.EnumsNotification;
 	import uk.co.baremedia.gnomo.enums.EnumsScreens;
 	import uk.co.baremedia.gnomo.interfaces.INetworkManager;
@@ -20,13 +23,14 @@ package uk.co.baremedia.gnomo.controls
 	import uk.co.baremedia.gnomo.signals.SignalCrossPlatformExchange;
 	import uk.co.baremedia.gnomo.signals.SignalListen;
 	import uk.co.baremedia.gnomo.signals.SignalNotifier;
-	import uk.co.baremedia.gnomo.signals.SignalViewNavigation;
 	import uk.co.baremedia.gnomo.utils.UtilsAppNotifier;
 	import uk.co.baremedia.gnomo.utils.UtilsDeviceInfo;
 	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
 	
 	public class ControlUnits implements IInitializer, IDispose
 	{
+		public var monitorMode				:Signal;
+		
 		protected var _networkManager	    :INetworkManager;
 		protected var _controlAudio			:ManagerAudio;
 		protected var _model				:ModelModes;
@@ -34,6 +38,7 @@ package uk.co.baremedia.gnomo.controls
 		protected var _appNotifier			:SignalNotifier;
 		//protected var _viewNavigation		:SignalViewNavigation;
 		protected var _listening			:SignalListen;
+		
 		
 		/************************************************ SETUP *******************************************************/
 		
@@ -47,6 +52,8 @@ package uk.co.baremedia.gnomo.controls
 			
 			_networkManager 	= new ManagerNetwork( injector.getInstance(LocalNetworkDiscovery), injector.getInstance(IP2PMessenger), injector.getInstance(ModelNetworkManager), _appNotifier);
 			_controlAudio		= new ManagerAudio(_networkManager, injector.getInstance(ControlAudioMonitor), injector.getInstance(ModelAudio), _modelDeviceInfo.deviceType, injector.getInstance(SignalCrossPlatformExchange), _appNotifier);
+			monitorMode			= new Signal(int);
+			
 			setObservers();
 			
 			_modelDeviceInfo.deviceVersion = UtilsDeviceInfo.IOS;
@@ -58,9 +65,22 @@ package uk.co.baremedia.gnomo.controls
 			_networkManager.mediaBroadcast.add(onBroadcasterMedia);
 			_networkManager.debug.add(onDebug);
 			_controlAudio.audioNotifier.add(onAudioNotifier);
+			_networkManager.monitorActivity.add(onAudioActivityMonitor)
+		}
+		
+		private function onAudioActivityMonitor(startNotStop:Boolean):void
+		{
+			//Tracer.log(this, "onAudioActivityMonitor - startNotStop: "+startNotStop);
+			broadcastMonitorState( (!startNotStop) ? EnumsBabyMonitor.STATE_NO_ACTIVITY : EnumsBabyMonitor.STATE_ACITIVTY );
 		}
 		
 		/************************************************ NOTIFICATION *******************************************************/
+		
+		public function get modelMonitor():ModelModes
+		{
+			return _model;
+		}
+		
 		public function get listenSignal():SignalListen
 		{
 			return _listening;
@@ -221,10 +241,17 @@ package uk.co.baremedia.gnomo.controls
 		protected function onConnectionStatus(connected:Boolean):void
 		{
 			defineConnectedChangeAction(connected);
+			if(!connected) broadcastMonitorState(EnumsBabyMonitor.STATE_UNPLUGGED);
+		}
+		
+		private function broadcastMonitorState(state:int):void
+		{
+			_model.monitorMode = state;
 		}
 		
 		/************************************************ HANDLERS *******************************************************/
 		
+		//NOT IN USE
 		private function onAudioActivityMessage(startNotStopAudio:Boolean):void
 		{
 			if(!_listening.listening && startNotStopAudio)
@@ -276,7 +303,7 @@ package uk.co.baremedia.gnomo.controls
 			_networkManager.mediaBroadcast.remove(onBroadcasterMedia);
 			_networkManager.debug.remove(onDebug);
 			_controlAudio.audioNotifier.remove(onAudioNotifier);
-			_controlAudio.audioActivityMessage.remove(onAudioActivityMessage);
+			//_controlAudio.audioActivityMessage.remove(onAudioActivityMessage);
 		}
 	}
 }

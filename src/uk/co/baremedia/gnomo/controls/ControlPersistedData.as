@@ -59,18 +59,15 @@ package uk.co.baremedia.gnomo.controls
 		 * @param elapsedAudioTransmission
 		 * 
 		 */
-		public function addLog(action:String, elapsedTransmissionMilisec:Number, dateAndTime:Number):void
+		public function addLog(elapsedTransmissionMilisec:Number):void
 		{
-			Tracer.log(this, "addLogs");
-			
+			//Tracer.log(this, "addLogs");
 			var now:Date 				 = new Date();
 			var log:VOLog 				 = new VOLog();
-			log.action 					 = action;
-			log.dateAndTime 			 = dateAndTime;
-			log.elapsedTransmissionSec   = elapsedTransmissionMilisec / 1000;
+			log.dateAndTime 			 = now.getTime() - elapsedTransmissionMilisec;
+			log.elapsedTransmissionSec   = elapsedTransmissionMilisec;
 			
 			var logsReference:VOLogs = _model.logs;
-			
 			logsReference = (!logsReference) ? new VOLogs() : logsReference;
 			//Tracer.log(this, "addLogs - logsReference: "+logsReference);
 			logsReference.logs.addItem(log);
@@ -80,7 +77,7 @@ package uk.co.baremedia.gnomo.controls
 		
 		public function removeLog(log:VOLog):void
 		{
-			Tracer.log(this, "removeLog - log: "+log.dateAndTime);
+			//Tracer.log(this, "removeLog - log: "+log.dateAndTime);
 			
 			var tmpLogs			:VOLogs = _model.logs;
 			var foundItemIndex	:int = _model.getLogIndex(log.dateAndTime);    
@@ -93,6 +90,13 @@ package uk.co.baremedia.gnomo.controls
 		public function get logs():VOLogs
 		{
 			return _model.logs;
+		}
+		
+		public function removeAllLogs():void
+		{
+			var tmpLogs			:VOLogs = _model.logs;
+			tmpLogs.logs.removeAll();
+			_model.logs = tmpLogs;
 		}
 	}
 }

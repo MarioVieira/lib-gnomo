@@ -51,15 +51,15 @@ package uk.co.baremedia.gnomo.managers
 			return _mediaMesseger.audioActivityMessage;
 		}
 		
-		private function onAudioActivityMessage(startNotStopAudio:Boolean):void
+		private function onAudioActivityMessage(elapsedTimeInSec:Number):void
 		{
 			//Tracer.log(this, "onAudioActivityMessage - startNotStopAudio: "+startNotStopAudio);
-			startLog(startNotStopAudio);
+			logTimeActivity(elapsedTimeInSec);
 		}
 		
-		private function startLog(startNotStopAudio:Boolean):void
+		private function logTimeActivity(elapsedTimeInSec:Number):void
 		{
-			_audioMonitor.startLog(startNotStopAudio);	
+			_audioMonitor.logTimeActivity(elapsedTimeInSec);	
 		}
 		
 		public function get netStreamSignal():Signal
@@ -76,9 +76,9 @@ package uk.co.baremedia.gnomo.managers
 		{
 			stopBroadcast();
 			stopPlayingAudio(true);
+			_audioMonitor.stopBroadcasterAcitivityMonitor();
 			_modelAudio.broadcasterInfo = event;
 			_modelAudio.broadcasting	= false;
-			_audioMonitor.stopAcitivityMonitor();
 		}
 		
 		public function get broadcasting():Boolean
@@ -112,7 +112,7 @@ package uk.co.baremedia.gnomo.managers
 				_mediaMesseger.broadcastAudioToGroup(mic, orderType);
 				_modelAudio.microphone   = mic;
 				_modelAudio.broadcasterInfo = null;
-				_audioMonitor.startActivityMonitor();
+				_audioMonitor.startBroadcasterActivityMonitor();
 			}
 			else
 			{
@@ -131,9 +131,9 @@ package uk.co.baremedia.gnomo.managers
 			if(_modelAudio.broadcasting)
 			{
 				//notifyAudioEvent("stopBroadacast() - killMicrophone");
+				_audioMonitor.stopBroadcasterAcitivityMonitor();
 				_mediaMesseger.stopBroadcasting();
 				_modelAudio.broadcasting 	= false;
-				_audioMonitor.stopAcitivityMonitor();
 			}
 		}
 		
@@ -182,7 +182,7 @@ package uk.co.baremedia.gnomo.managers
 			if(!_modelAudio.microphone) 
 			{
 				_modelAudio.microphone = UtilsMedia.getMicrophone();
-				Tracer.log(this, "grabbed mic: "+_modelAudio.microphone);
+				//Tracer.log(this, "grabbed mic: "+_modelAudio.microphone);
 			}
 			else
 			{

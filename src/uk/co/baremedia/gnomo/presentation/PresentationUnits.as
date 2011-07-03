@@ -22,7 +22,8 @@ package uk.co.baremedia.gnomo.presentation
 		public static const ALERT_IMPORTANT				:String  = "important";
 		public static const ALERT_DISCONNECTED			:String  = "disconnected";
 		
-		[Bindable] public var textQuitButton			:String;
+		[Bindable] public var textQuitButton			:String; 
+		[Bindable] public var textSlider				:String;
 		[Bindable] public var textConnectionStatus		:String;
 		[Bindable] public var textTopNote				:String;
 		[Bindable] public var textListenNow				:String;
@@ -31,10 +32,9 @@ package uk.co.baremedia.gnomo.presentation
 		[Bindable] public var receiving					:Boolean;
 		[Bindable] public var broadcasting				:Boolean;
 		[Bindable] public var listening					:Boolean;
-		[Bindable] public var debugText					:String = "no info";
 		[Bindable] public var canListen					:Boolean;
 		[Bindable] public var canStopListening			:Boolean;
-		
+		[Bindable] public var monitorMode				:int;
 		
 		public var uiChange								:Signal;
 		public var openAlert							:Signal;
@@ -47,6 +47,7 @@ package uk.co.baremedia.gnomo.presentation
 		private var _controlPersistentData				:ControlPersistedData;
 		private var _signalNotifier						:SignalNotifier;
 		private var _alertOpen							:Boolean;
+		
 		
 		public function PresentationUnits(control:ControlUnits, controlPersistentData:ControlPersistedData, modelNetwork:ModelNetworkManager, modelModes:ModelModes, modelAudio:ModelAudio, signalNotifier:SignalNotifier = null) 
 		{
@@ -68,9 +69,13 @@ package uk.co.baremedia.gnomo.presentation
 		{
 			if(!connected)
 			{
-				//Tracer.log(this, "CONNECT");
 				_controlUnits.setConnectedMode(true);
 			}
+		}
+		
+		public function get modelMonitor():ModelModes
+		{
+			return _controlUnits.modelMonitor;
 		}
 		
 		public function alertClosed(id:String):void
@@ -83,6 +88,7 @@ package uk.co.baremedia.gnomo.presentation
 			else if(id == ALERT_IMPORTANT)
 			{
 				_controlPersistentData.importantAlerted = true;
+				checkNeedsConnecting();
 			}
 		}
 
@@ -130,7 +136,15 @@ package uk.co.baremedia.gnomo.presentation
 			_modelAudio.add(onModelAudio);
 			_modelNetwork.add(onConnectionAlert);
 			_signalNotifier.add(onSignalNotifier);
+			
 			_controlUnits.listenSignal.add(onListening);
+			//_controlUnits.monitorMode.add(onMonitorMode);
+		}
+		
+		private function onMonitorMode(value:int):void
+		{
+			Tracer.log(this, "monitorMode - value: "+value);
+			monitorMode = value;
 		}
 		
 		private function onListening(listening:Boolean):void
@@ -139,7 +153,7 @@ package uk.co.baremedia.gnomo.presentation
 			defineListenText();
 			notifyUiDataChange();
 			setReceiving();
-			Tracer.log(this, "onListening - listening: "+listening);
+			//Tracer.log(this, "onListening - listening: "+listening);
 		}
 		
 		private function onSignalNotifier(vo:VONotifierInfo):void
@@ -156,6 +170,8 @@ package uk.co.baremedia.gnomo.presentation
 		
 		private function setText():void
 		{
+			textSlider =  UtilsResources.getKey(EnumsLanguage.VOLUME);
+			Tracer.log(this, "setText() - UtilsResources.getKey(EnumsLanguage.VOLUME): "+UtilsResources.getKey(EnumsLanguage.VOLUME) );
 			defineNoteText();
 			defineConnectedRelatedText(_modelModes.localNetworkConnected);
 			defineListenText();
@@ -239,9 +255,9 @@ package uk.co.baremedia.gnomo.presentation
 		
 		private function defineNoteText():void
 		{
-			if(!_modelAudio.broadcasting && !receiving) textTopNote = UtilsResources.getKey(EnumsLanguage.SET_A_BABY_UNIT);
-			else if(_modelAudio.broadcasting) 		    textTopNote = UtilsResources.getKey(EnumsLanguage.BABY_UNIT); 
-			else if(receiving)						    textTopNote = UtilsResources.getKey(EnumsLanguage.PARENT_UNIT);
+			if(!_modelAudio.broadcasting && !receiving) textTopNote = _modelModes.textTopNote = UtilsResources.getKey(EnumsLanguage.SET_A_BABY_UNIT);
+			else if(_modelAudio.broadcasting) 		    textTopNote = _modelModes.textTopNote = UtilsResources.getKey(EnumsLanguage.BABY_UNIT); 
+			else if(receiving)						    textTopNote = _modelModes.textTopNote = UtilsResources.getKey(EnumsLanguage.PARENT_UNIT);
 		}
 		
 		//no binding in Flash
@@ -255,12 +271,12 @@ package uk.co.baremedia.gnomo.presentation
 			if(localNetworkConnected) 
 			{
 				textQuitButton = UtilsResources.getKey(EnumsLanguage.DISCONNECT);
-				textConnectionStatus = UtilsResources.getKey(EnumsLanguage.CONNECTED);
+				textConnectionStatus = _modelModes.textConnectedStatus = UtilsResources.getKey(EnumsLanguage.CONNECTED);
 			}
 			else
 			{
 				textQuitButton = UtilsResources.getKey(EnumsLanguage.CONNECT);
-				textConnectionStatus = UtilsResources.getKey(EnumsLanguage.CONNECTING);
+				textConnectionStatus = _modelModes.textConnectedStatus = UtilsResources.getKey(EnumsLanguage.CONNECTING);
 			}
 		}
 		
@@ -278,7 +294,7 @@ package uk.co.baremedia.gnomo.presentation
 		{
 			if(changeType == ModelNetworkManager.CONNECTION_ALERT && _modelNetwork.connectionAlert && !_alertOpen)
 			{
-				requestAlert(ALERT_DISCONNECTED);
+				//requestAlert(ALERT_DISCONNECTED);
 			}
 			else if(changeType == ModelNetworkManager.CONNECTION_ALERT && !_modelNetwork.connectionAlert && _alertOpen)
 			{

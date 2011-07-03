@@ -80,20 +80,20 @@ package uk.co.baremedia.gnomo.controls
 		
 		public function setupStream(mediaInfo:MediaVO):void
 		{
-			Tracer.log(this, "setupStream");
+			//Tracer.log(this, "setupStream");
 			stopAudio(true);
 			mountStream(mediaInfo);
 		}
 		
 		public function playStream():void
 		{
-			Tracer.log(this, "playStream");
+			//Tracer.log(this, "playStream");
 			_receiveStream.soundTransform = getVolume(10);
 		}
 		
 		public function pauseStream():void
 		{
-			Tracer.log(this, "pauseStream");
+			//Tracer.log(this, "pauseStream");
 			_receiveStream.soundTransform = getVolume(0);
 		}
 		
@@ -116,7 +116,7 @@ package uk.co.baremedia.gnomo.controls
 			_netStreamSignal.dispatch(_receiveStream);
 			//always no volume when it first mount the stream
 			_receiveStream.soundTransform = getVolume(_volume);
-			Tracer.log(this, "mountStream - _modelAudio: "+_modelAudio+"  _notifier: "+_notifier);
+			//Tracer.log(this, "mountStream - _modelAudio: "+_modelAudio+"  _notifier: "+_notifier);
 			UtilsAppNotifier.notifyApp(_notifier, "mic", "IOS KEEP ALIVE - MIC: "+ String(_modelAudio.microphone) );
 		}
 		
@@ -127,7 +127,7 @@ package uk.co.baremedia.gnomo.controls
 		
 		protected function onNetStatus(event:NetStatusEvent):void
 		{
-			Tracer.log(this, "NetStream netStatusHandler - event.info.code: "+event.info.code);
+			//Tracer.log(this, "NetStream netStatusHandler - event.info.code: "+event.info.code);
 		}
 	}
 }

@@ -35,5 +35,8 @@ package uk.co.baremedia.gnomo.enums
 		public static const SEC:String						= "SEC";
 		public static const DONE:String						= "DONE"
 		public static const OPTIONS:String					= "OPTIONS";
+		public static const REMOVE_ALL_LOGS:String			= "REMOVE_ALL_LOGS"; 		
+		public static const INFORMATION:String				= "INFORMATION";
+		public static const VOLUME:String					= "VOLUME";
 	}
 }

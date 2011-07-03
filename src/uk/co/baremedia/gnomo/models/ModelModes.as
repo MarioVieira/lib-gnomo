@@ -14,6 +14,10 @@ package uk.co.baremedia.gnomo.models
 		public static const UNIT_CHANGE		:String = "unitChange";
 		public static const MODE_CHANGE		:String = "modeChange";
 		
+		public var monitorMode				:int;
+		public var textConnectedStatus		:String;
+		public var textTopNote				:String;
+		
 		public function ModelModes()
 		{
 			super(String);
