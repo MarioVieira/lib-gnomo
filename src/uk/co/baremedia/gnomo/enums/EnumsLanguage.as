@@ -38,5 +38,7 @@ package uk.co.baremedia.gnomo.enums
 		public static const REMOVE_ALL_LOGS:String			= "REMOVE_ALL_LOGS"; 		
 		public static const INFORMATION:String				= "INFORMATION";
 		public static const VOLUME:String					= "VOLUME";
+		public static const MUTE:String						= "MUTE";
+		public static const UNMUTE:String					= "UNMUTE";
 	}
 }

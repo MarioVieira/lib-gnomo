@@ -38,6 +38,7 @@ package uk.co.baremedia.gnomo.controls
 		protected var _appNotifier			:SignalNotifier;
 		//protected var _viewNavigation		:SignalViewNavigation;
 		protected var _listening			:SignalListen;
+		private var _userOrderForListening:Boolean;
 		
 		
 		/************************************************ SETUP *******************************************************/
@@ -55,7 +56,6 @@ package uk.co.baremedia.gnomo.controls
 			monitorMode			= new Signal(int);
 			
 			setObservers();
-			
 			_modelDeviceInfo.deviceVersion = UtilsDeviceInfo.IOS;
 		}
 
@@ -65,13 +65,20 @@ package uk.co.baremedia.gnomo.controls
 			_networkManager.mediaBroadcast.add(onBroadcasterMedia);
 			_networkManager.debug.add(onDebug);
 			_controlAudio.audioNotifier.add(onAudioNotifier);
-			_networkManager.monitorActivity.add(onAudioActivityMonitor)
+			_networkManager.monitorActivity.add(onAudioActivityMonitor);
+			_controlAudio.modelAudio.add(onModelAudioChange);
+		}
+		
+		private function onModelAudioChange(changeType:String):void
+		{
+			broadcastMonitorState( (!_controlAudio.modelAudio.audioActivityOn) ? EnumsBabyMonitor.STATE_NO_ACTIVITY : EnumsBabyMonitor.STATE_ACITIVTY );
 		}
 		
 		private function onAudioActivityMonitor(startNotStop:Boolean):void
 		{
 			//Tracer.log(this, "onAudioActivityMonitor - startNotStop: "+startNotStop);
 			broadcastMonitorState( (!startNotStop) ? EnumsBabyMonitor.STATE_NO_ACTIVITY : EnumsBabyMonitor.STATE_ACITIVTY );
+			if(!isIOS) onAudioActivityMessage(startNotStop);
 		}
 		
 		/************************************************ NOTIFICATION *******************************************************/
@@ -115,8 +122,9 @@ package uk.co.baremedia.gnomo.controls
 			defineUnitMode(babyUnitNoParentUnit, EnumsNotification.BABY_UNIT_TAKEN);
 		}
 		
-		public function listenBroadcaster():void
+		public function listenBroadcaster(userOrder:Boolean = false):void
 		{
+			_userOrderForListening = userOrder;
 			listening = true;
 			_controlAudio.playBroadcasterStream(null, true);
 		}
@@ -124,6 +132,7 @@ package uk.co.baremedia.gnomo.controls
 		public function stopListening():void
 		{
 			listening = false;
+			_userOrderForListening = false;
 			_controlAudio.stopPlayingAudio();
 		}
 		
@@ -157,8 +166,8 @@ package uk.co.baremedia.gnomo.controls
 		{
 			if(isIOS)
 			{
-				_controlAudio.grabMicrophone();
-				UtilsAppNotifier.notifyApp(_appNotifier, EnumsNotification.KEEP_ALIVE);
+				//_controlAudio.grabMicrophone();
+				//UtilsAppNotifier.notifyApp(_appNotifier, EnumsNotification.KEEP_ALIVE);
 			}
 		}
 		
@@ -207,6 +216,7 @@ package uk.co.baremedia.gnomo.controls
 			if(babyUnitNoParentUnit)
 			{
 				_controlAudio.broadcastAudio(orderType);
+				broadcastMonitorState(EnumsBabyMonitor.STATE_NO_ACTIVITY);
 			}
 			else
 			{
@@ -258,7 +268,7 @@ package uk.co.baremedia.gnomo.controls
 			{
 				listenBroadcaster();
 			}
-			else if(_listening.listening && !startNotStopAudio)
+			else if(!_userOrderForListening && _listening.listening && !startNotStopAudio)
 			{
 				stopListening();
 			}
@@ -277,9 +287,10 @@ package uk.co.baremedia.gnomo.controls
 		private function onBroadcasterMedia(e:MediaBroadcastEvent):void
 		{
 			//Tracer.log(this, "onMediaBroadcast - e.mediaInfo.order: "+e.mediaInfo.order);
+			broadcastMonitorState(EnumsBabyMonitor.STATE_NO_ACTIVITY);
 			_controlAudio.playBroadcasterStream(e, isIOS);
 			listening = isIOS;
-			keepAliveForIOS();
+			//keepAliveForIOS();
 		}
 		
 		private function onDebug(info:VONotifierInfo):void

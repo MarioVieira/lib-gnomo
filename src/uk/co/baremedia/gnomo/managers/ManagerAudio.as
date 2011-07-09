@@ -28,6 +28,7 @@ package uk.co.baremedia.gnomo.managers
 		private var _crossPlatformExchange	:SignalCrossPlatformExchange;
 		private var _audioMonitor			:ControlAudioMonitor;
 		
+		
 		public function ManagerAudio(mediaMesseger:IAudioBroadcaster, controlAudioMonitor:ControlAudioMonitor, model:ModelAudio, deviceType:String, crossPlatformExchage:SignalCrossPlatformExchange, notifier:SignalNotifier)
 		{
 			_playerControl 			= new ControlPlayer(mediaMesseger, model, notifier);
@@ -44,6 +45,11 @@ package uk.co.baremedia.gnomo.managers
 		private function setObservers():void
 		{
 			_mediaMesseger.audioActivityMessage.add(onAudioActivityMessage);
+		}
+		
+		public function get modelAudio():ModelAudio
+		{
+			return _modelAudio;
 		}
 		
 		public function get audioActivityMessage():Signal
@@ -156,9 +162,14 @@ package uk.co.baremedia.gnomo.managers
 				var canReceive:Boolean = RolesReceiver.canClaimReceiverRole(_deviceType, tmpBroadcasterInfo.client.clientName);
 				notifyAudioEvent( (canReceive) ? EnumsNotification.RECEIVING : EnumsNotification.NOT_ALLOWED_TO_RECEIVE_AUDIO );
 				
-				if(forcePlay || canReceive && broadcasterInfo.mediaInfo.order == EnumsNotification.AUDIO_ACTIVITY)
+				if( (forcePlay && canReceive) || (forcePlay && broadcasterInfo.mediaInfo.order == EnumsNotification.AUDIO_ACTIVITY) )
 				{
+					Tracer.log(this, "playBroadcasterStream");
 					_playerControl.setupStream(broadcasterInfo.mediaInfo);
+				}
+				else
+				{
+					Tracer.log(this, "playBroadcasterStream - canReceive: "+canReceive+" (CAN'T playing!)");
 				}
 			}
 			else
@@ -175,6 +186,7 @@ package uk.co.baremedia.gnomo.managers
 		public function set volume(value:Number):void
 		{
 			_playerControl.volume = value;
+			_modelAudio.volume = value;
 		}
 		
 		public function grabMicrophone():void

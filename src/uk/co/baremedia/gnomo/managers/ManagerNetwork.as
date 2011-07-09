@@ -246,7 +246,6 @@ package uk.co.baremedia.gnomo.managers
 		protected function onMessage(e:MessageEvent):void
 		{
 			var messageData:VOLocalNetworkMessage = e.message.data as VOLocalNetworkMessage;
-			
 			//Tracer.log(this, "onMessage - messageData: "+messageData);
 			if(messageData)
 			{

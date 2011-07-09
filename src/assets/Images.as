@@ -23,6 +23,9 @@ package assets
 		
 		[Embed(source="./icons/remove_lowRes.png")] public static var removeListIcon:Class;
 		
+		[Embed(source="../assets/Background.swf")] 	public static var BACKGROUND_SWF:Class;
+		[Embed(source="../assets/Visor.swf")] 		public static var VISOR_SWF:Class;
+		
 		/*[Embed(source="./icons/noBabyUnit.png")] 	public static var NO_BABY_INIT	:Class; 
 		[Embed(source="./icons/babySleeping.png")] 	public static var BABY_SLEEPING	:Class; 
 		[Embed(source="./icons/babyActivity.png")] 	public static var BABY_ACTIVITY	:Class;		*/

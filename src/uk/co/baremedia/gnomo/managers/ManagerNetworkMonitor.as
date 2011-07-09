@@ -81,6 +81,7 @@ package uk.co.baremedia.gnomo.managers
 		
 		protected function feedbackReceived():void
 		{
+			//Tracer.log(this, "feedbackReceived");
 			_reponseProvided = true;
 			broadcastConnectionStatus(true);
 			if(!_keepAlive) startNetworkMonitor(false);

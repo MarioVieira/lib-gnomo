@@ -2,6 +2,8 @@ package uk.co.baremedia.gnomo.presentation
 {
 	import com.projectcocoon.p2p.util.Tracer;
 	
+	import flash.net.sendToURL;
+	
 	import org.as3.mvcsInjector.interfaces.IDispose;
 	import org.osflash.signals.Signal;
 	
@@ -26,15 +28,14 @@ package uk.co.baremedia.gnomo.presentation
 		[Bindable] public var textSlider				:String;
 		[Bindable] public var textConnectionStatus		:String;
 		[Bindable] public var textTopNote				:String;
-		[Bindable] public var textListenNow				:String;
+		[Bindable] public var textAudioButtonControl	:String;
 		
 		[Bindable] public function get connected()		:Boolean{ return _modelModes.localNetworkConnected; }
 		[Bindable] public var receiving					:Boolean;
 		[Bindable] public var broadcasting				:Boolean;
 		[Bindable] public var listening					:Boolean;
-		[Bindable] public var canListen					:Boolean;
-		[Bindable] public var canStopListening			:Boolean;
-		[Bindable] public var monitorMode				:int;
+		[Bindable] public var buttonAudioControlEnabled	:Boolean;
+		[Bindable] public var sliderLevel				:Number = 1;
 		
 		public var uiChange								:Signal;
 		public var openAlert							:Signal;
@@ -47,6 +48,7 @@ package uk.co.baremedia.gnomo.presentation
 		private var _controlPersistentData				:ControlPersistedData;
 		private var _signalNotifier						:SignalNotifier;
 		private var _alertOpen							:Boolean;
+		
 		
 		
 		public function PresentationUnits(control:ControlUnits, controlPersistentData:ControlPersistedData, modelNetwork:ModelNetworkManager, modelModes:ModelModes, modelAudio:ModelAudio, signalNotifier:SignalNotifier = null) 
@@ -118,11 +120,6 @@ package uk.co.baremedia.gnomo.presentation
 			_controlPersistentData.agreementAccepted = value;	
 		}
 		
-		/*public function fakeAudioActivity(playNotStop:Boolean):void
-		{
-			_controlUnits.sendDirectMessage(EnumsNotification.AUDIO_ACTIVITY, (playNotStop) ? 1 : 0);
-		}*/
-		
 		public function dispose(recursive:Boolean=true):void
 		{
 			_modelModes.remove(onModeChange);
@@ -141,16 +138,10 @@ package uk.co.baremedia.gnomo.presentation
 			//_controlUnits.monitorMode.add(onMonitorMode);
 		}
 		
-		private function onMonitorMode(value:int):void
-		{
-			Tracer.log(this, "monitorMode - value: "+value);
-			monitorMode = value;
-		}
-		
 		private function onListening(listening:Boolean):void
 		{
 			this.listening = listening;
-			defineListenText();
+			defineAudioControlButtonLabel();
 			notifyUiDataChange();
 			setReceiving();
 			//Tracer.log(this, "onListening - listening: "+listening);
@@ -170,38 +161,60 @@ package uk.co.baremedia.gnomo.presentation
 		
 		private function setText():void
 		{
-			textSlider =  UtilsResources.getKey(EnumsLanguage.VOLUME);
-			Tracer.log(this, "setText() - UtilsResources.getKey(EnumsLanguage.VOLUME): "+UtilsResources.getKey(EnumsLanguage.VOLUME) );
+			//Tracer.log(this, "setText() - UtilsResources.getKey(EnumsLanguage.VOLUME): "+UtilsResources.getKey(EnumsLanguage.VOLUME) );
 			defineNoteText();
+			defineSliderData();
 			defineConnectedRelatedText(_modelModes.localNetworkConnected);
-			defineListenText();
+			defineAudioControlButtonLabel();
 			notifyUiDataChange();
 		}
 		
-		public function listenOrStopListening(listen:Boolean):void
+		private function defineSliderData():void
 		{
-			listenBroadcaster(listen);
+			if(!broadcasting)
+			{
+				textSlider  = UtilsResources.getKey(EnumsLanguage.VOLUME);
+				sliderLevel = _modelAudio.volume;
+			}
+			else 
+			{
+				textSlider = UtilsResources.getKey(EnumsLanguage.SENSIBILITY);
+				sliderLevel = _modelAudio.sensibilityLevel / 10;	
+			}
+		}
+		
+		public function listenOrStopListening():void
+		{
+			listenBroadcaster(!listening); 
 		}
 		
 		private function listenBroadcaster(listenNotStop:Boolean):void
 		{
 			if(listenNotStop && _controlUnits.hasBroadcasterInfo)
 			{
-				_controlUnits.listenBroadcaster();
+				_controlUnits.listenBroadcaster(true);
 			}
 			else if(!listenNotStop)
 			{
 				_controlUnits.stopListening();
 			}
 			
-			defineListenText();
+			defineSliderData();
+			defineAudioControlButtonLabel();
 			notifyUiDataChange();
 			setReceiving();
 		}
 		
-		public function defineListenText():void
+		public function defineAudioControlButtonLabel():void
 		{
-			textListenNow = (!listening) ? UtilsResources.getKey(EnumsLanguage.LISTEN_NOW) : UtilsResources.getKey(EnumsLanguage.STOP_LISTENING);
+			if(!_controlUnits.isIOS) 
+			{
+				textAudioButtonControl = (!listening) ? UtilsResources.getKey(EnumsLanguage.LISTEN_NOW) : UtilsResources.getKey(EnumsLanguage.STOP_LISTENING);
+			}
+			else 					 
+			{
+				textAudioButtonControl = (listening) ? UtilsResources.getKey(EnumsLanguage.MUTE) 		: UtilsResources.getKey(EnumsLanguage.UNMUTE);
+			}
 		}
 		
 		public function showLogs():void
@@ -220,14 +233,21 @@ package uk.co.baremedia.gnomo.presentation
 			_controlUnits.setUnitMode(true);
 		}
 		
-		public function setSensibility(sliderValue:Number):void
+		public function set sliderValue(value:Number):void
 		{
-			//Tracer.log(this, "setSensibility");
-			_controlUnits.setSensibility(sliderValue * 10);
+			if(!broadcasting) volume 			= value;
+			else			  audioSensibility 	= value;
 		}
 		
-		public function set volume(value:Number):void
+		protected function set audioSensibility(value:Number):void
 		{
+			//Tracer.log(this, "audioSensibility: "+(value <= 8) ? value * 10 : 8 * 10 );
+			_controlUnits.setSensibility( (value <= 8) ? value * 10 : 8 * 10 );
+		}
+		
+		protected function set volume(value:Number):void
+		{
+			//Tracer.log(this, "volume: "+value );
 			_controlUnits.volume = value;
 		}
 		
@@ -237,6 +257,7 @@ package uk.co.baremedia.gnomo.presentation
 			setReceiving();
 			setBroadcasting();
 			defineNoteText(); 
+			defineSliderData();
 			defineConnectedRelatedText(_modelModes.localNetworkConnected);
 			notifyUiDataChange();
 		}
@@ -249,8 +270,9 @@ package uk.co.baremedia.gnomo.presentation
 		private function setReceiving():void
 		{
 			receiving = _modelAudio.broadcasterInfo != null;
-			canListen 		 = receiving && !listening;
-			canStopListening = receiving && listening;
+			
+			//buttonAudioControlEnabled = receiving && !listening;
+			/*canStopListening 		  = receiving && listening;*/
 		}
 		
 		private function defineNoteText():void
@@ -282,19 +304,20 @@ package uk.co.baremedia.gnomo.presentation
 		
 		private function onModeChange(change:String):void
 		{
-			//Tracer.log(this, "onModeChange - _modelModes.localNetworkConnected: "+_modelModes.localNetworkConnected);
+			Tracer.log(this, "onModeChange - _modelModes.localNetworkConnected: "+_modelModes.localNetworkConnected);
 			defineConnectedRelatedText(_modelModes.localNetworkConnected);
 			defineNoteText();
+			defineSliderData();
 			setReceiving();
 			setBroadcasting();
 			notifyUiDataChange();
-		}	
+		}
 		
 		private function onConnectionAlert(changeType:String):void
 		{
 			if(changeType == ModelNetworkManager.CONNECTION_ALERT && _modelNetwork.connectionAlert && !_alertOpen)
 			{
-				//requestAlert(ALERT_DISCONNECTED);
+				requestAlert(ALERT_DISCONNECTED);
 			}
 			else if(changeType == ModelNetworkManager.CONNECTION_ALERT && !_modelNetwork.connectionAlert && _alertOpen)
 			{

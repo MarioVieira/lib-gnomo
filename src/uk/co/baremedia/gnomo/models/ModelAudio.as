@@ -17,9 +17,10 @@ package uk.co.baremedia.gnomo.models
 		public static const ACTIVITY_CHANGE  			:String = "activityChange";
 		public static const RECEIVING 		 			:String = "receiving";
 		public static const SENSIBILITY_CHANGE			:String = "sensibilityChange";
-		public static const DEFAULT_SENSISBILIY			:Number = 5;
+		public static const DEFAULT_SENSISBILIY			:Number = 20;
 		
 		public var microphone					:Microphone;
+		public var volume						:Number = 1;
 		
 		private var _receiving					:Boolean;
 		private var _broadcasting				:Boolean;
@@ -28,7 +29,6 @@ package uk.co.baremedia.gnomo.models
 		private var _audioActvity				:Boolean;
 		private var _lastTransmissionLength		:Number;
 		private var _lastTranmissionLenghtTimer	:Timer;
-		
 		
 		public function get lastTransmissionLength():Number
 		{
