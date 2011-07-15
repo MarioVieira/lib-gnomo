@@ -1,5 +1,6 @@
 package uk.co.baremedia.gnomo.utils
 {
+	import flash.media.Camera;
 	import flash.system.Capabilities;
 	
 	import uk.co.baremedia.gnomo.enums.EnumsLocalNetwork;
@@ -16,6 +17,7 @@ package uk.co.baremedia.gnomo.utils
 		public static const IPHONE	:String  = "ios";
 		public static const IPAD	:String  = "ios";
 		public static const IOS		:String  = "ios";
+		
 		
 		public static function getDeviceType():VODeviceInfo
 		{
@@ -57,6 +59,37 @@ package uk.co.baremedia.gnomo.utils
 			if(os.search(IPHONE) != -1) return IPHONE;
 			else if(os.search(IPAD))	return IPAD;
 			return null;
+		}
+		
+		public static function get isPC():Boolean
+		{
+			return (Capabilities.version.indexOf("MAC") != -1 && Capabilities.version.indexOf("WIN") != -1);
+		}
+		
+		public static function get isIOS():Boolean
+		{
+			return (Capabilities.version.indexOf("IOS") != -1);
+		}
+		
+		public static function get isPlaybook():Boolean
+		{
+			return ( Capabilities.version.search("QNX") != -1 );
+		}
+		
+		/**
+		 *	Android only gives access to back camera, and for PC we would need to display options for the user, 
+		 * 		so giving only default camera access
+		 *  
+		 * @return 
+		 * 
+		 */		
+		public static function get isMobileAndHasTwoCameras():Boolean
+		{
+			var cameras:int = (Camera.names) ? Camera.names.length : 0;
+			
+			if(isIOS && cameras > 1) 			return true;
+			else if(isPlaybook && cameras > 1) 	return true;
+			else 								return false;
 		}
 	}
 }
