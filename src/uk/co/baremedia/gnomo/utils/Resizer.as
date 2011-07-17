@@ -50,7 +50,7 @@ package uk.co.baremedia.gnomo.utils
 			
 			rate = (!rate) ? DecreaseIncreaseRate.findRates(origValue, newValue) : rate;
 			
-			sizes.width = scaleIt(origWidth, rate);
+			sizes.width  = scaleIt(origWidth, rate);
 			sizes.height = scaleIt(origHeight, rate);
 			
 			return sizes;

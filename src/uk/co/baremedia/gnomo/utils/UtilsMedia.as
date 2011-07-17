@@ -5,9 +5,12 @@ package uk.co.baremedia.gnomo.utils
 	import flash.media.SoundTransform;
 	import flash.system.Capabilities;
 	
+	import org.as3.mvcsInjector.utils.Tracer;
+	
 	public class UtilsMedia
 	{
-		private static const QUARTER_OF_A_MEGABIT:Number = 268440;
+		private static const N_256KBPS:Number = 268440;
+		private static const N_128KBPS:Number = 131070;
 		
 		public static function getMicrophone():Microphone
 		{
@@ -24,29 +27,29 @@ package uk.co.baremedia.gnomo.utils
 			return mic;
 		}
 		
-		public static function getCamera(backNotFrontCamera:Boolean, forceHighRes:Boolean = false):Camera
+		public static function getCamera(backNotFrontCamera:Boolean, forceHighRes:Boolean = true):Camera
 		{
 			var cam:Camera = Camera.getCamera( getCameraIndex(backNotFrontCamera) );
 			
-			if(cam)					cam.setMode(320, 240, 15, false);
-			if(cam && forceHighRes) cam.setQuality(QUARTER_OF_A_MEGABIT, 100);
+			if(cam)					cam.setMode(320, 240, 10, false);
+			if(cam && forceHighRes) cam.setQuality(N_128KBPS, 90);
 			return cam;
 		}
 		
 		protected static function getCameraIndex(backNotFront:Boolean):String
 		{
-			//this is just for debugging, case is PC will detecte
+			//Tracer.log(UtilsMedia, "getCameraIndex - UtilsDeviceInfo.IOS: "+UtilsDeviceInfo.IOS+"  UtilsDeviceInfo.isPlaybook: "+UtilsDeviceInfo.isPlaybook);
 			
-			if( UtilsDeviceInfo.IOS )
-			{
-				return (backNotFront) ? "1" : "0";
-			}
-			else if( UtilsDeviceInfo.isPlaybook)
+			if( UtilsDeviceInfo.isIOS )
 			{
 				return (backNotFront) ? "0" : "1";
 			}
+			else if( UtilsDeviceInfo.isPlaybook )
+			{
+				return (backNotFront) ? "1" : "0";
+			}
 			
-			return "0";
+			return null;
 		}
 	}
 }
