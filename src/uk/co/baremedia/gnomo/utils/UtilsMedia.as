@@ -9,8 +9,9 @@ package uk.co.baremedia.gnomo.utils
 	
 	public class UtilsMedia
 	{
-		private static const N_256KBPS:Number = 268440;
-		private static const N_128KBPS:Number = 131070;
+		public static const N_256KBPS:Number = 268440;
+		public static const N_128KBPS:Number = 131070;
+		public static const DEFAULT_MIC_GAIN:Number = 50;
 		
 		public static function getMicrophone():Microphone
 		{
@@ -18,13 +19,22 @@ package uk.co.baremedia.gnomo.utils
 			
 			mic.setLoopBack(true);
 			
-			mic.gain = 50;
+			mic.gain = DEFAULT_MIC_GAIN;
 			mic.rate = 8;
 			
-			var sound:SoundTransform = new SoundTransform(0);
-			mic.soundTransform = sound;
+			mic.soundTransform = noSound;
 			
 			return mic;
+		}
+		
+		public static function get noSound():SoundTransform
+		{
+			return new SoundTransform(0);
+		}
+		
+		public static function get fullSound():SoundTransform
+		{
+			return new SoundTransform(1);
 		}
 		
 		public static function getCamera(backNotFrontCamera:Boolean, forceHighRes:Boolean = true):Camera
@@ -50,6 +60,12 @@ package uk.co.baremedia.gnomo.utils
 			}
 			
 			return null;
+		}
+		
+		public static function muteMic(mic:Microphone, muteNotUnMute:Boolean):void
+		{
+			if(muteNotUnMute) 	mic.gain = 0;
+			else			 	mic.gain = DEFAULT_MIC_GAIN;
 		}
 	}
 }
