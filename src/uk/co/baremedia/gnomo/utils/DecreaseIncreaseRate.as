@@ -32,6 +32,35 @@ package uk.co.baremedia.gnomo.utils
 	        return values;
 	    }
 		
+		public static function findScale(origValue:Number, newValue:Number):RateVO
+		{
+			var rate:Number;
+			var increase:Boolean;
+			var values:RateVO = new RateVO()
+			
+			if(origValue != newValue)
+			{
+				if(origValue > newValue)
+				{
+					rate = ((origValue - newValue) / origValue) * 10;
+					increase = false;	
+				}
+				else
+				{
+					rate = ((newValue - origValue) / origValue) * 10;
+					increase = true;
+				}
+				
+				if(rate != -1)
+				{
+					values.rate = rate
+					values.increaseNotDecrease = increase;
+				}
+			}
+			
+			return values;
+		}
+		
 		
 		public static function findPercentage(origValue:Number, newValue:Number):RateVO
 		{
