@@ -9,11 +9,11 @@ package uk.co.baremedia.gnomo.utils
 	
 	public class UtilsMedia
 	{
-		public static const N_256KBPS:Number = 268440;
-		public static const N_128KBPS:Number = 131070;
-		public static const DEFAULT_MIC_GAIN:Number = 50;
+		public static const N_256KBPS			:Number = 268440;
+		public static const N_128KBPS			:Number = 131070;
+		public static const DEFAULT_MIC_GAIN	:Number = 50;
 		
-		public static function getMicrophone():Microphone
+		public static function getMicrophone(muted:Boolean = false):Microphone
 		{
 			var mic:Microphone 	= Microphone.getMicrophone();
 			
@@ -24,6 +24,8 @@ package uk.co.baremedia.gnomo.utils
 			
 			mic.soundTransform = noSound;
 			
+			if(muted) muteMic(mic, muted);
+				
 			return mic;
 		}
 		
