@@ -43,8 +43,8 @@ package uk.co.baremedia.gnomo.utils
 		{
 			var cam:Camera = Camera.getCamera( getCameraIndex(backNotFrontCamera) );
 			
-			if(cam)					cam.setMode(320, 240, 10, false);
-			if(cam && forceHighRes) cam.setQuality(N_128KBPS, 90);
+			if(cam)					cam.setMode(320, 240, 15, false);
+			if(cam && forceHighRes) cam.setQuality(0, 100);
 			return cam;
 		}
 		
