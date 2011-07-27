@@ -11,6 +11,7 @@ package uk.co.baremedia.gnomo.utils
 	{
 		public static const N_256KBPS			:Number = 268440;
 		public static const N_128KBPS			:Number = 131070;
+		public static const N_56KBPS			:Number = 56000;
 		public static const DEFAULT_MIC_GAIN	:Number = 50;
 		
 		public static function getMicrophone(muted:Boolean = false):Microphone
@@ -39,12 +40,12 @@ package uk.co.baremedia.gnomo.utils
 			return new SoundTransform(1);
 		}
 		
-		public static function getCamera(backNotFrontCamera:Boolean, forceHighRes:Boolean = true):Camera
+		public static function getCamera(backNotFrontCamera:Boolean, forceHighRes:Boolean = false):Camera
 		{
 			var cam:Camera = Camera.getCamera( getCameraIndex(backNotFrontCamera) );
 			
-			if(cam)					cam.setMode(320, 240, 15, false);
-			if(cam && forceHighRes) cam.setQuality(0, 100);
+			if(cam)					cam.setQuality(N_128KBPS, 90);
+			if(cam && forceHighRes) cam.setQuality(N_256KBPS, 100);  
 			return cam;
 		}
 		
