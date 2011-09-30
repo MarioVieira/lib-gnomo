@@ -30,8 +30,8 @@ package uk.co.baremedia.gnomo.utils
 				deviceInfo.deviceType 	= (os.search(OS) != -1) 								? EnumsLocalNetwork.TYPE_PC : EnumsLocalNetwork.TYPE_MOBILE;
 				deviceInfo.deviceVersion= (deviceInfo.deviceType != EnumsLocalNetwork.TYPE_PC) 	? getMacType(os) 			: MAC;
 				
-				trace("deviceInfo.deviceType: "+deviceInfo.deviceType);
-				trace("deviceInfo.deviceVersion: "+deviceInfo.deviceVersion);
+				//trace("deviceInfo.deviceType: "+deviceInfo.deviceType);
+				//trace("deviceInfo.deviceVersion: "+deviceInfo.deviceVersion);
 			}
 			else if(version.search(ANDROID) != -1)
 			{
@@ -74,6 +74,11 @@ package uk.co.baremedia.gnomo.utils
 		public static function get isPlaybook():Boolean
 		{
 			return ( Capabilities.version.search("QNX") != -1 );
+		}
+		
+		public static function get isAndroid():Boolean
+		{
+			return ( Capabilities.version.search("AND") != -1 );
 		}
 		
 		/**
