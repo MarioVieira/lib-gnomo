@@ -1,108 +1,263 @@
 package uk.co.baremedia.gnomo.utils
 {
+	import com.soenkerohde.mobile.StageWebViewUIComponent;
 	
-	import flash.display.Stage;
-	import flash.events.ErrorEvent;
 	import flash.events.Event;
 	import flash.events.LocationChangeEvent;
+	import flash.events.TimerEvent;
 	import flash.geom.Rectangle;
+	import flash.utils.Timer;
+	
+	import mx.core.FlexGlobals;
+	
+	import org.as3.mvcsInjector.interfaces.IDispose;
+	import org.as3.mvcsInjector.utils.Tracer;
 	import flash.media.StageWebView;
 	
-	import mx.core.UIComponent;
+	[Event(name="open", type="flash.events.Event")]
+	[Event(name="close", type="flash.events.Event")]
 	
-	[Event(name="complete", type="flash.events.Event")]
-	[Event(name="locationChanging", type="flash.events.LocationChangeEvent")]
-	[Event(name="locationChange", type="flash.events.LocationChangeEvent")]
-	
-	public class UtilsStageWebView extends UIComponent
+	public class UtilsStageWebView extends StageWebViewUIComponent
 	{
-		[Bindable] public var yOffset:int = 80;
+		public static const DEFAULT_SHOW_TIMER_VALUE :Number = 7000;
+		public static const DEFAULT_HIDE_TIMER_VALUE :Number = 5000;
 		
-		protected var myStage:Stage;
-		private var _url:String;
-		private var _text:String;
+		protected var _showTimer				:Timer;
+		protected var _hideTimer				:Timer;
+		protected var _showTimerValue			:Number; 
+		protected var _hideTimerValue			:Number;
+		protected var _autoShow					:Boolean;
+		protected var _autoHide					:Boolean;
 		
-		private var _stageWebView:StageWebView;
+		private var _visibilityAllowed			:Boolean = true;
+		private var _added						:Boolean;
+		private var _wasOpen					:Boolean;
+		private var _pausedHideNotShow			:Boolean;
 		
-		public function get stageWebView():StageWebView{
-			return _stageWebView;
+		public function UtilsStageWebView()
+		{
+			_showTimerValue = DEFAULT_SHOW_TIMER_VALUE;
+			_hideTimerValue = DEFAULT_HIDE_TIMER_VALUE;
 		}
 		
-		public function UtilsStageWebView(){
-			addEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
-		}
 		
-		public function set url(url:String):void{
-			_url = url;
-			
-			if(_stageWebView){
-				_stageWebView.loadURL(url);
+		public function pause():void
+		{
+			if(_hideTimer.running)
+			{
+				_hideTimer.stop();
+				_pausedHideNotShow = true;
+			}
+			else if(_showTimer.running)
+			{
+				_showTimer.stop();
+				_pausedHideNotShow = false;
 			}
 		}
 		
-		public function set text(text:String):void{
-			_text = text;
-			
-			if(_stageWebView){
-				_stageWebView.loadString(text);
+		public function resume():void
+		{
+			if(_pausedHideNotShow)
+				_hideTimer.start();
+			else
+				_showTimer.start();
+		}
+		
+		/**
+		 * 
+		 * Allows to redraw the StageWebView viewPort in order to reposition it (eg: autoOrients true)
+		 * 
+		 */		
+		public function updateViewPortMeasures():void
+		{
+			if(stageWebView)
+				stageWebView.viewPort = new Rectangle(0, yOffset, myStage.width, myStage.fullScreenHeight - yOffset);
+		}
+		
+		public function set visibilityAllowed(value:Boolean):void
+		{
+			_visibilityAllowed = value;
+			if(!value)
+			{
+				_wasOpen = stageWebView != null; 
+				hide();
+				broadcastClose();
+			}
+			else if(_wasOpen)
+			{
+				show();
+				broadcastOpen();
 			}
 		}
 		
-		public function hide():void{
-			_stageWebView.stage = null;
+		/**
+		 *
+		 * It will show the StageWebView after the elapsed DEFAULT_SHOW_TIMER_VALUE, and remove it if was visible.
+		 * @see DEFAULT_SHOW_TIMER_VALUE
+		 *  
+		 * @param value
+		 * 
+		 */		
+		public function set autoShowTimer(value:Boolean):void
+		{	
+			_autoShow = value;
+			setupTimer(true, value);
+			startTime(_showTimer, true);
 		}
 		
-		public function show():void{
-			_stageWebView.stage = myStage;
+		/**
+		 *
+		 * It will hide the StageWebView after the elapsed DEFAULT_HIDE_TIMER_VALUE
+		 * @see DEFAULT_HIDE_TIMER_VALUE
+		 *  
+		 * @param value
+		 * 
+		 */
+		public function set autoHideTimer(value:Boolean):void
+		{
+			_autoHide = value; 
+			setupTimer(false, value);
 		}
 		
-		public function resize():void{
-			_stageWebView.stage = myStage;
+		/**
+		 * 
+		 * Set a new value for the showing the StageWebView
+		 * 
+		 * @param value
+		 * 
+		 */		
+		public function set showTimerDelay(value:Number):void
+		{
+			_showTimerValue = value;
+			if(_showTimer)
+				_showTimer.delay = value;
 		}
 		
-		public function dispose():void{
+		/**
+		 * 
+		 * Set a new timer for hiding the StageWebView
+		 * 
+		 * @param value
+		 * 
+		 */		
+		public function set hideTimerDelay(value:Number):void
+		{
+			_hideTimerValue = value;
+			if(_hideTimer) 
+				_hideTimer.delay = value;
+		}
+		
+		
+		override public function dispose():void
+		{
+			super.dispose();
+			setupTimer(true, false);
+			setupTimer(false, false);
+		}
+		/************************ SETUP ************************/
+		
+		override protected function buildStageWebView():void
+		{
+			if(!_autoShow) 
+			{
+				super.buildStageWebView();
+			}
+		}
+		
+		private function checkNeedsBuilding():void
+		{
+			if(!_added) 
+			{
+				_added = true;
+				super.buildStageWebView();
+			}
+		}
+		
+		private function startTime(timer:Timer, startNotStop:Boolean):void
+		{
+			if(startNotStop) 
+			{
+				timer.reset();
+				timer.start();
+			}
+			else
+			{
+				timer.stop();
+			}
+		}
+		
+		protected function onHideTimer(event:TimerEvent):void
+		{
+			startTime(_hideTimer, false);
+			broadcastClose();
 			hide();
-			_stageWebView.dispose();
+			
+			if(_autoShow)
+				startTime(_showTimer, true);
 		}
 		
-		protected function addedToStageHandler(event:Event):void{
-			myStage = event.currentTarget.document.stage;
-			removeEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
-			
-			_stageWebView = new StageWebView();
-			_stageWebView.stage = myStage;
-			_stageWebView.viewPort = new Rectangle(0, yOffset, myStage.width, myStage.fullScreenHeight - yOffset);
-			_stageWebView.addEventListener(Event.COMPLETE, completeHandler);
-			_stageWebView.addEventListener(ErrorEvent.ERROR, errorHandler);
-			_stageWebView.addEventListener(LocationChangeEvent.LOCATION_CHANGING, locationChangingHandler);
-			_stageWebView.addEventListener(LocationChangeEvent.LOCATION_CHANGE, locationChangeHandler);
-			if(_url){
-				_stageWebView.loadURL(_url);
-			}else if(_text){
-				_stageWebView.loadString(_text);
+		protected function onShowTimer(event:TimerEvent):void
+		{
+			if(_visibilityAllowed)
+			{
+				checkNeedsBuilding();
+				
+				startTime(_showTimer, false);
+				broadcastOpen();
+				show();
+				
+				if(_autoHide)
+				{
+					startTime(_hideTimer, true);
+				}
 			}
 		}
 		
-		protected function completeHandler(event:Event):void
+		private function broadcastOpen():void
 		{
-			dispatchEvent(event.clone());
+			dispatchEvent(new Event(Event.OPEN));
 		}
 		
-		protected function locationChangingHandler(event:Event):void
+		private function broadcastClose():void
 		{
-			dispatchEvent(event.clone());
+			dispatchEvent(new Event(Event.CLOSE));
 		}
 		
-		protected function locationChangeHandler(event:Event):void{
-			dispatchEvent(event.clone());
-		}
-		
-		protected function errorHandler(event:Event):void
+		private function setupTimer(showNotHideTimer:Boolean, mountNotUnmout:Boolean):void
 		{
-			dispatchEvent(event.clone());
+			if(showNotHideTimer)
+			{
+				if(mountNotUnmout)
+				{
+					_showTimer = new Timer(_showTimerValue);
+					_showTimer.addEventListener(TimerEvent.TIMER, onShowTimer);
+				}
+				else
+				{
+					if(_showTimer)
+					{
+						_showTimer.removeEventListener(TimerEvent.TIMER, onHideTimer);
+						_showTimer = null;
+					}
+				}
+			}
+			else
+			{
+				if(mountNotUnmout)
+				{
+					_hideTimer = new Timer(_hideTimerValue);
+					_hideTimer.addEventListener(TimerEvent.TIMER, onHideTimer);
+				}
+				else
+				{
+					if(_hideTimer)
+					{
+						_hideTimer.removeEventListener(TimerEvent.TIMER, onHideTimer);
+						_hideTimer = null;
+					}
+				}
+			}
 		}
-		
-		
 	}
 }
 

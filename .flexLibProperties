@@ -54,10 +54,12 @@
     <classEntry path="uk.co.baremedia.gnomo.utils.UtilsStaticUIInfo"/>
     <classEntry path="uk.co.baremedia.gnomo.presentation.PresentationScreenInfo"/>
     <classEntry path="uk.co.baremedia.gnomo.enums.EnumsBabyMonitor"/>
+    <classEntry path="uk.co.baremedia.gnomo.utils.UtilsAds"/>
+    <classEntry path="com.soenkerohde.mobile.StageWebViewUIComponent"/>
   </includeClasses>
   <includeResources>
-    <resourceEntry destPath="assets/Eurostile.ttf" sourcePath="assets/Eurostile.ttf"/>
     <resourceEntry destPath="assets/icons/log_56x42.png" sourcePath="assets/icons/log_56x42.png"/>
+    <resourceEntry destPath="assets/Eurostile.ttf" sourcePath="assets/Eurostile.ttf"/>
     <resourceEntry destPath="assets/icons/info_48x36.png" sourcePath="assets/icons/info_48x36.png"/>
     <resourceEntry destPath="assets/icons/.DS_Store" sourcePath="assets/icons/.DS_Store"/>
     <resourceEntry destPath="assets/Visor.swf" sourcePath="assets/Visor.swf"/>
@@ -69,14 +71,14 @@
     <resourceEntry destPath="assets/icons/baby_32x24.png" sourcePath="assets/icons/baby_32x24.png"/>
     <resourceEntry destPath="assets/Background.swf" sourcePath="assets/Background.swf"/>
     <resourceEntry destPath="assets/images/.DS_Store" sourcePath="assets/images/.DS_Store"/>
-    <resourceEntry destPath="assets/background2.swf" sourcePath="assets/background2.swf"/>
     <resourceEntry destPath="assets/icons/remove_lowRes.png" sourcePath="assets/icons/remove_lowRes.png"/>
-    <resourceEntry destPath="assets/background2.html" sourcePath="assets/background2.html"/>
+    <resourceEntry destPath="assets/background2.swf" sourcePath="assets/background2.swf"/>
     <resourceEntry destPath="assets/icons/log_48x36.png" sourcePath="assets/icons/log_48x36.png"/>
-    <resourceEntry destPath="assets/icons/baby_48x36.png" sourcePath="assets/icons/baby_48x36.png"/>
+    <resourceEntry destPath="assets/background2.html" sourcePath="assets/background2.html"/>
     <resourceEntry destPath="assets/background2.fla" sourcePath="assets/background2.fla"/>
-    <resourceEntry destPath="assets/icons/info_56x42.png" sourcePath="assets/icons/info_56x42.png"/>
+    <resourceEntry destPath="assets/icons/baby_48x36.png" sourcePath="assets/icons/baby_48x36.png"/>
     <resourceEntry destPath="assets/images/devices_240dpi.png" sourcePath="assets/images/devices_240dpi.png"/>
+    <resourceEntry destPath="assets/icons/info_56x42.png" sourcePath="assets/icons/info_56x42.png"/>
   </includeResources>
   <namespaceManifests/>
 </flexLibProperties>

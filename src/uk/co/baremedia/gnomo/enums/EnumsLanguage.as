@@ -40,5 +40,7 @@ package uk.co.baremedia.gnomo.enums
 		public static const VOLUME:String					= "VOLUME";
 		public static const MUTE:String						= "MUTE";
 		public static const UNMUTE:String					= "UNMUTE";
+		public static const AD_DEFAULT_URL:String			= "AD_DEFAULT_URL";
+		public static const AD_DEFAULT_URL_TEST:String		= "AD_DEFAULT_URL_TEST";
 	}
 }

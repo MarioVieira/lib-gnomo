@@ -29,10 +29,20 @@ package uk.co.baremedia.gnomo.presentation
 			_control 				= control;
 			_model 	 				= modelLogs;
 			
-			_model.add(onModelChange);
+			observe();
 			setUIData();	
 			
 			textEditButton = UtilsResources.getKey(EnumsLanguage.OPTIONS)
+		}
+		
+		private function observe():void
+		{
+			_model.add(onModelChange);
+		}
+		
+		public function dispose(recursive:Boolean=true):void
+		{
+			_model.remove(onModelChange);
 		}
 		
 		private function setUIData():void
@@ -91,11 +101,6 @@ package uk.co.baremedia.gnomo.presentation
 		public function requestScreenLogsDay():void
 		{
 			_control.requestScreenLogDay();
-		}
-		
-		public function dispose(recursive:Boolean=true):void
-		{
-			_model.remove(onModelChange);
 		}
 	}
 }

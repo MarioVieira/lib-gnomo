@@ -57,11 +57,15 @@ package uk.co.baremedia.gnomo.utils
 			{
 				return (backNotFront) ? "0" : "1";
 			}
-			else if( UtilsDeviceInfo.isPlaybook )
+			else if( UtilsDeviceInfo.isPlaybook  )
 			{
 				return (backNotFront) ? "1" : "0";
 			}
-			
+			else if( UtilsDeviceInfo.isAndroid && UtilsDeviceInfo.isMobileAndHasTwoCameras )
+			{
+				return (backNotFront) ? "0" : "1";
+			}
+			//null will get the default camera
 			return null;
 		}
 		

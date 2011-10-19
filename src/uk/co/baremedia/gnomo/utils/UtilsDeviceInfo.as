@@ -92,8 +92,7 @@ package uk.co.baremedia.gnomo.utils
 		{
 			var cameras:int = (Camera.names) ? Camera.names.length : 0;
 			
-			if(isIOS && cameras > 1) 			return true;
-			else if(isPlaybook && cameras > 1) 	return true;
+			if(!isPC && cameras > 1) 			return true;
 			else 								return false;
 		}
 	}
