@@ -16,7 +16,7 @@ package uk.co.baremedia.gnomo.utils
 		
 		public static function getMicrophone(muted:Boolean = false):Microphone
 		{
-			var mic:Microphone 	= Microphone.getMicrophone();
+			var mic:Microphone 	= Microphone.getEnhancedMicrophone();
 			
 			mic.setLoopBack(true);
 			
@@ -44,9 +44,22 @@ package uk.co.baremedia.gnomo.utils
 		{
 			var cam:Camera = Camera.getCamera( getCameraIndex(backNotFrontCamera) );
 			
-			if(cam)					cam.setQuality(N_128KBPS, 90);
-			if(cam && forceHighRes) cam.setQuality(N_256KBPS, 100);  
+			if(cam)
+			{
+				cam.setQuality(N_128KBPS, 90);
+				cam.setMode(320,240,12,true);
+				Tracer.log(UtilsMedia, "getCamera");
+			}
+			if(cam && forceHighRes)
+			{
+				cam.setQuality(N_256KBPS, 100);
+				cam.setMode(320,240,12,true);
+			}
+			
+			
 			return cam;
+			
+			
 		}
 		
 		protected static function getCameraIndex(backNotFront:Boolean):String
