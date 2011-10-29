@@ -48,7 +48,7 @@ package uk.co.baremedia.gnomo.utils
 			{
 				cam.setQuality(N_128KBPS, 90);
 				cam.setMode(320,240,12,true);
-				Tracer.log(UtilsMedia, "getCamera");
+				//Tracer.log(UtilsMedia, "getCamera");
 			}
 			if(cam && forceHighRes)
 			{
