@@ -14,16 +14,19 @@ package net.mariovieira.mobile.sony
 	
 	import net.mariovieira.mobile.sony.vo.DeviceScreenVO;
 	
-	import org.as3.mvcsInjector.utils.Tracer;
-	
 	import spark.components.SkinnableContainer;
 	import spark.components.supportClasses.SkinnableComponent;
 	
 	/** 
-	* 
-	* @author Mario Vieira
-	* 
-	**/	
+	 * 
+	 * Only provided for users of the AIR app challenge Sony contest pre-release forum
+	 * DO NOT REDISTRIBUTE THIS CODE!
+	 * 
+	 * override the "setupTopScreen" and "setupBaseScreen" methods if you need different positioning / dimensioning logic
+	 * 
+	 * @author Mario Vieira
+	 * 
+	 **/	
 	
 	public class ScreenSplitter extends EventDispatcher
 	{
@@ -31,6 +34,7 @@ package net.mariovieira.mobile.sony
 		
 		private var _displayInfo		:MultiDisplay;
 		private var _deviceScreenInfo	:DeviceScreenVO;
+		private var _topScreenYOffSet	:int;
 		
 		protected var _topScreen		:UIComponent;
 		protected var _baseScreen		:UIComponent;
@@ -48,15 +52,10 @@ package net.mariovieira.mobile.sony
 			_topScreen 			= topScreen;
 			_baseScreen 		= baseScreen;
 			_container 			= container;
+			_topScreenYOffSet	= topScreenYOffSet;
 			
 			updateScreenInfo(topScreenYOffSet);
 			initiateLayout();
-		}
-		
-		private function updateScreenInfo(topScreenYOffSet:int):void
-		{
-			_deviceScreenInfo.screen1Height  = _deviceScreenInfo.screen1Height - topScreenYOffSet;
-			_deviceScreenInfo.screen2offSetY = _deviceScreenInfo.screen1Height;
 		}
 		
 		[Bindable(event="twoScreens")]
@@ -77,7 +76,7 @@ package net.mariovieira.mobile.sony
 		
 		protected function setupTopScreen(screen:UIComponent):void
 		{
-			placeScreen(screen, _container.width, (_deviceScreenInfo.isDualScreen) ? _deviceScreenInfo.screen1Height : _container.height, 0, 0);
+			placeScreen(screen, _container.width, _deviceScreenInfo.screen1Height, 0, 0);
 		}
 		
 		protected function setupBaseScreen(screen:UIComponent):void
@@ -86,6 +85,19 @@ package net.mariovieira.mobile.sony
 				placeScreen(screen, _container.width, _deviceScreenInfo.screen2Height, 0, _deviceScreenInfo.screen2offSetY);
 			else
 				_container.removeElement(screen);
+		}
+		
+		private function updateScreenInfo(topScreenYOffSet:int):void
+		{
+			if(_deviceScreenInfo.isDualScreen)
+			{
+				_deviceScreenInfo.screen1Height  = _deviceScreenInfo.screen1Height - topScreenYOffSet;
+				_deviceScreenInfo.screen2offSetY = _deviceScreenInfo.screen1Height;
+			}
+			else
+			{
+				_deviceScreenInfo.screen1Height = _container.height;
+			}
 		}
 		
 		private function setupMultiDisplay():void
@@ -98,14 +110,12 @@ package net.mariovieira.mobile.sony
 		{
 			if( event.screenCount == 2 ) 
 			{
-				_deviceScreenInfo = new DeviceScreenVO(true, _displayInfo.getScreenCount(), 
-															 (_displayInfo.getScreenHeightPixels(0)),
-															 _displayInfo.getScreenHeightPixels(1),
-															 _displayInfo.getScreenOffSetYPixels(1));
+				_deviceScreenInfo = new DeviceScreenVO(true, _displayInfo.getScreenCount(), _displayInfo.getScreenHeightPixels(0),
+													   _displayInfo.getScreenHeightPixels(1), _displayInfo.getScreenOffSetYPixels(1));
 			}
 			else
 			{
-				_deviceScreenInfo = new DeviceScreenVO(false);
+				_deviceScreenInfo = new DeviceScreenVO(false, _displayInfo.getScreenCount());
 			}
 			
 			broadcastIsDualScreen();

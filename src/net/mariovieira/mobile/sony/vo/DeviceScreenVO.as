@@ -1,5 +1,7 @@
 package net.mariovieira.mobile.sony.vo
 {
+	import mx.core.UIComponent;
+
 	[Bindable]
 	public class DeviceScreenVO
 	{
