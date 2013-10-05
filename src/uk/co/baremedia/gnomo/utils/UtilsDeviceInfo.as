@@ -1,5 +1,7 @@
 package uk.co.baremedia.gnomo.utils
 {
+	import com.projectcocoon.p2p.util.Tracer;
+	
 	import flash.media.Camera;
 	import flash.system.Capabilities;
 	
@@ -14,8 +16,8 @@ package uk.co.baremedia.gnomo.utils
 		public static const OS		:String  = "os";
 		
 		public static const ANDROID	:String  = "and";
-		public static const IPHONE	:String  = "ios";
-		public static const IPAD	:String  = "ios";
+		public static const IPHONE	:String  = "iphone";
+		public static const IPAD	:String  = "ipad";
 		public static const IOS		:String  = "ios";
 		
 		
@@ -51,19 +53,29 @@ package uk.co.baremedia.gnomo.utils
 				}
 			}
 			
+			//DON§T WANT TO CHANGE THE ABOVE OLD LOGIC THAT WORKS IN AVMonitor
+			if(!deviceInfo.deviceVersion)
+				deviceInfo.deviceVersion = os;
+			
+			
 			return deviceInfo;
 		}
 		
 		public static function getMacType(os:String):String
 		{
 			if(os.search(IPHONE) != -1) return IPHONE;
-			else if(os.search(IPAD))	return IPAD;
+			else if(os.search(IPAD) != -1)	return IPAD;
 			return null;
 		}
 		
 		public static function get isPC():Boolean
 		{
 			return (Capabilities.version.indexOf("MAC") != -1 && Capabilities.version.indexOf("WIN") != -1);
+		}
+		
+		public static function get isARMDevice():Boolean
+		{
+			return (Capabilities.cpuArchitecture == "ARM");
 		}
 		
 		public static function get isIOS():Boolean
@@ -94,6 +106,11 @@ package uk.co.baremedia.gnomo.utils
 			
 			if(!isPC && cameras > 1) 			return true;
 			else 								return false;
+		}
+		
+		public static function isIOSDevice(deviceVersion:String):Boolean
+		{
+			return (deviceVersion.search(IPHONE) != -1 || deviceVersion.search(IPAD) != -1);
 		}
 	}
 }

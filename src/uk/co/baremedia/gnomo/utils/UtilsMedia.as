@@ -2,6 +2,8 @@ package uk.co.baremedia.gnomo.utils
 {
 	import flash.media.Camera;
 	import flash.media.Microphone;
+	import flash.media.MicrophoneEnhancedMode;
+	import flash.media.MicrophoneEnhancedOptions;
 	import flash.media.SoundTransform;
 	import flash.system.Capabilities;
 	
@@ -16,18 +18,41 @@ package uk.co.baremedia.gnomo.utils
 		
 		public static function getMicrophone(muted:Boolean = false):Microphone
 		{
-			var mic:Microphone 	= Microphone.getEnhancedMicrophone();
+			var mic:Microphone 	= tryGettingEnhancedMic();
+			
+			if(!mic)
+				mic = Microphone.getMicrophone();
+			
+			if(!mic)
+				return null;
 			
 			mic.setLoopBack(true);
-			
 			mic.gain = DEFAULT_MIC_GAIN;
 			mic.rate = 8;
 			
 			mic.soundTransform = noSound;
 			
-			if(muted) muteMic(mic, muted);
+			if(muted) 
+				muteMic(mic, muted);
 				
 			return mic;
+		}
+		
+		private static function tryGettingEnhancedMic():Microphone
+		{
+			var enhancedMic:Microphone 	= Microphone.getEnhancedMicrophone();
+			
+			//Tracer.log(UtilsMedia, "tryGettingEnhancedMic - "+enhancedMic);
+			if(enhancedMic)
+			{
+				var micOptions:MicrophoneEnhancedOptions = new MicrophoneEnhancedOptions();
+				micOptions.autoGain = true;
+				micOptions.isVoiceDetected = 1;
+				micOptions.mode = MicrophoneEnhancedMode.FULL_DUPLEX;
+				enhancedMic.enhancedOptions = micOptions;
+			}
+				
+			return null;
 		}
 		
 		public static function get noSound():SoundTransform
@@ -46,20 +71,19 @@ package uk.co.baremedia.gnomo.utils
 			
 			if(cam)
 			{
-				cam.setQuality(N_128KBPS, 90);
-				cam.setMode(320,240,12,true);
-				//Tracer.log(UtilsMedia, "getCamera");
+				//Tracer.log(UtilsMedia, "getCamera - low"); 
+				cam.setQuality(N_128KBPS, 80);
+				cam.setMode(320,240,12, true);
+				//cam.setKeyFrameInterval(24);
 			}
 			if(cam && forceHighRes)
 			{
-				cam.setQuality(N_256KBPS, 100);
-				cam.setMode(320,240,12,true);
+				//Tracer.log(UtilsMedia, "getCamera - high");
+				cam.setQuality(N_256KBPS, 90);
+				cam.setMode(320,240,12, true);
 			}
 			
-			
 			return cam;
-			
-			
 		}
 		
 		protected static function getCameraIndex(backNotFront:Boolean):String

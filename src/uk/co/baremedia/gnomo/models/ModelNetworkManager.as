@@ -8,8 +8,6 @@ package uk.co.baremedia.gnomo.models
 		public static const CONNECTION_STATUS	:String = "connectionStatus";
 		public static const CONNECTION_ALERT	:String = "connectionAlert";
 		
-		public var broadcaster					:Boolean;
-		
 		private var _connected					:Boolean;
 		
 		//starts as true so there will be a change if not connected

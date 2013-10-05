@@ -13,7 +13,8 @@ package uk.co.baremedia.gnomo.utils
 		public static const SPANISH:String 		= "es_ES";
 		public static const FRENCH:String 		= "fr_FR";
 		
-		protected static var _bundleName:String = "en_US";
+		//protected static var _bundleName:String = "en_US";
+		protected static var _bundleName:String = "text";
 		
 		public static var bundleChange:Signal = new Signal();
 		

@@ -11,17 +11,23 @@ package uk.co.baremedia.gnomo.managers
 	import flash.events.Event;
 	import flash.media.Microphone;
 	import flash.net.NetConnection;
+	import flash.net.NetStream;
 	
 	import org.osflash.signals.Signal;
 	
+	import uk.co.baremedia.gnomo.enums.EnumsLocalNetwork;
 	import uk.co.baremedia.gnomo.enums.EnumsNotification;
 	import uk.co.baremedia.gnomo.interfaces.IAudioBroadcaster;
+	import uk.co.baremedia.gnomo.interfaces.IBroadcasting;
 	import uk.co.baremedia.gnomo.interfaces.ILocalNetworkMessenger;
 	import uk.co.baremedia.gnomo.interfaces.INetworkManager;
 	import uk.co.baremedia.gnomo.interfaces.IP2PMessenger;
+	import uk.co.baremedia.gnomo.models.ModelAudio;
 	import uk.co.baremedia.gnomo.models.ModelNetworkManager;
 	import uk.co.baremedia.gnomo.signals.SignalNotifier;
 	import uk.co.baremedia.gnomo.utils.UtilsAppNotifier;
+	import uk.co.baremedia.gnomo.utils.UtilsDeviceInfo;
+	import uk.co.baremedia.gnomo.utils.UtilsMessenger;
 	import uk.co.baremedia.gnomo.vo.VOLocalNetworkMessage;
 	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
 
@@ -43,9 +49,10 @@ package uk.co.baremedia.gnomo.managers
 		private var _audioActivity			:Signal;
 		private var _monitorActivity		:Signal;
 		private var _signalNotifier			:SignalNotifier;
+		private var _broadcasterInfo		:IBroadcasting;
 		
 		
-		public function ManagerNetwork(localNetwork:LocalNetworkDiscovery, messenger:IP2PMessenger, model:ModelNetworkManager, signalNotifier:SignalNotifier)
+		public function ManagerNetwork(localNetwork:LocalNetworkDiscovery, messenger:IP2PMessenger, model:ModelNetworkManager, signalNotifier:SignalNotifier, brodcaterInfo:IBroadcasting)
 		{
 			_messenger				= messenger;
 			_localNetwork			= localNetwork;
@@ -58,18 +65,15 @@ package uk.co.baremedia.gnomo.managers
 			_debug					= new Signal();
 			_audioActivity			= new Signal();
 			_monitorActivity		= new Signal();
-			_signalNotifier			= signalNotifier;		
+			_signalNotifier			= signalNotifier;
+			_broadcasterInfo		= brodcaterInfo;
 			
 			registerClassesForSerialization();
 			setupLocalNetwork(deviceType);
 			setupNetworkMonitor(messenger);
 		}
 		
-		public function get monitorActivity():Signal
-		{
-			return _monitorActivity;
-		}
-		
+
 		public function set broadcastMonitorState(value:Boolean):void
 		{
 			_controlNetworkMonitor.broadcastMonitorState;
@@ -190,10 +194,10 @@ package uk.co.baremedia.gnomo.managers
 			return _localNetwork.groupNetConnection();
 		}
 		
-		public function broadcastAudioToGroup(microphone:Microphone, orderType:String):void
+		public function broadcastAudioToGroup(microphone:Microphone, orderType:String, deviceType:String, deviceVersion:String):NetStream
 		{
 			_localNetwork.microphone = microphone;
-			_localNetwork.startBrodcast(orderType);
+			return _localNetwork.startBrodcast(orderType, null, null, false, false, deviceType, deviceVersion);
 		}
 		
 		public function stopBroadcasting():void
@@ -201,20 +205,36 @@ package uk.co.baremedia.gnomo.managers
 			_localNetwork.stopMedia();
 		}
 		
+		
+		/* TO DO:
+		* 
+		* Audio acitivty is no longer a message
+		*
+		*/
 		protected function defineMessageOperation(message:VOLocalNetworkMessage):void
 		{
+			
+			/*
 			if(message.messageType == EnumsNotification.AUDIO_ACTIVITY)
 			{
 				_audioActivity.dispatch(message.elapsedTimeInSec);
 			}
-			else if(message.messageType == EnumsNotification.MONITOR_ACTIVITY)
+			else(message.messageType == EnumsNotification.MONITOR_ACTIVITY)
 			{
 				_monitorActivity.dispatch(message.startNotStop);
-			}	
+			}
 			else
 			{
-				_controlNetworkMonitor.defineMessageOperation(message);
+				
 			}
+			*/
+			
+			if(message.messageType == EnumsLocalNetwork.ACTIVE_BROADCASTER_CHECK && _broadcasterInfo.broadcasting)
+			{
+				_localNetwork.sendMediaMessageToAll( _localNetwork.mediaInfo );
+			}
+			
+			_controlNetworkMonitor.defineMessageOperation(message);
 		}
 		
 		/************************************************************************
@@ -234,7 +254,16 @@ package uk.co.baremedia.gnomo.managers
 		private function onConnectionChange(connected:Boolean):void
 		{
 			//Tracer.log(this, "onConnectionNotification - connected: "+connected);
+			if(!_modelLocalNetwork.connected && connected)
+				checkNeedsBroadcasterIsActive();
+			
 			_modelLocalNetwork.connected = connected;
+		}
+		
+		//this.deviceType seems to be used with an uui (clientName), not touching it...
+		private function checkNeedsBroadcasterIsActive():void
+		{
+			_messenger.sendMessageToLocalNetwork( UtilsMessenger.getMessage(EnumsLocalNetwork.ACTIVE_BROADCASTER_CHECK, UtilsDeviceInfo.getDeviceType().deviceType, deviceVersion));
 		}
 		
 		protected function onMedia(event:MediaBroadcastEvent):void
@@ -251,6 +280,11 @@ package uk.co.baremedia.gnomo.managers
 			{
 				defineMessageOperation(messageData);
 			}
+		}
+
+		public function get deviceVersion():String
+		{
+			return UtilsDeviceInfo.getDeviceType().deviceVersion;
 		}
 	}
 }

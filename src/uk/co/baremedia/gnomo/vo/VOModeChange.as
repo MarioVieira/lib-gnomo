@@ -1,6 +1,5 @@
 package uk.co.baremedia.gnomo.vo
 {
-	
 	public class VOModeChange
 	{
 		public var changeType					:String;

@@ -8,8 +8,6 @@ package uk.co.baremedia.gnomo.interfaces
 
 	public interface INetworkManager extends IAudioBroadcaster
 	{
-		function get monitorActivity():Signal;	
-		
 		function set broadcastMonitorState(value:Boolean):void
 		
 		function get netStreamSignal():Signal;

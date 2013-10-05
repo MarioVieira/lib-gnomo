@@ -23,15 +23,15 @@ package uk.co.baremedia.gnomo.backgroundProcess
 		public function init(injector:IInjector):void
 		{
 			_languageModel  = injector.getInstance(Locale);
-			_locale			= injector.getInstance(Language);
+			//_locale			= injector.getInstance(Language);
 			
 			setLanguage();
 		}
 		
 		protected function setLanguage():void
 		{
-			_languageModel.setLanguage(DescriptorLanguage(_locale.locale));
 			//Tracer.log(this, "setLanguage() test: "+Locale.screenModesButtonWireless);
+			//_languageModel.setLanguage(DescriptorLanguage(_locale.locale));
 		}
 	}
 }

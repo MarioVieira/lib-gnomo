@@ -18,9 +18,11 @@ package uk.co.baremedia.gnomo.presentation
 		[Bindable] public var debugInfo	 			:String = "";
 		[Bindable] public var systemNotifications	:String = "";
 		[Bindable] public var messaging				:String = "";
+		[Bindable] public var broadcasterCanBeInBackgroundMode:Boolean;
 		
 		private var _controlUnits					:ControlUnits;
 		private var _appNotifier 					:SignalNotifier;
+		
 		
 		public function PresentationBabyAndParentUnit(control:ControlUnits, notifier:SignalNotifier)
 		{
@@ -100,8 +102,14 @@ package uk.co.baremedia.gnomo.presentation
 		{
 			var value		:String = info.notificationValue.toString();
 			//Tracer.log(this, "onAppNotification - notificationType: "+info.notificationType);
+			var broadcasterCanBeOnBackgroundMode:Boolean;
 			
-		  	if(info.notificationType == EnumsNotification.CONNECTION_CHANGE)
+			if(info.notificationType == EnumsNotification.BROADCASTER_CAN_BE_ON_BACKGROUND_MODE)
+			{
+				broadcasterCanBeOnBackgroundMode = true;	
+				setConnected(info.notificationValue);
+			}
+			else if(info.notificationType == EnumsNotification.CONNECTION_CHANGE)
 			{
 				setConnected(info.notificationValue);
 			}
@@ -122,7 +130,13 @@ package uk.co.baremedia.gnomo.presentation
 				messaging = value;
 			}
 			
+			setBroadcasterCanBeInBackgroundMode(broadcasterCanBeOnBackgroundMode);
 			uiChange.dispatch();
+		}
+		
+		private function setBroadcasterCanBeInBackgroundMode(broadcasterCanBeOnBackgroundMode:Boolean):void
+		{
+			this.broadcasterCanBeInBackgroundMode = broadcasterCanBeOnBackgroundMode;
 		}
 		
 		private function onModeChange(mode:String):void

@@ -21,6 +21,7 @@ package uk.co.baremedia.gnomo.controls
 		private var _screenModel	:	ModelScreens;
 		private var _viewNavigator	:	ViewNavigator;
 		private var _appNotifier	:	SignalNotifier;
+		private var _navigator		:	ViewNavigator;
 		
 		public function init(injector:IInjector):void
 		{
@@ -72,14 +73,10 @@ package uk.co.baremedia.gnomo.controls
 		{
 			//Tracer.log(this, "navigateToScreen: "+vo.name);
 			_screenModel.currentScreen = vo;
+			var transition:String = (vo.type != EnumsViewNavigation.TYPE_POPUP) ? ViewTransition.SLIDE : ViewTransition.NONE;
 			
 			CONFIG::DESKTOP
 			{
-				var transition:String;
-				
-				if(vo.type != EnumsViewNavigation.TYPE_POPUP) transition = ViewTransition.SLIDE;
-				else 										  transition = ViewTransition.NONE;
-				
 				if(vo.name == _screenModel.firstViewName)
 				{
 					_viewNavigator.popToFirstView();
@@ -88,7 +85,11 @@ package uk.co.baremedia.gnomo.controls
 				{
 					_viewNavigator.pushView(vo.clazz, null, null, transition);
 				}
-			}			
+				
+				return;
+			}
+			
+			//_navigator.pushView(vo.clazz, null, null, 
 		}
 		
 		public function dispose(recursive:Boolean=true):void

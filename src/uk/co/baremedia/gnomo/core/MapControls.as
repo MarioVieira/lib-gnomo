@@ -5,7 +5,7 @@ package uk.co.baremedia.gnomo.core
 	import org.as3.mvcsInjector.interfaces.IMappingInjector;
 	import org.robotlegs.core.IInjector;
 	
-	import uk.co.baremedia.gnomo.controls.ControlAudioMonitor;
+	import uk.co.baremedia.gnomo.controls.ControlAudioActivityMonitor;
 	import uk.co.baremedia.gnomo.controls.ControlBroadcaster;
 	import uk.co.baremedia.gnomo.controls.ControlDeviceInfo;
 	import uk.co.baremedia.gnomo.controls.ControlLogs;
@@ -15,6 +15,10 @@ package uk.co.baremedia.gnomo.core
 	import uk.co.baremedia.gnomo.controls.ControlSettings;
 	import uk.co.baremedia.gnomo.controls.ControlUnits;
 	import uk.co.baremedia.gnomo.controls.ControlViewNavigator;
+	import uk.co.baremedia.gnomo.helper.HelperAudioActivity;
+	import uk.co.baremedia.gnomo.helper.HelperConnection;
+	import uk.co.baremedia.gnomo.interfaces.IAudioActivity;
+	import uk.co.baremedia.gnomo.interfaces.IConnected;
 	import uk.co.baremedia.gnomo.interfaces.IP2PMessenger;
 	import uk.co.baremedia.gnomo.signals.SignalCrossPlatformExchange;
 
@@ -41,7 +45,7 @@ package uk.co.baremedia.gnomo.core
 			injector.mapSingleton(ControlBroadcaster);
 			injector.mapSingleton(ControlPhoneCall);
 			injector.mapSingleton(ControlDeviceInfo);
-			injector.mapSingleton(ControlAudioMonitor);
+			injector.mapSingleton(ControlAudioActivityMonitor);
 			injector.mapSingleton(ControlUnits);
 			injector.mapSingleton(SignalCrossPlatformExchange);
 			
@@ -50,6 +54,8 @@ package uk.co.baremedia.gnomo.core
 			injector.mapSingleton(ControlViewNavigator);
 			injector.mapSingleton(ControlPersistedData);
 			injector.mapSingleton(ControlLogs);
+			injector.mapSingletonOf(IConnected, HelperConnection);
+			injector.mapSingletonOf(IAudioActivity, HelperAudioActivity);
 		}
 	}
 }

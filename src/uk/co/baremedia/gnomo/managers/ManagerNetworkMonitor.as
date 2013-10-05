@@ -8,6 +8,7 @@ package uk.co.baremedia.gnomo.managers
 	
 	import uk.co.baremedia.gnomo.enums.EnumsLocalNetwork;
 	import uk.co.baremedia.gnomo.interfaces.IP2PMessenger;
+	import uk.co.baremedia.gnomo.utils.UtilsDeviceInfo;
 	import uk.co.baremedia.gnomo.utils.UtilsMessenger;
 	import uk.co.baremedia.gnomo.vo.VOLocalNetworkMessage;
 	
@@ -98,7 +99,7 @@ package uk.co.baremedia.gnomo.managers
 		private function broadcastToGroup(requestNotRespond:Boolean):void
 		{
 			var message:String = (requestNotRespond) ? EnumsLocalNetwork.GROUP_FEEDBACK_REQUEST : EnumsLocalNetwork.GROUP_FEEDBACK_RESPONSE;
-			_localNetworkMessenger.sendMessageToLocalNetwork( UtilsMessenger.getMessage(message, _localNetworkMessenger.deviceType) );
+			_localNetworkMessenger.sendMessageToLocalNetwork( UtilsMessenger.getMessage(message, _localNetworkMessenger.deviceType, _localNetworkMessenger.deviceVersion) );
 		}
 		
 		private function broadcastConnectionStatus(connected:Boolean):void

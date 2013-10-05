@@ -7,5 +7,6 @@ package uk.co.baremedia.gnomo.vo
 		public var messageType			: String;
 		public var elapsedTimeInSec		: Number;
 		public var startNotStop			: Boolean;
+		public var deviceVersion:Object;
 	}
 }

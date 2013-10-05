@@ -7,6 +7,8 @@ package uk.co.baremedia.gnomo.interfaces
 	public interface ILocalNetworkMessenger
 	{
 		function get deviceType() 										  : String;
+		function get deviceVersion() 									  : String;
 		function sendMessageToLocalNetwork(message:VOLocalNetworkMessage) : void;
+		
 	}
 }  

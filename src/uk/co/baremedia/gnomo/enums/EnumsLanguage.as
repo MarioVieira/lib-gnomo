@@ -2,6 +2,7 @@ package uk.co.baremedia.gnomo.enums
 {
 	public class EnumsLanguage
 	{
+		public static const TEXT				:String 	= "text";
 		public static const DISCLAIMER_ALERT	:String 	= "DISCLAIMER_ALERT";
 		public static const BABY_CALL			:String 	= "BABY_CALL";
 		public static const LOGS				:String 	= "LOGS";
@@ -42,5 +43,7 @@ package uk.co.baremedia.gnomo.enums
 		public static const UNMUTE:String					= "UNMUTE";
 		public static const AD_DEFAULT_URL:String			= "AD_DEFAULT_URL";
 		public static const AD_DEFAULT_URL_TEST:String		= "AD_DEFAULT_URL_TEST";
+		public static const RUN_OTHER_APP:String 			= "RUN_OTHER_APP";
+		public static const BROADCASTER_MAY_BE_ON_BACKGROUND_MODE:String = "BROADCASTER_MAY_BE_ON_BACKGROUND_MODE";
 	}
 }

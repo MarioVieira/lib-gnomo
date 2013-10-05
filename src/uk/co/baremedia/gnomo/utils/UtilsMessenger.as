@@ -31,16 +31,19 @@ package uk.co.baremedia.gnomo.utils
 		}
 		*/
 
-		public static function getMessage(messageType:String, deviceType:String, elapsedTimeInSec:Number = 0, startedNotStoppedLog:Boolean = false):VOLocalNetworkMessage
+		public static function getMessage(messageType:String, deviceType:String, deviceVersion:String, elapsedTimeInSec:Number = 0, startedNotStoppedLog:Boolean = false):VOLocalNetworkMessage
 		{
 			var vo:VOLocalNetworkMessage = new VOLocalNetworkMessage();
 			
 			vo.deviceType 		 = deviceType;
+			vo.deviceVersion	 = deviceVersion;
 			vo.messageType 		 = messageType;
 			vo.elapsedTimeInSec  = elapsedTimeInSec;
 			vo.startNotStop		 = startedNotStoppedLog;
 			
 			return vo;
 		}
+		
+		
 	}
 }

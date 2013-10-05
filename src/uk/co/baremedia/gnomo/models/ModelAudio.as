@@ -3,32 +3,73 @@ package uk.co.baremedia.gnomo.models
 	import com.projectcocoon.p2p.events.MediaBroadcastEvent;
 	
 	import flash.media.Microphone;
+	import flash.net.NetStream;
+	import flash.net.NetStreamInfo;
 	import flash.utils.Timer;
 	
 	import org.as3.mvcsInjector.interfaces.IModelChange;
 	import org.as3.mvcsInjector.utils.Tracer;
 	import org.osflash.signals.Signal;
+	
+	import uk.co.baremedia.gnomo.vo.VOSlider;
+	import uk.co.baremedia.gnomo.interfaces.IBroadcasting;
 
 	[Bindable] 
-	public class ModelAudio extends Signal implements IModelChange
+	public class ModelAudio extends Signal implements IModelChange, IBroadcasting
 	{
 		public static const BROADCASTER_MEDIA_AVAILABLE :String = "broadcasterMediaAvailable";
 		public static const BROADCAST_CHANGE 			:String = "broadcast";
 		public static const ACTIVITY_CHANGE  			:String = "activityChange";
 		public static const RECEIVING 		 			:String = "receiving";
 		public static const SENSIBILITY_CHANGE			:String = "sensibilityChange";
-		public static const DEFAULT_SENSISBILIY			:Number = 20;
+		public static const NET_STREAM_CHANGE			:String = "netStreamChange";
+		public static const DEFAULT_SENSISBILIY			:Number = 2;
+		public var volume								:Number = 5;
 		
-		public var microphone					:Microphone;
-		public var volume						:Number = 1;
-		
+		private var _microphone					:Microphone;
 		private var _receiving					:Boolean;
 		private var _broadcasting				:Boolean;
-		private var _sensibilityLevel			:Number	= DEFAULT_SENSISBILIY;
+		private var _sensibilityLevel			:VOSlider = new VOSlider();
 		private var _broadcasterInfo			:MediaBroadcastEvent;
 		private var _audioActvity				:Boolean;
 		private var _lastTransmissionLength		:Number;
 		private var _lastTranmissionLenghtTimer	:Timer;
+		private var _audioActivityStream		:NetStream;
+		private var _audioActvityOnSignal		:Signal;
+
+		
+		public function ModelAudio() 
+		{
+			_audioActvityOnSignal = new Signal(Boolean);
+		}
+		
+		public function get audioActivityStream():NetStream
+		{
+			return _audioActivityStream;
+		}
+
+		public function set audioActivityStream(value:NetStream):void
+		{
+			_audioActivityStream = value;
+			broadcastModelChange(NET_STREAM_CHANGE);
+		}
+
+		public function set microphone(value:Microphone):void
+		{
+			_microphone = value;
+			//updateSilenceLevel();
+		}
+		
+		private function updateSilenceLevel():void
+		{
+			if(_microphone)
+				_microphone.setSilenceLevel(_sensibilityLevel.sliderActualValue);
+		}
+		
+		public function get microphone():Microphone
+		{
+			return _microphone;
+		}
 		
 		public function get lastTransmissionLength():Number
 		{
@@ -43,7 +84,7 @@ package uk.co.baremedia.gnomo.models
 		public function set audioActivityOn(value:Boolean):void
 		{
 			_audioActvity = value;
-			broadcastModelChange(ACTIVITY_CHANGE);
+			_audioActvityOnSignal.dispatch(value);
 		}
 		
 		public function get audioActivityOn():Boolean
@@ -51,14 +92,21 @@ package uk.co.baremedia.gnomo.models
 			return _audioActvity;
 		}
 		
-		public function set sensibilityLevel(value:Number):void
+		public function get audioActivityOnSignal():Signal
 		{
-			Tracer.log(this, "sensibilityLevel - value: "+value);
+			return _audioActvityOnSignal;
+		}
+		
+		public function set sensibilityLevel(value:VOSlider):void
+		{
+			Tracer.log(this, "sensibilityLevel - sliderActualValue: "+value.sliderActualValue+" - sliderViewValue: "+value.sliderViewValue);
+			
 			_sensibilityLevel = value;
+			//updateSilenceLevel();
 			broadcastModelChange(SENSIBILITY_CHANGE);
 		}
 		
-		public function get sensibilityLevel():Number
+		public function get sensibilityLevel():VOSlider
 		{
 			return _sensibilityLevel;
 		}
@@ -81,6 +129,7 @@ package uk.co.baremedia.gnomo.models
 			broadcastModelChange(BROADCASTER_MEDIA_AVAILABLE);
 		}
 		
+		[Bindable]
 		public function get broadcasterInfo():MediaBroadcastEvent
 		{
 			return _broadcasterInfo;

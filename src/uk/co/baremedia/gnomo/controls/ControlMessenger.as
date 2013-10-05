@@ -8,6 +8,7 @@ package uk.co.baremedia.gnomo.controls
 	import org.robotlegs.core.IInjector;
 	
 	import uk.co.baremedia.gnomo.interfaces.IP2PMessenger;
+	import uk.co.baremedia.gnomo.utils.UtilsDeviceInfo;
 	import uk.co.baremedia.gnomo.vo.VOLocalNetworkMessage;
 	
 	public class ControlMessenger extends Signal implements IInitializer, IP2PMessenger
@@ -38,6 +39,11 @@ package uk.co.baremedia.gnomo.controls
 		public function get messenger():Signal
 		{
 			return this;
+		}
+
+		public function get deviceVersion():String
+		{
+			return UtilsDeviceInfo.getDeviceType().deviceVersion;
 		}
 	}
 }

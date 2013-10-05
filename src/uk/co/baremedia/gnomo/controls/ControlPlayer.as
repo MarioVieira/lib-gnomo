@@ -4,9 +4,14 @@ package uk.co.baremedia.gnomo.controls
 	import com.projectcocoon.p2p.vo.MediaVO;
 	
 	import flash.events.NetStatusEvent;
+	import flash.events.TimerEvent;
+	import flash.media.Microphone;
 	import flash.media.SoundTransform;
 	import flash.media.Video;
 	import flash.net.NetStream;
+	import flash.net.NetStreamInfo;
+	import flash.utils.Timer;
+	import flash.utils.setTimeout;
 	
 	import org.osflash.signals.Signal;
 	
@@ -75,6 +80,8 @@ package uk.co.baremedia.gnomo.controls
 			{
 				_receiveStream.removeEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
 				_receiveStream.close();
+				_modelAudio.receiving = false;
+				_modelAudio.audioActivityStream = null;
 			}
 		}	
 		
@@ -116,8 +123,30 @@ package uk.co.baremedia.gnomo.controls
 			_netStreamSignal.dispatch(_receiveStream);
 			//always no volume when it first mount the stream
 			_receiveStream.soundTransform = getVolume(_volume);
+			
+			/*var timer:Timer = new Timer(500);
+			timer.addEventListener(TimerEvent.TIMER, onTime);
+			timer.start();*/
+			
+			_modelAudio.audioActivityStream = _receiveStream;
+			_modelAudio.receiving = true;
 			//Tracer.log(this, "mountStream - _modelAudio: "+_modelAudio+"  _notifier: "+_notifier);
 			UtilsAppNotifier.notifyApp(_notifier, "mic", "IOS KEEP ALIVE - MIC: "+ String(_modelAudio.microphone) );
+		}
+		
+		protected function onTime(event:TimerEvent):void
+		{
+			printInfo()
+		}
+		
+		protected function printInfo():void
+		{
+			if(_receiveStream && _receiveStream.info)
+			trace("INFO dataBytesPerSecond - "+_receiveStream.info.dataBytesPerSecond+" - dataBytesPerSecond: "+_receiveStream.info.audioByteCount+"" +
+				"\nisLive: "+_receiveStream.info.isLive+" - byteCount: "+_receiveStream.info.byteCount+" - playbackBytesPerSecond"+_receiveStream.info.playbackBytesPerSecond+
+			"_receiveStream.liveDelay: "+_receiveStream.liveDelay+" - droppedFrames: "+_receiveStream.info.droppedFrames+" - SRTT"+_receiveStream.info.SRTT+" info.audioBytesPerSecond: "+_receiveStream.info.audioBytesPerSecond);
+			else 
+				trace("_receiveStream: "+_receiveStream.liveDelay);
 		}
 		
 		protected function getVolume(vol:Number):SoundTransform
@@ -128,6 +157,11 @@ package uk.co.baremedia.gnomo.controls
 		protected function onNetStatus(event:NetStatusEvent):void
 		{
 			//Tracer.log(this, "NetStream netStatusHandler - event.info.code: "+event.info.code);
+		}
+
+		public function get netStreamInfo():NetStreamInfo 
+		{
+			return (_receiveStream) ? _receiveStream.info : null;
 		}
 	}
 }

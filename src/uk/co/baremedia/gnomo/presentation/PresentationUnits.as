@@ -11,12 +11,15 @@ package uk.co.baremedia.gnomo.presentation
 	import uk.co.baremedia.gnomo.controls.ControlUnits;
 	import uk.co.baremedia.gnomo.enums.EnumsLanguage;
 	import uk.co.baremedia.gnomo.enums.EnumsNotification;
+	import uk.co.baremedia.gnomo.helper.HelperConnection;
+	import uk.co.baremedia.gnomo.interfaces.IConnected;
 	import uk.co.baremedia.gnomo.models.ModelAudio;
 	import uk.co.baremedia.gnomo.models.ModelModes;
 	import uk.co.baremedia.gnomo.models.ModelNetworkManager;
 	import uk.co.baremedia.gnomo.signals.SignalNotifier;
 	import uk.co.baremedia.gnomo.utils.UtilsResources;
 	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
+	import uk.co.baremedia.gnomo.vo.VOSlider;
 	
 	public class PresentationUnits implements IDispose
 	{
@@ -35,23 +38,24 @@ package uk.co.baremedia.gnomo.presentation
 		[Bindable] public var broadcasting				:Boolean;
 		[Bindable] public var listening					:Boolean;
 		[Bindable] public var buttonAudioControlEnabled	:Boolean;
-		[Bindable] public var sliderLevel				:Number = 1;
+		[Bindable] public var sliderLevel				:Number;
 		
 		public var uiChange								:Signal;
 		public var openAlert							:Signal;
 		public var connectedSignal						:Signal;
 		
-		private var _controlUnits						:ControlUnits;
+		//TESTTAG
+		[Bindable]  public var _controlUnits						:ControlUnits;
 		private var _modelModes							:ModelModes;
 		private var _modelNetwork						:ModelNetworkManager
-		private var _modelAudio							:ModelAudio;
+		//TESTTAG
+		[Bindable]  public var _modelAudio				:ModelAudio;
 		private var _controlPersistentData				:ControlPersistedData;
 		private var _signalNotifier						:SignalNotifier;
 		private var _alertOpen							:Boolean;
+		private var _helperConnected					:HelperConnection;
 		
-		
-		
-		public function PresentationUnits(control:ControlUnits, controlPersistentData:ControlPersistedData, modelNetwork:ModelNetworkManager, modelModes:ModelModes, modelAudio:ModelAudio, signalNotifier:SignalNotifier = null) 
+		public function PresentationUnits(control:ControlUnits, controlPersistentData:ControlPersistedData, modelNetwork:ModelNetworkManager, modelModes:ModelModes, modelAudio:ModelAudio, helperConnected:IConnected, signalNotifier:SignalNotifier = null) 
 		{
 			uiChange 				= new Signal();
 			openAlert				= new Signal(String);
@@ -62,6 +66,7 @@ package uk.co.baremedia.gnomo.presentation
 			_modelAudio 			= modelAudio;
 			_modelNetwork			= modelNetwork;
 			_signalNotifier			= signalNotifier;
+			_helperConnected		= _helperConnected;
 			
 			setObservers();
 			setText();
@@ -112,7 +117,7 @@ package uk.co.baremedia.gnomo.presentation
 		public function checkHasToShowAlerts():void
 		{
 			if(!_controlPersistentData.agreementAccepted) 	  requestAlert(ALERT_AGREEMENT);
-			else if(!_controlPersistentData.importantAlerted) requestAlert(ALERT_IMPORTANT);
+			//else if(!_controlPersistentData.importantAlerted) requestAlert(ALERT_IMPORTANT);
 		}
 		
 		public function agreementAccepted(value:Boolean):void
@@ -179,7 +184,7 @@ package uk.co.baremedia.gnomo.presentation
 			else 
 			{
 				textSlider = UtilsResources.getKey(EnumsLanguage.SENSIBILITY);
-				sliderLevel = _modelAudio.sensibilityLevel / 10;	
+				sliderLevel = _modelAudio.sensibilityLevel.sliderViewValue;
 			}
 		}
 		
@@ -242,7 +247,7 @@ package uk.co.baremedia.gnomo.presentation
 		protected function set audioSensibility(value:Number):void
 		{
 			//Tracer.log(this, "audioSensibility: "+(value <= 8) ? value * 10 : 8 * 10 );
-			_controlUnits.setSensibility( (value <= 8) ? value * 10 : 8 * 10 );
+			_controlUnits.setSensibility( value );
 		}
 		
 		protected function set volume(value:Number):void
@@ -255,17 +260,17 @@ package uk.co.baremedia.gnomo.presentation
 		{
 			//Tracer.log(this, "onModelAudio");
 			setReceiving();
-			setBroadcasting();
+			/*setBroadcasting();*/
 			defineNoteText(); 
 			defineSliderData();
 			defineConnectedRelatedText(_modelModes.localNetworkConnected);
 			notifyUiDataChange();
 		}
 		
-		private function setBroadcasting():void
+		/*private function setBroadcasting():void
 		{
 			broadcasting = _modelAudio.broadcasting;
-		}
+		}*/
 		
 		private function setReceiving():void
 		{
@@ -277,9 +282,16 @@ package uk.co.baremedia.gnomo.presentation
 		
 		private function defineNoteText():void
 		{
-			if(!_modelAudio.broadcasting && !receiving) textTopNote = _modelModes.textTopNote = UtilsResources.getKey(EnumsLanguage.SET_A_BABY_UNIT);
-			else if(_modelAudio.broadcasting) 		    textTopNote = _modelModes.textTopNote = UtilsResources.getKey(EnumsLanguage.BABY_UNIT); 
-			else if(receiving)						    textTopNote = _modelModes.textTopNote = UtilsResources.getKey(EnumsLanguage.PARENT_UNIT);
+			if(!_modelModes.localNetworkConnected && _modelAudio.receiving)
+				textTopNote = _modelModes.textTopNote = UtilsResources.getKey(EnumsLanguage.BROADCASTER_MAY_BE_ON_BACKGROUND_MODE);
+			else if(!_modelModes.localNetworkConnected)
+				textTopNote = _modelModes.textTopNote = UtilsResources.getKey(EnumsLanguage.RUN_OTHER_APP);
+			else if(!_modelAudio.broadcasting && !receiving) 
+				textTopNote = _modelModes.textTopNote = UtilsResources.getKey(EnumsLanguage.SET_A_BABY_UNIT);
+			else if(_modelAudio.broadcasting) 		    
+				textTopNote = _modelModes.textTopNote = UtilsResources.getKey(EnumsLanguage.BABY_UNIT); 
+			else if(receiving)						    
+				textTopNote = _modelModes.textTopNote = UtilsResources.getKey(EnumsLanguage.PARENT_UNIT);
 		}
 		
 		//no binding in Flash
@@ -309,7 +321,7 @@ package uk.co.baremedia.gnomo.presentation
 			defineNoteText();
 			defineSliderData();
 			setReceiving();
-			setBroadcasting();
+			/*setBroadcasting();*/
 			notifyUiDataChange();
 		}
 		
@@ -317,11 +329,11 @@ package uk.co.baremedia.gnomo.presentation
 		{
 			if(changeType == ModelNetworkManager.CONNECTION_ALERT && _modelNetwork.connectionAlert && !_alertOpen)
 			{
-				requestAlert(ALERT_DISCONNECTED);
+				//requestAlert(ALERT_DISCONNECTED);
 			}
 			else if(changeType == ModelNetworkManager.CONNECTION_ALERT && !_modelNetwork.connectionAlert && _alertOpen)
 			{
-				requestAlert(null);
+				//requestAlert(null);
 			}
 		}
 	}

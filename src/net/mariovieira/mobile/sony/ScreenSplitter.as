@@ -8,8 +8,10 @@ package net.mariovieira.mobile.sony
 	import flash.display.StageDisplayState;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.net.dns.AAAARecord;
 	import flash.system.Capabilities;
 	
+	import mx.core.IVisualElementContainer;
 	import mx.core.UIComponent;
 	
 	import net.mariovieira.mobile.sony.vo.DeviceScreenVO;
@@ -46,6 +48,12 @@ package net.mariovieira.mobile.sony
 		{
 			setupMultiDisplay();
 		}
+		
+		public static function getCustomScreenInfo(height:Number):DeviceScreenVO
+		{
+			return new DeviceScreenVO(false, 1, height);
+		}
+	
 		
 		public function setupScreens(topScreen:UIComponent, baseScreen:UIComponent, container:SkinnableContainer, topScreenYOffSet:int = 0):void
 		{
@@ -111,7 +119,7 @@ package net.mariovieira.mobile.sony
 			if( event.screenCount == 2 ) 
 			{
 				_deviceScreenInfo = new DeviceScreenVO(true, _displayInfo.getScreenCount(), _displayInfo.getScreenHeightPixels(0),
-													   _displayInfo.getScreenHeightPixels(1), _displayInfo.getScreenOffSetYPixels(1));
+													   		 _displayInfo.getScreenHeightPixels(1), _displayInfo.getScreenOffSetYPixels(1));
 			}
 			else
 			{

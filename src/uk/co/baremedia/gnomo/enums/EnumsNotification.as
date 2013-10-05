@@ -24,5 +24,6 @@ package uk.co.baremedia.gnomo.enums
 		public static const ACCELEROMETER				:String = "accelerometer";
 		public static const KEEP_ALIVE					:String = "keppAlive";
 		public static const MONITOR_ACTIVITY			:String = "monitorActivity";
+		public static const BROADCASTER_CAN_BE_ON_BACKGROUND_MODE:String = "broadcasterCanBeOnBackgroundMode";
 	}
 }

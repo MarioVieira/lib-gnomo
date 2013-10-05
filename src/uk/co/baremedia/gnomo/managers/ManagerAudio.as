@@ -7,7 +7,7 @@ package uk.co.baremedia.gnomo.managers
 	import org.as3.mvcsInjector.utils.Tracer;
 	import org.osflash.signals.Signal;
 	
-	import uk.co.baremedia.gnomo.controls.ControlAudioMonitor;
+	import uk.co.baremedia.gnomo.controls.ControlAudioActivityMonitor;
 	import uk.co.baremedia.gnomo.controls.ControlPlayer;
 	import uk.co.baremedia.gnomo.enums.EnumsNotification;
 	import uk.co.baremedia.gnomo.interfaces.IAudioBroadcaster;
@@ -17,6 +17,7 @@ package uk.co.baremedia.gnomo.managers
 	import uk.co.baremedia.gnomo.signals.SignalNotifier;
 	import uk.co.baremedia.gnomo.utils.UtilsMedia;
 	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
+	import uk.co.baremedia.gnomo.vo.VOSlider;
 	
 	public class ManagerAudio
 	{
@@ -26,16 +27,18 @@ package uk.co.baremedia.gnomo.managers
 		protected var _deviceType			:String;
 		protected var _playerControl		:ControlPlayer;
 		private var _crossPlatformExchange	:SignalCrossPlatformExchange;
-		private var _audioMonitor			:ControlAudioMonitor;
+		private var _audioMonitor			:ControlAudioActivityMonitor;
+		private var _deviceVersion			:String;
 		
 		
-		public function ManagerAudio(mediaMesseger:IAudioBroadcaster, controlAudioMonitor:ControlAudioMonitor, model:ModelAudio, deviceType:String, crossPlatformExchage:SignalCrossPlatformExchange, notifier:SignalNotifier)
+		public function ManagerAudio(mediaMesseger:IAudioBroadcaster, controlAudioMonitor:ControlAudioActivityMonitor, model:ModelAudio, deviceType:String, deviceVersion:String, crossPlatformExchage:SignalCrossPlatformExchange, notifier:SignalNotifier)
 		{
 			_playerControl 			= new ControlPlayer(mediaMesseger, model, notifier);
 			_audioMonitor			= controlAudioMonitor;
 			_mediaMesseger 			= mediaMesseger;
 			_modelAudio	   			= model;
 			_deviceType    			= deviceType;
+			_deviceVersion			= deviceVersion;
 			_crossPlatformExchange 	= crossPlatformExchage;
 			_audioNotifier 		   	= new Signal(VONotifierInfo);
 			
@@ -44,7 +47,29 @@ package uk.co.baremedia.gnomo.managers
 		
 		private function setObservers():void
 		{
-			_mediaMesseger.audioActivityMessage.add(onAudioActivityMessage);
+			/*
+			* TO DO: remove the network depency to know about audio activity, LOCAL work in instead
+			* _mediaMesseger.audioActivityMessage.add(onAudioActivityMessage);
+			* 
+			*/
+			
+			_modelAudio.add(onActiveNetStream);
+		}
+		
+		/**
+		 * 	
+		 * When a new stream is added, regardless of being a broadcaster or listener we start / stop the activity audio checks
+		 * 
+		 **/ 
+		private function onActiveNetStream(change:String):void
+		{
+			if(change == ModelAudio.NET_STREAM_CHANGE)
+			{
+				if(!_modelAudio.audioActivityStream && _audioMonitor.isActive)
+					_audioMonitor.stopAcitivityMonitor();
+				else if(_modelAudio.audioActivityStream && !_audioMonitor.isActive)
+					_audioMonitor.startActivityMonitor();
+			}
 		}
 		
 		public function get modelAudio():ModelAudio
@@ -52,12 +77,8 @@ package uk.co.baremedia.gnomo.managers
 			return _modelAudio;
 		}
 		
-		public function get audioActivityMessage():Signal
-		{
-			return _mediaMesseger.audioActivityMessage;
-		}
 		
-		private function onAudioActivityMessage(elapsedTimeInSec:Number):void
+		/*private function onAudioActivityMessage(elapsedTimeInSec:Number):void
 		{
 			//Tracer.log(this, "onAudioActivityMessage - startNotStopAudio: "+startNotStopAudio);
 			logTimeActivity(elapsedTimeInSec);
@@ -66,7 +87,7 @@ package uk.co.baremedia.gnomo.managers
 		private function logTimeActivity(elapsedTimeInSec:Number):void
 		{
 			_audioMonitor.logTimeActivity(elapsedTimeInSec);	
-		}
+		}*/
 		
 		public function get netStreamSignal():Signal
 		{
@@ -82,7 +103,7 @@ package uk.co.baremedia.gnomo.managers
 		{
 			stopBroadcast();
 			stopPlayingAudio(true);
-			_audioMonitor.stopBroadcasterAcitivityMonitor();
+			_audioMonitor.stopAcitivityMonitor();
 			_modelAudio.broadcasterInfo = event;
 			_modelAudio.broadcasting	= false;
 		}
@@ -115,10 +136,10 @@ package uk.co.baremedia.gnomo.managers
 				notifyAudioEvent(EnumsNotification.BROADCATING);
 				notifyAudioEvent("broadcastAudio() - mic: "+mic);
 				_modelAudio.broadcasting = true;
-				_mediaMesseger.broadcastAudioToGroup(mic, orderType);
+				_modelAudio.audioActivityStream = _mediaMesseger.broadcastAudioToGroup(mic, orderType, _deviceType, _deviceVersion);
 				_modelAudio.microphone   = mic;
 				_modelAudio.broadcasterInfo = null;
-				_audioMonitor.startBroadcasterActivityMonitor();
+				_audioMonitor.startActivityMonitor();
 			}
 			else
 			{
@@ -137,7 +158,7 @@ package uk.co.baremedia.gnomo.managers
 			if(_modelAudio.broadcasting)
 			{
 				//notifyAudioEvent("stopBroadacast() - killMicrophone");
-				_audioMonitor.stopBroadcasterAcitivityMonitor();
+				_audioMonitor.stopAcitivityMonitor();
 				_mediaMesseger.stopBroadcasting();
 				_modelAudio.broadcasting 	= false;
 			}
@@ -166,6 +187,7 @@ package uk.co.baremedia.gnomo.managers
 				{
 					Tracer.log(this, "playBroadcasterStream");
 					_playerControl.setupStream(broadcasterInfo.mediaInfo);
+					_audioMonitor.startActivityMonitor();
 				}
 				else
 				{
