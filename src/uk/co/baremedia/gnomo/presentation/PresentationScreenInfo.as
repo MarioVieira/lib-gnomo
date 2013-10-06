@@ -2,6 +2,7 @@ package uk.co.baremedia.gnomo.presentation
 {
 	import flash.display.Stage;
 	import flash.events.StageOrientationEvent;
+	import flash.filesystem.File;
 	import flash.geom.Rectangle;
 	import flash.media.StageWebView;
 	
@@ -16,6 +17,7 @@ package uk.co.baremedia.gnomo.presentation
 	
 	import uk.co.baremedia.gnomo.enums.EnumsLanguage;
 	import uk.co.baremedia.gnomo.utils.UtilsResources;
+	import uk.co.baremedia.gnomo.utils.UtilsStaticUIInfo;
 	
 	public class PresentationScreenInfo implements IDispose
 	{
@@ -59,18 +61,32 @@ package uk.co.baremedia.gnomo.presentation
 			_webView = new StageWebView();			
 			_webView.stage = _view.stage;
 			setText();
-			updateWebView();
+			updateWebView();  
 		}
 		
 		protected function updateWebView():void
 		{
-			_webView.viewPort = new Rectangle( 10, 30, _view.textGroup.width, _view.textGroup.height);
+			_webView.viewPort = new Rectangle( 0, UtilsStaticUIInfo.actioBarHeight, _view.textGroup.width, _view.textGroup.height);
+		}
+		
+		public function backHistory():void
+		{
+			/*_webView.reload();
+			_webView.historyBack();*/
+			setText();
+		}
+		
+		[Bindable]
+		public function get hasHistory():Boolean
+		{
+			return _webView.isHistoryBackEnabled;
 		}
 		
 		private function setText():void
 		{
 			//textInfoHTML = UtilsResources.getKey(EnumsLanguage.INFORMATION);
-			_webView.loadString( UtilsResources.getKey(EnumsLanguage.INFORMATION) );
+			var src:File = File.applicationDirectory.resolvePath("assets/helpContent.html");
+			_webView.loadURL("file://" + src.nativePath);
 		}
 		
 		public function dispose(recursive:Boolean=true):void
