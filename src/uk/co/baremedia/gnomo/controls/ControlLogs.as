@@ -15,6 +15,7 @@ package uk.co.baremedia.gnomo.controls
 	{
 		protected var _viewNavigation		:SignalViewNavigation;
 		protected var _controlPersistedData	:ControlPersistedData;
+		
 	
 		public function ControlLogs(controlPersistedData:ControlPersistedData)
 		{

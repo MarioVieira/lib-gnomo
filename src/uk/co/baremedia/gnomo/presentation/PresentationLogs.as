@@ -1,6 +1,7 @@
 package uk.co.baremedia.gnomo.presentation
 {
 	import mx.collections.ArrayCollection;
+	import mx.collections.IList;
 	import mx.core.FlexGlobals;
 	
 	import org.as3.mvcsInjector.interfaces.IDispose;
@@ -16,7 +17,7 @@ package uk.co.baremedia.gnomo.presentation
 	
 	public class PresentationLogs implements IDispose
 	{
-		[Bindable] public var logs				:ArrayCollection; 
+ 		private var _logs						:IList; 
 		[Bindable] public var textEditButton	:String;
 		
 		private var _control					:ControlLogs;
@@ -35,14 +36,26 @@ package uk.co.baremedia.gnomo.presentation
 			textEditButton = UtilsResources.getKey(EnumsLanguage.OPTIONS)
 		}
 		
+
+		[Bindable]
+		public function get logs():IList
+		{
+			return _logs;
+		}
+
+		public function set logs(value:IList):void
+		{
+			_logs = value;
+		}
+
 		private function observe():void
 		{
-			_model.add(onModelChange);
+			_model.logsSignal.add(onLogChange);
 		}
 		
 		public function dispose(recursive:Boolean=true):void
 		{
-			_model.remove(onModelChange);
+			_model.remove(onLogChange);
 		}
 		
 		private function setUIData():void
@@ -50,13 +63,10 @@ package uk.co.baremedia.gnomo.presentation
 			logs = (_model.logs) ? _model.logs.logs : null;
 		}
 		
-		private function onModelChange(change:String):void
+		private function onLogChange(list:IList):void
 		{
-			if(change == ModelSharedObject.LOGS)
-			{
-				//Tracer.log(this, "onModelChange");
-				logs = _model.logs.logs;
-			}
+			Tracer.log(this, "onLogChange");
+			logs = _model.logs.logs;	
 		}
 		
 		public function optionClick():void
@@ -64,7 +74,6 @@ package uk.co.baremedia.gnomo.presentation
 			if(textEditButton == UtilsResources.getKey(EnumsLanguage.OPTIONS))
 			{
 				FlexGlobals.topLevelApplication.viewMenuOpen = true;
-				textEditButton = UtilsResources.getKey(EnumsLanguage.DONE);
 			}
 			else
 			{
@@ -75,6 +84,9 @@ package uk.co.baremedia.gnomo.presentation
 		
 		public function editLogs(openNotClose:Boolean):void
 		{
+			if(openNotClose)
+				textEditButton = UtilsResources.getKey(EnumsLanguage.DONE);
+			
 			UtilsStaticUIInfo.logsShowEditButton = openNotClose;
 		}
 		

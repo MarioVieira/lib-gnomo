@@ -83,6 +83,7 @@ package uk.co.baremedia.gnomo.models
 
 		public function set audioActivityOn(value:Boolean):void
 		{
+			//Tracer.log(this, "audioActivityOn.DISPATCH: "+value);
 			_audioActvity = value;
 			_audioActvityOnSignal.dispatch(value);
 		}

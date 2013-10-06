@@ -5,6 +5,7 @@ package uk.co.baremedia.gnomo.models
 	import flash.net.SharedObject;
 	
 	import mx.collections.ArrayCollection;
+	import mx.collections.IList;
 	import mx.collections.IViewCursor;
 	import mx.managers.ICursorManager;
 	
@@ -22,8 +23,19 @@ package uk.co.baremedia.gnomo.models
 		
 		public static var LOGS		:String = "logs";
 		public static var AGREED	:String = "agrement";
+		private var _LogsSignal		:Signal;
 		
-		public function ModelSharedObject(){}
+		
+		
+		public function ModelSharedObject()
+		{
+			_LogsSignal = new Signal(ArrayCollection);
+		}
+		
+		public function get logsSignal():Signal
+		{
+			return _LogsSignal;
+		}
 		
 		public function setup(appUID:String):void
 		{
@@ -35,7 +47,9 @@ package uk.co.baremedia.gnomo.models
 			//Tracer.log(this, "SAVE logs: "+newLogs);
 			_sharedObject.data[LOGS] = Serializer.serialize( removeLogsOlderThanSevenDays(newLogs) ).toXMLString();
 			flush();
-			broadcastModelChange(LOGS);
+			
+			var tmpLogs:VOLogs = logs
+			_LogsSignal.dispatch( (tmpLogs) ? tmpLogs.logs : null);
 		}
 		
 		public function get logs():VOLogs

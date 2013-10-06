@@ -42,6 +42,8 @@ package uk.co.baremedia.gnomo.controls
 		//protected var _viewNavigation		:SignalViewNavigation;
 		protected var _listening			:SignalListen;
 		private var _userOrderForListening  :Boolean;
+		private var _lastViewConnectedState :Boolean = true;
+		private var _groupConnected:Boolean;
 		
 		[Bindable] //TESTTAG
 		public var _helperConnection		:IConnected;
@@ -66,31 +68,47 @@ package uk.co.baremedia.gnomo.controls
 			setObservers();
 			_modelDeviceInfo.deviceVersion = UtilsDeviceInfo.IOS;
 		}
+		
+		[Bindable]
+		public function get groupConnected():Boolean
+		{
+			return _groupConnected;
+		}
+		
+		public function set groupConnected(value:Boolean):void
+		{
+			_groupConnected = value;
+		}
+		
+		
+		public function connectToNetwork():void
+		{
+			_networkManager.connect();	
+		}
 
 		private function setObservers():void
 		{
-			_networkManager.connectionStatus.add(onConnectionStatusMonitorState);
+			_networkManager.groupConnectedSignal.add(onGroupConnectedSignal);
+			_networkManager.connectionStatus.add(onConnectionChange);
 			_networkManager.mediaBroadcast.add(onBroadcasterMedia);
 			_networkManager.debug.add(onDebug);
-			_controlAudio.modelAudio.audioActivityOnSignal.addOnce(onModelAudioChange);
+			_controlAudio.modelAudio.audioActivityOnSignal.add(onAudioActivityChange);
+		}
+		
+		private function onGroupConnectedSignal():void
+		{
+			Tracer.log(this, "onGroupConnectedSignal + _networkManager.groupNetConnection: "+_networkManager.groupNetConnection);
+			groupConnected = _networkManager.groupNetConnection;	
 		}
 		
 		/*
 		* When audioActivityOn changes
 		*/
-		private function onModelAudioChange(audioActivity:Boolean):void
+		private function onAudioActivityChange(audioActivity:Boolean):void
 		{
-			Tracer.log(this, "onModelAudioChange - "+audioActivity);
+			//Tracer.log(this, "onAudioActivityChange - "+audioActivity);
 			broadcastMonitorState( (!audioActivity) ? EnumsBabyMonitor.STATE_NO_ACTIVITY : EnumsBabyMonitor.STATE_ACITIVTY );
 		}
-		
-		/*private function onAudioActivityMonitor(startNotStop:Boolean):void
-		{
-			//Tracer.log(this, "onAudioActivityMonitor - startNotStop: "+startNotStop);
-			broadcastMonitorState( (!startNotStop) ? EnumsBabyMonitor.STATE_NO_ACTIVITY : EnumsBabyMonitor.STATE_ACITIVTY );
-			if(!isIOS) onAudioActivityMessage(startNotStop);
-		}*/
-		
 		/************************************************ NOTIFICATION *******************************************************/
 		
 		public function get modelMonitor():ModelModes
@@ -277,23 +295,30 @@ package uk.co.baremedia.gnomo.controls
 		 * 
 		 * When playing, broadcaster is iOS, and connecting is false DO NOT change the animation (iOS can be in background mode)
 		 * 
+		 * If this get called is because there is acttivity, which causes no harm. Baby will have been set to "UNPLUGGED", on activity we show its new state = BG mode on iOS
 		 **/
-		protected function onConnectionStatusMonitorState(connected:Boolean):void
+		protected function onConnectionChange(connected:Boolean):void
 		{
 			defineConnectedChangeAction(connected);
-			
-			if(!connected && !_helperConnection.isBroadcasterIOS)
-				broadcastMonitorState(EnumsBabyMonitor.STATE_UNPLUGGED);
-			//used for handling a "reconnection" case
-			/*else if(connected && _controlAudio.modelAudio.audioActivityStream)
-					broadcastMonitorState(_controlAudio.modelAudio.audioActivityOn ? EnumsBabyMonitor.STATE_ACITIVTY : EnumsBabyMonitor.STATE_NO_ACTIVITY);*/
+			if(_lastViewConnectedState != connected)
+			{
+				//Tracer.log(this, "onConnectionStatusMonitorState: " +connected);
+				_lastViewConnectedState = connected;
+				
+				if(!connected)
+					broadcastMonitorState(EnumsBabyMonitor.STATE_UNPLUGGED);
+				else if(connected)
+					broadcastMonitorState(_controlAudio.modelAudio.audioActivityOn ? EnumsBabyMonitor.STATE_ACITIVTY : EnumsBabyMonitor.STATE_NO_ACTIVITY);
+			}
 		}
 		
 		private function broadcastMonitorState(state:int):void
 		{
-			Tracer.log(this, "broadcastMonitorState: " +state);
+			//Tracer.log(this, "broadcastMonitorState: " +state);
 			_model.monitorMode = state;
 		}
+		
+		
 		
 		private function onBroadcasterMedia(e:MediaBroadcastEvent):void
 		{
@@ -336,10 +361,10 @@ package uk.co.baremedia.gnomo.controls
 
 		public function dispose(recursive:Boolean=true):void
 		{
-			_networkManager.connectionStatus.remove(onConnectionStatusMonitorState);
+			/*_networkManager.connectionStatus.remove(onConnectionStatusMonitorState);
 			_networkManager.mediaBroadcast.remove(onBroadcasterMedia);
 			_networkManager.debug.remove(onDebug);
-			_controlAudio.audioNotifier.remove(onAudioNotifier);
+			_controlAudio.audioNotifier.remove(onAudioNotifier);*/
 		}
 	}
 }

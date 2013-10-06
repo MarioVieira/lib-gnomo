@@ -26,7 +26,7 @@ package uk.co.baremedia.gnomo.controls
 	
 	public class ControlAudioActivityMonitor implements IInitializer, IDispose
 	{
-		public static const ACTIVITY_MONITOR_CHECK	:Number = 100;
+		public static const ACTIVITY_MONITOR_CHECK	:Number = 1000;
 		public static const STOP_PLAY_TIMER			:Number = 1000;
 		
 		protected var _model						:ModelAudio;
@@ -40,6 +40,7 @@ package uk.co.baremedia.gnomo.controls
 		protected var _audioActivityMessage			:Signal;
 		
 		public var isActive:NetStream;
+		private var _lastDetectedActivity:Boolean;
 		
 		public function ControlAudioActivityMonitor(audioModel:ModelAudio, messenger:IP2PMessenger, logsControl:ControlLogs, helperConnection:IConnected, helperAudioActivity:IAudioActivity) 
 		{
@@ -49,7 +50,7 @@ package uk.co.baremedia.gnomo.controls
 			_helperConnection 	= helperConnection;
 			_helperAudioActivity = helperAudioActivity;
 			_elapsedActivityStopTimeout = new Timer(STOP_PLAY_TIMER);
-			_elapsedActivityStopTimeout.addEventListener(TimerEvent.TIMER, onRegisterActivityTimedOut);
+			_elapsedActivityStopTimeout.addEventListener(TimerEvent.TIMER, onTimeOutToCloseTimeLog);
 			_audioActivityMessage = new Signal(Number);
 		}
 		
@@ -88,52 +89,57 @@ package uk.co.baremedia.gnomo.controls
 		
 		protected function checkBroadcasterActivity(event:Event):void
 		{
-			var activity:Boolean = _helperAudioActivity.hasBroadcasterAudioActivity;
-			if(activity && !_model.audioActivityOn)
+			_lastDetectedActivity = _helperAudioActivity.hasBroadcasterAudioActivity;
+			if(_lastDetectedActivity && !_model.audioActivityOn)
 			{
-				//Tracer.log(this, "START");
 				_model.audioActivityOn = true;
-				_firstAudioAcitivityTime = new Date();
+				startTimeLog();
 				/*
 				REMOVED WHEN NETWORK MESSAGE WERE TAKEN OUT
 				broadcastLogging(true);*/
 			}
-			else if(!activity && _model.audioActivityOn)
+			else if(!_lastDetectedActivity && _model.audioActivityOn && !_elapsedActivityStopTimeout.running)
 			{
-				if(!_elapsedActivityStopTimeout.running)
-				{
-					//Tracer.log(this, "start STOP timer");
-					startActivityTimerToCloseLog();
-				}
+				timeOutToCloseTimeLog();	
+				Tracer.log(this, "TIME OUT TO CLOSE LOG");
 			}
 		}
 		
-		private function startActivityTimerToCloseLog():void
+		private function startTimeLog():void
+		{
+			Tracer.log(this, "START TIME LOG");
+			_firstAudioAcitivityTime = new Date();
+		}
+		
+		private function timeOutToCloseTimeLog():void
 		{
 			_elapsedActivityStopTimeout.reset();
 			_elapsedActivityStopTimeout.start();
 		}
 		
-		private function onRegisterActivityTimedOut(e:Event):void
+		private function onTimeOutToCloseTimeLog(e:Event):void
 		{
 			_elapsedActivityStopTimeout.stop();
-			var tmpHasBroadcasterAudioActivity:Boolean = _helperAudioActivity.hasBroadcasterAudioActivity;
+			stopTimeLog();
+			_model.audioActivityOn = _lastDetectedActivity;
+		}
+		
+		private function stopTimeLog():void
+		{
+			/*!_firstAudioAcitivityTime
+				return;*/
+				
+			Tracer.log(this, "STOP TIME LOG");
+			var now:Date = new Date();
+			//Tracer.log(this, "STOP - activity in sec: "+ elapsedAudioAcitivityTime  );
+			var elapsedAudioAcitivityTime:Number = (now.getTime() - _firstAudioAcitivityTime.getTime()) / 1000;
 			
-			if( !tmpHasBroadcasterAudioActivity )
+			if(elapsedAudioAcitivityTime > EnumsSettings.MINIMUM_ACTIVITY_TIME_IN_SEC)
 			{
-				_model.audioActivityOn = false;
-				
-				var now:Date = new Date();
-				//Tracer.log(this, "STOP - activity in sec: "+ elapsedAudioAcitivityTime  );
-				var elapsedAudioAcitivityTime:Number = (now.getTime() - _firstAudioAcitivityTime.getTime()) / 1000;
-				
-				if(elapsedAudioAcitivityTime > EnumsSettings.MINIMUM_ACTIVITY_TIME_IN_SEC)
-					logTimeActivity(elapsedAudioAcitivityTime);
-				
-				/*
-				REMOVED WHEN NETWORK MESSAGE WERE TAKEN OUT
-				broadcastLogging(false);*/
+				logTimeActivity(elapsedAudioAcitivityTime);
 			}
+			
+			/*_firstAudioAcitivityTime = null;*/
 		}
 		
 		private function tryRegisterActivityLater():void
@@ -189,7 +195,7 @@ package uk.co.baremedia.gnomo.controls
 		public function dispose(recursive:Boolean=true):void
 		{
 			if(_activityMonitorTimer) _activityMonitorTimer.removeEventListener(TimerEvent.TIMER, checkBroadcasterActivity);
-			_elapsedActivityStopTimeout.removeEventListener(TimerEvent.TIMER, onRegisterActivityTimedOut);
+			_elapsedActivityStopTimeout.removeEventListener(TimerEvent.TIMER, onTimeOutToCloseTimeLog);
 		}
 	}
 }

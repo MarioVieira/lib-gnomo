@@ -260,17 +260,17 @@ package uk.co.baremedia.gnomo.presentation
 		{
 			//Tracer.log(this, "onModelAudio");
 			setReceiving();
-			/*setBroadcasting();*/
+			setBroadcasting();
 			defineNoteText(); 
 			defineSliderData();
 			defineConnectedRelatedText(_modelModes.localNetworkConnected);
 			notifyUiDataChange();
 		}
 		
-		/*private function setBroadcasting():void
+		private function setBroadcasting():void
 		{
 			broadcasting = _modelAudio.broadcasting;
-		}*/
+		}
 		
 		private function setReceiving():void
 		{
@@ -321,7 +321,7 @@ package uk.co.baremedia.gnomo.presentation
 			defineNoteText();
 			defineSliderData();
 			setReceiving();
-			/*setBroadcasting();*/
+			setBroadcasting();
 			notifyUiDataChange();
 		}
 		
