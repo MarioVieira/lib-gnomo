@@ -6,6 +6,7 @@ package uk.co.baremedia.gnomo.roles
 	{
 		public static function canClaimReceiverRole(clientDeviceType:String, broadcasterDeviceType:String, forceAccept:Boolean = true):Boolean
 		{
+			
 			//for debugging
 			if(forceAccept) return forceAccept;
 			

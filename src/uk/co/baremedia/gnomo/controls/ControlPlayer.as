@@ -65,6 +65,7 @@ package uk.co.baremedia.gnomo.controls
 				clearNetStream();
 				clearPlayer();
 				_playing = false;
+				_modelAudio.mediaProviderInfo = null;
 			}
 		}
 		
@@ -130,6 +131,7 @@ package uk.co.baremedia.gnomo.controls
 			
 			_modelAudio.audioActivityStream = _receiveStream;
 			_modelAudio.receiving = true;
+			_modelAudio.mediaProviderInfo = mediaInfo;
 			//Tracer.log(this, "mountStream - _modelAudio: "+_modelAudio+"  _notifier: "+_notifier);
 			UtilsAppNotifier.notifyApp(_notifier, "mic", "IOS KEEP ALIVE - MIC: "+ String(_modelAudio.microphone) );
 		}

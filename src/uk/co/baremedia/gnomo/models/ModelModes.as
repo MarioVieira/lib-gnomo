@@ -1,6 +1,7 @@
 package uk.co.baremedia.gnomo.models
 {
 	import com.projectcocoon.p2p.events.MediaBroadcastEvent;
+	import com.projectcocoon.p2p.vo.MediaVO;
 	
 	import org.as3.mvcsInjector.interfaces.IModelChange;
 	import org.osflash.signals.Signal;

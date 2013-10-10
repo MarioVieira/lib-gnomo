@@ -1,3 +1,4 @@
+
 package uk.co.baremedia.gnomo.enums
 {
 	public class EnumsLocalNetwork

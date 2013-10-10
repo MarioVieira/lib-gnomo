@@ -88,17 +88,10 @@ package uk.co.baremedia.gnomo.controls
 
 		private function setObservers():void
 		{
-			_networkManager.groupConnectedSignal.add(onGroupConnectedSignal);
 			_networkManager.connectionStatus.add(onConnectionChange);
 			_networkManager.mediaBroadcast.add(onBroadcasterMedia);
 			_networkManager.debug.add(onDebug);
 			_controlAudio.modelAudio.audioActivityOnSignal.add(onAudioActivityChange);
-		}
-		
-		private function onGroupConnectedSignal():void
-		{
-			Tracer.log(this, "onGroupConnectedSignal + _networkManager.groupNetConnection: "+_networkManager.groupNetConnection);
-			groupConnected = _networkManager.groupNetConnection;	
 		}
 		
 		/*
@@ -305,10 +298,10 @@ package uk.co.baremedia.gnomo.controls
 				//Tracer.log(this, "onConnectionStatusMonitorState: " +connected);
 				_lastViewConnectedState = connected;
 				
-				if(!connected)
+				//listiner OR broadcaster is present AND listener OR broadcaster is iOS, skip broadcasting the monitor state (can be on bg mode)
+				var tmpIsIOSMediaInfo:Boolean = (_controlAudio.modelAudio.mediaProviderInfo && UtilsDeviceInfo.isIOSDevice(_controlAudio.modelAudio.mediaProviderInfo.deviceVersion));
+				if(!tmpIsIOSMediaInfo)
 					broadcastMonitorState(EnumsBabyMonitor.STATE_UNPLUGGED);
-				else if(connected)
-					broadcastMonitorState(_controlAudio.modelAudio.audioActivityOn ? EnumsBabyMonitor.STATE_ACITIVTY : EnumsBabyMonitor.STATE_NO_ACTIVITY);
 			}
 		}
 		
@@ -324,7 +317,7 @@ package uk.co.baremedia.gnomo.controls
 		{
 			//Tracer.log(this, "onMediaBroadcast - e.mediaInfo.order: "+e.mediaInfo.order);
 			broadcastMonitorState(EnumsBabyMonitor.STATE_NO_ACTIVITY);
-			_controlAudio.playBroadcasterStream(e, isIOS);
+			_controlAudio.playBroadcasterStream(e, true);
 			
 			listening = isIOS;
 			//keepAliveForIOS();

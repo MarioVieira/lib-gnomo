@@ -49,7 +49,6 @@ package uk.co.baremedia.gnomo.helper
 		[Bindable]
 		public function get isBroadcasterIOS():Boolean
 		{
-			//return (_modelAudio.broadcasterInfo && _modelAudio.broadcasterInfo.mediaInfo) ?  UtilsDeviceInfo.isIOSDevice(UtilsDeviceInfo.IPAD) : false;
 			return (_modelAudio.broadcasterInfo && _modelAudio.broadcasterInfo.mediaInfo) ?  UtilsDeviceInfo.isIOSDevice(_modelAudio.broadcasterInfo.mediaInfo.deviceVersion) : false;
 		}
 	}

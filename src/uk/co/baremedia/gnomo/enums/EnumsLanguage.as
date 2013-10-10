@@ -45,7 +45,8 @@ package uk.co.baremedia.gnomo.enums
 		public static const AD_DEFAULT_URL_TEST:String		= "AD_DEFAULT_URL_TEST";
 		public static const RUN_OTHER_APP:String 			= "RUN_OTHER_APP";
 		public static const BROADCASTER_MAY_BE_ON_BACKGROUND_MODE:String = "BROADCASTER_MAY_BE_ON_BACKGROUND_MODE";
-		public static const INSTRUCTIONS_LOG_EMPTY			:String = "INSTRUCTIONS_LOG_EMPTY";
-		public static const BACK							:String = "BACK";
+		public static const INSTRUCTIONS_LOG_EMPTY				:String = "INSTRUCTIONS_LOG_EMPTY";
+		public static const BACK								:String = "BACK";
+		public static const LISTENER_MAY_BE_ON_BACKGROUND_MODE	:String = "LISTENER_MAY_BE_ON_BACKGROUND_MODE";
 	}
 }

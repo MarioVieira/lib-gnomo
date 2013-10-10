@@ -17,6 +17,7 @@ package uk.co.baremedia.gnomo.presentation
 	import uk.co.baremedia.gnomo.models.ModelModes;
 	import uk.co.baremedia.gnomo.models.ModelNetworkManager;
 	import uk.co.baremedia.gnomo.signals.SignalNotifier;
+	import uk.co.baremedia.gnomo.utils.UtilsDeviceInfo;
 	import uk.co.baremedia.gnomo.utils.UtilsResources;
 	import uk.co.baremedia.gnomo.vo.VONotifierInfo;
 	import uk.co.baremedia.gnomo.vo.VOSlider;
@@ -282,8 +283,9 @@ package uk.co.baremedia.gnomo.presentation
 		
 		private function defineNoteText():void
 		{
-			if(!_modelModes.localNetworkConnected && _modelAudio.receiving)
-				textTopNote = _modelModes.textTopNote = UtilsResources.getKey(EnumsLanguage.BROADCASTER_MAY_BE_ON_BACKGROUND_MODE);
+			//if not receiving and isPlayingOrBroacasting it's? yes, broadcasting. This BG mdoe message only applies to iOS
+			if(!_modelModes.localNetworkConnected && _modelAudio.isPlayingOrBroacasting && (_modelAudio.mediaProviderInfo && UtilsDeviceInfo.isIOSDevice(_modelAudio.mediaProviderInfo.deviceVersion) ) )
+				textTopNote = _modelModes.textTopNote = UtilsResources.getKey( (_modelAudio.receiving) ? EnumsLanguage.BROADCASTER_MAY_BE_ON_BACKGROUND_MODE :  EnumsLanguage.LISTENER_MAY_BE_ON_BACKGROUND_MODE);
 			else if(!_modelModes.localNetworkConnected)
 				textTopNote = _modelModes.textTopNote = UtilsResources.getKey(EnumsLanguage.RUN_OTHER_APP);
 			else if(!_modelAudio.broadcasting && !receiving) 

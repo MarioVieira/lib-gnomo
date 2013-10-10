@@ -1,6 +1,7 @@
 package uk.co.baremedia.gnomo.models
 {
 	import com.projectcocoon.p2p.events.MediaBroadcastEvent;
+	import com.projectcocoon.p2p.vo.MediaVO;
 	
 	import flash.media.Microphone;
 	import flash.net.NetStream;
@@ -11,8 +12,8 @@ package uk.co.baremedia.gnomo.models
 	import org.as3.mvcsInjector.utils.Tracer;
 	import org.osflash.signals.Signal;
 	
-	import uk.co.baremedia.gnomo.vo.VOSlider;
 	import uk.co.baremedia.gnomo.interfaces.IBroadcasting;
+	import uk.co.baremedia.gnomo.vo.VOSlider;
 
 	[Bindable] 
 	public class ModelAudio extends Signal implements IModelChange, IBroadcasting
@@ -24,7 +25,9 @@ package uk.co.baremedia.gnomo.models
 		public static const SENSIBILITY_CHANGE			:String = "sensibilityChange";
 		public static const NET_STREAM_CHANGE			:String = "netStreamChange";
 		public static const DEFAULT_SENSISBILIY			:Number = 2;
+		
 		public var volume								:Number = 5;
+		public var mediaProviderInfo					:MediaVO;
 		
 		private var _microphone					:Microphone;
 		private var _receiving					:Boolean;
@@ -36,6 +39,7 @@ package uk.co.baremedia.gnomo.models
 		private var _lastTranmissionLenghtTimer	:Timer;
 		private var _audioActivityStream		:NetStream;
 		private var _audioActvityOnSignal		:Signal;
+		
 
 		
 		public function ModelAudio() 
@@ -46,6 +50,11 @@ package uk.co.baremedia.gnomo.models
 		public function get audioActivityStream():NetStream
 		{
 			return _audioActivityStream;
+		}
+		
+		public function get isPlayingOrBroacasting():Boolean
+		{
+			return (_audioActivityStream);
 		}
 
 		public function set audioActivityStream(value:NetStream):void

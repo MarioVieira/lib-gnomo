@@ -10,6 +10,7 @@ package uk.co.baremedia.gnomo.controls
 	
 	import org.as3.mvcsInjector.interfaces.IDispose;
 	import org.osflash.signals.Signal;
+	import org.osmf.events.TimeEvent;
 	import org.robotlegs.core.IInitializer;
 	import org.robotlegs.core.IInjector;
 	
@@ -26,6 +27,7 @@ package uk.co.baremedia.gnomo.controls
 	
 	public class ControlAudioActivityMonitor implements IInitializer, IDispose
 	{
+		public static const INITIAL_ACITIVITY_CHECK	:Number = 100;
 		public static const ACTIVITY_MONITOR_CHECK	:Number = 1000;
 		public static const STOP_PLAY_TIMER			:Number = 1000;
 		
@@ -41,6 +43,7 @@ package uk.co.baremedia.gnomo.controls
 		
 		public var isActive:NetStream;
 		private var _lastDetectedActivity:Boolean;
+		private var _changeActivityCheck:Timer;
 		
 		public function ControlAudioActivityMonitor(audioModel:ModelAudio, messenger:IP2PMessenger, logsControl:ControlLogs, helperConnection:IConnected, helperAudioActivity:IAudioActivity) 
 		{
@@ -51,7 +54,33 @@ package uk.co.baremedia.gnomo.controls
 			_helperAudioActivity = helperAudioActivity;
 			_elapsedActivityStopTimeout = new Timer(STOP_PLAY_TIMER);
 			_elapsedActivityStopTimeout.addEventListener(TimerEvent.TIMER, onTimeOutToCloseTimeLog);
+			_changeActivityCheck = new Timer(INITIAL_ACITIVITY_CHECK, 0);
+			_changeActivityCheck.addEventListener(TimerEvent.TIMER_COMPLETE, onChangeActivityCheckTimeOut);
 			_audioActivityMessage = new Signal(Number);
+		}
+		
+		protected function startTimerToCheckHasChanged():void
+		{
+			_changeActivityCheck.reset();
+			_changeActivityCheck.start();		
+		}
+		
+		protected function checkActivityHasChanged():void
+		{
+			if(!_model.audioActivityOn && _helperAudioActivity.hasBroadcasterAudioActivity)
+			{
+				checkBroadcasterActivity(null);
+			}
+			else if(_model.audioActivityOn && !_helperAudioActivity.hasBroadcasterAudioActivity)
+			{
+				checkBroadcasterActivity(null);
+			}
+		}
+		
+		protected function onChangeActivityCheckTimeOut(event:TimerEvent):void
+		{
+			checkActivityHasChanged();
+			startTimerToCheckHasChanged();
 		}
 		
 		public function init(injector:IInjector):void
@@ -65,21 +94,21 @@ package uk.co.baremedia.gnomo.controls
 		
 		public function startActivityMonitor():void
 		{
-			//Tracer.log(this, "startActivityMonitor()");
-			
 			if(!_activityMonitorTimer) 
 			{	
+				Tracer.log(this, "START ActivityMonitor()");
 				_activityMonitorTimer = new Timer(ACTIVITY_MONITOR_CHECK);
 				_activityMonitorTimer.addEventListener(TimerEvent.TIMER, checkBroadcasterActivity);
+				_activityMonitorTimer.reset();
+				_activityMonitorTimer.start();
 			}
-			
-			_activityMonitorTimer.reset();
-			_activityMonitorTimer.start();
 		}
 		
 		public function stopAcitivityMonitor():void
 		{
-			if(_activityMonitorTimer) _activityMonitorTimer.stop();
+			Tracer.log(this, "STOP ActivityMonitor()");
+			if(_activityMonitorTimer) 
+				_activityMonitorTimer.stop();
 		}
 		
 		public function get audioActivityMessage():Signal
@@ -94,9 +123,6 @@ package uk.co.baremedia.gnomo.controls
 			{
 				_model.audioActivityOn = true;
 				startTimeLog();
-				/*
-				REMOVED WHEN NETWORK MESSAGE WERE TAKEN OUT
-				broadcastLogging(true);*/
 			}
 			else if(!_lastDetectedActivity && _model.audioActivityOn && !_elapsedActivityStopTimeout.running)
 			{

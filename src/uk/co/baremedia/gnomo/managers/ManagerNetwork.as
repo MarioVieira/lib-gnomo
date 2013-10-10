@@ -7,6 +7,7 @@ package uk.co.baremedia.gnomo.managers
 	import com.projectcocoon.p2p.events.MessageEvent;
 	import com.projectcocoon.p2p.util.ClassRegistry;
 	import com.projectcocoon.p2p.util.Tracer;
+	import com.projectcocoon.p2p.vo.BroadcasterMediaVO;
 	
 	import flash.events.Event;
 	import flash.media.Microphone;
@@ -194,7 +195,7 @@ package uk.co.baremedia.gnomo.managers
 			return _localNetwork.groupNetConnection();
 		}
 		
-		public function broadcastAudioToGroup(microphone:Microphone, orderType:String, deviceType:String, deviceVersion:String):NetStream
+		public function broadcastAudioToGroup(microphone:Microphone, orderType:String, deviceType:String, deviceVersion:String):BroadcasterMediaVO
 		{
 			_localNetwork.microphone = microphone;
 			return _localNetwork.startBrodcast(orderType, null, null, false, false, deviceType, deviceVersion);
@@ -213,22 +214,6 @@ package uk.co.baremedia.gnomo.managers
 		*/
 		protected function defineMessageOperation(message:VOLocalNetworkMessage):void
 		{
-			
-			/*
-			if(message.messageType == EnumsNotification.AUDIO_ACTIVITY)
-			{
-				_audioActivity.dispatch(message.elapsedTimeInSec);
-			}
-			else(message.messageType == EnumsNotification.MONITOR_ACTIVITY)
-			{
-				_monitorActivity.dispatch(message.startNotStop);
-			}
-			else
-			{
-				
-			}
-			*/
-			
 			if(message.messageType == EnumsLocalNetwork.ACTIVE_BROADCASTER_CHECK && _broadcasterInfo.broadcasting)
 			{
 				_localNetwork.sendMediaMessageToAll( _localNetwork.mediaInfo );

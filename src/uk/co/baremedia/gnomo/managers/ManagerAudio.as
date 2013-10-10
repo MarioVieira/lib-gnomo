@@ -1,6 +1,7 @@
 package uk.co.baremedia.gnomo.managers
 {
 	import com.projectcocoon.p2p.events.MediaBroadcastEvent;
+	import com.projectcocoon.p2p.vo.BroadcasterMediaVO;
 	
 	import flash.media.Microphone;
 	
@@ -53,7 +54,7 @@ package uk.co.baremedia.gnomo.managers
 			* 
 			*/
 			
-			_modelAudio.add(onActiveNetStream);
+			//_modelAudio.add(onActiveNetStream);
 		}
 		
 		/**
@@ -61,7 +62,7 @@ package uk.co.baremedia.gnomo.managers
 		 * When a new stream is added, regardless of being a broadcaster or listener we start / stop the activity audio checks
 		 * 
 		 **/ 
-		private function onActiveNetStream(change:String):void
+		/*private function onActiveNetStream(change:String):void
 		{
 			if(change == ModelAudio.NET_STREAM_CHANGE)
 			{
@@ -70,7 +71,7 @@ package uk.co.baremedia.gnomo.managers
 				else if(_modelAudio.audioActivityStream && !_audioMonitor.isActive)
 					_audioMonitor.startActivityMonitor();
 			}
-		}
+		}*/
 		
 		public function get modelAudio():ModelAudio
 		{
@@ -103,7 +104,6 @@ package uk.co.baremedia.gnomo.managers
 		{
 			stopBroadcast();
 			stopPlayingAudio(true);
-			_audioMonitor.stopAcitivityMonitor();
 			_modelAudio.broadcasterInfo = event;
 			_modelAudio.broadcasting	= false;
 		}
@@ -136,7 +136,9 @@ package uk.co.baremedia.gnomo.managers
 				notifyAudioEvent(EnumsNotification.BROADCATING);
 				notifyAudioEvent("broadcastAudio() - mic: "+mic);
 				_modelAudio.broadcasting = true;
-				_modelAudio.audioActivityStream = _mediaMesseger.broadcastAudioToGroup(mic, orderType, _deviceType, _deviceVersion);
+				var tmpBroadcasterMediaVo:BroadcasterMediaVO = _mediaMesseger.broadcastAudioToGroup(mic, orderType, _deviceType, _deviceVersion);
+				_modelAudio.audioActivityStream = tmpBroadcasterMediaVo.netStream;
+				_modelAudio.mediaProviderInfo = tmpBroadcasterMediaVo.mediaInfo;
 				_modelAudio.microphone   = mic;
 				_modelAudio.broadcasterInfo = null;
 				_audioMonitor.startActivityMonitor();
@@ -149,6 +151,9 @@ package uk.co.baremedia.gnomo.managers
 		
 		public function stopPlayingAudio(unmountStream:Boolean = false):void
 		{
+			if(unmountStream)
+				_audioMonitor.stopAcitivityMonitor();
+			
 			_playerControl.stopAudio(unmountStream);
 		}
 		
@@ -160,6 +165,8 @@ package uk.co.baremedia.gnomo.managers
 				//notifyAudioEvent("stopBroadacast() - killMicrophone");
 				_audioMonitor.stopAcitivityMonitor();
 				_mediaMesseger.stopBroadcasting();
+				_modelAudio.mediaProviderInfo = null;
+				_modelAudio.audioActivityStream = null;
 				_modelAudio.broadcasting 	= false;
 			}
 		}

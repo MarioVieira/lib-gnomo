@@ -57,6 +57,7 @@ package uk.co.baremedia.gnomo.utils
 			if(!deviceInfo.deviceVersion)
 				deviceInfo.deviceVersion = os;
 			
+			/*deviceInfo.deviceVersion = IPAD;*/
 			
 			return deviceInfo;
 		}
@@ -110,6 +111,7 @@ package uk.co.baremedia.gnomo.utils
 		
 		public static function isIOSDevice(deviceVersion:String):Boolean
 		{
+			Tracer.log(UtilsDeviceInfo, "is IOS ("+deviceVersion+"): "+ (deviceVersion.search(IPHONE) != -1 || deviceVersion.search(IPAD) != -1) );
 			return (deviceVersion.search(IPHONE) != -1 || deviceVersion.search(IPAD) != -1);
 		}
 	}
