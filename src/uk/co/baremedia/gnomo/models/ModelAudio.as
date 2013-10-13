@@ -39,17 +39,24 @@ package uk.co.baremedia.gnomo.models
 		private var _lastTranmissionLenghtTimer	:Timer;
 		private var _audioActivityStream		:NetStream;
 		private var _audioActvityOnSignal		:Signal;
+		private var _audioActivityStreamSignal  :Signal;
 		
 
 		
 		public function ModelAudio() 
 		{
 			_audioActvityOnSignal = new Signal(Boolean);
+			_audioActivityStreamSignal = new Signal(NetStream);
 		}
 		
 		public function get audioActivityStream():NetStream
 		{
 			return _audioActivityStream;
+		}
+		
+		public function get audioActivityStreamSignal():Signal
+		{
+			return _audioActivityStreamSignal;
 		}
 		
 		public function get isPlayingOrBroacasting():Boolean
@@ -60,7 +67,7 @@ package uk.co.baremedia.gnomo.models
 		public function set audioActivityStream(value:NetStream):void
 		{
 			_audioActivityStream = value;
-			broadcastModelChange(NET_STREAM_CHANGE);
+			_audioActivityStreamSignal.dispatch(value);
 		}
 
 		public function set microphone(value:Microphone):void

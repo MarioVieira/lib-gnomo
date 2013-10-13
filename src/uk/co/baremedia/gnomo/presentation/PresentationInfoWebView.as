@@ -19,12 +19,12 @@ package uk.co.baremedia.gnomo.presentation
 	import uk.co.baremedia.gnomo.utils.UtilsResources;
 	import uk.co.baremedia.gnomo.utils.UtilsStaticUIInfo;
 	
-	public class PresentationScreenInfo implements IDispose
+	public class PresentationInfoWebView implements IDispose
 	{
 		private var _webView:StageWebView;
 		private var _view:IComponentInfo;
 		
-		public function PresentationScreenInfo(componentInfo:IComponentInfo)
+		public function PresentationInfoWebView(componentInfo:IComponentInfo)
 		{
 			_view = componentInfo;
 			setupWebView();

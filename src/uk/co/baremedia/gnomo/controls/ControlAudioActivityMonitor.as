@@ -94,7 +94,7 @@ package uk.co.baremedia.gnomo.controls
 		
 		public function startActivityMonitor():void
 		{
-			if(!_activityMonitorTimer) 
+			if(!_activityMonitorTimer || (_activityMonitorTimer && !_activityMonitorTimer.running)) 
 			{	
 				Tracer.log(this, "START ActivityMonitor()");
 				_activityMonitorTimer = new Timer(ACTIVITY_MONITOR_CHECK);

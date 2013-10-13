@@ -4,6 +4,7 @@ package uk.co.baremedia.gnomo.managers
 	import com.projectcocoon.p2p.vo.BroadcasterMediaVO;
 	
 	import flash.media.Microphone;
+	import flash.net.NetStream;
 	
 	import org.as3.mvcsInjector.utils.Tracer;
 	import org.osflash.signals.Signal;
@@ -54,7 +55,7 @@ package uk.co.baremedia.gnomo.managers
 			* 
 			*/
 			
-			//_modelAudio.add(onActiveNetStream);
+			_modelAudio.audioActivityStreamSignal.add(onActiveNetStream);
 		}
 		
 		/**
@@ -62,16 +63,14 @@ package uk.co.baremedia.gnomo.managers
 		 * When a new stream is added, regardless of being a broadcaster or listener we start / stop the activity audio checks
 		 * 
 		 **/ 
-		/*private function onActiveNetStream(change:String):void
+		
+		private function onActiveNetStream(netStream:NetStream):void
 		{
-			if(change == ModelAudio.NET_STREAM_CHANGE)
-			{
-				if(!_modelAudio.audioActivityStream && _audioMonitor.isActive)
-					_audioMonitor.stopAcitivityMonitor();
-				else if(_modelAudio.audioActivityStream && !_audioMonitor.isActive)
-					_audioMonitor.startActivityMonitor();
-			}
-		}*/
+			if(netStream)
+				_audioMonitor.startActivityMonitor();
+			else 
+				_audioMonitor.stopAcitivityMonitor();
+		}
 		
 		public function get modelAudio():ModelAudio
 		{
@@ -141,7 +140,6 @@ package uk.co.baremedia.gnomo.managers
 				_modelAudio.mediaProviderInfo = tmpBroadcasterMediaVo.mediaInfo;
 				_modelAudio.microphone   = mic;
 				_modelAudio.broadcasterInfo = null;
-				_audioMonitor.startActivityMonitor();
 			}
 			else
 			{
@@ -151,9 +149,6 @@ package uk.co.baremedia.gnomo.managers
 		
 		public function stopPlayingAudio(unmountStream:Boolean = false):void
 		{
-			if(unmountStream)
-				_audioMonitor.stopAcitivityMonitor();
-			
 			_playerControl.stopAudio(unmountStream);
 		}
 		
@@ -163,7 +158,6 @@ package uk.co.baremedia.gnomo.managers
 			if(_modelAudio.broadcasting)
 			{
 				//notifyAudioEvent("stopBroadacast() - killMicrophone");
-				_audioMonitor.stopAcitivityMonitor();
 				_mediaMesseger.stopBroadcasting();
 				_modelAudio.mediaProviderInfo = null;
 				_modelAudio.audioActivityStream = null;
@@ -194,7 +188,6 @@ package uk.co.baremedia.gnomo.managers
 				{
 					Tracer.log(this, "playBroadcasterStream");
 					_playerControl.setupStream(broadcasterInfo.mediaInfo);
-					_audioMonitor.startActivityMonitor();
 				}
 				else
 				{
